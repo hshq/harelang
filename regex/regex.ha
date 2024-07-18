@@ -222,7 +222,6 @@ export fn compile(expr: str) (regex | error) = {
 	let charsets: []charset = [];
 	let iter = strings::iter(expr);
 	let r_idx = 0z;
-	let anchored = false;
 	let jump_idxs: []size = [];
 	let in_bracket = false;
 	let skip_charclass_rest = false;
@@ -272,10 +271,17 @@ export fn compile(expr: str) (regex | error) = {
 				return `Anchor '^' not at start`: error;
 			};
 		case '$' =>
-			if (r_idx != len(expr) - 1) {
-				return `Anchor '$' not at end`: error;
+			if (n_groupstarts > 0) {
+				return `Anchor '$' in capture groups is unsupported`: error;
 			};
-			anchored = true;
+			const peek1 = strings::next(&iter);
+			if (peek1 is rune) {
+				if (peek1 as rune != '|') {
+					return `Anchor '$' not at end of whole pattern or alternation`: error;
+				};
+				strings::prev(&iter);
+			};
+			append(insts, true: inst_match);
 		case '[' =>
 			in_bracket = true;
 		case ']' =>
@@ -412,7 +418,9 @@ export fn compile(expr: str) (regex | error) = {
 	};
 	jump_idxs = [];
 
-	append(insts, anchored: inst_match);
+	if (len(insts) == 0 || !(insts[len(insts) - 1] is inst_match)) {
+		append(insts, false: inst_match);
+	};
 
 	return regex {
 		insts = insts,
