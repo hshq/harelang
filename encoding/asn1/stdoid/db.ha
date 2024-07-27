@@ -82,46 +82,169 @@ const _db = asn1::oiddb {
 	],
 };
 
+// Database
 export const db = &_db;
 
+// id:   1.2.840.113549.1.1.1
+// name: rsaEncryption
 export def RSA_ENCRYPTION: asn1::oid = 0;
+
+// id:   1.3.101.112
+// name: ed25519
 export def ED25519: asn1::oid = 1;
+
+// id:   1.2.840.113549.1.1.5
+// name: sha1WithRSAEncryption
 export def SHA1_WITH_RSAENCRYPTION: asn1::oid = 2;
+
+// id:   1.2.840.113549.1.1.14
+// name: sha224WithRSAEncryption
 export def SHA224_WITH_RSAENCRYPTION: asn1::oid = 3;
+
+// id:   1.2.840.113549.1.1.11
+// name: sha256WithRSAEncryption
 export def SHA256_WITH_RSAENCRYPTION: asn1::oid = 4;
+
+// id:   1.2.840.113549.1.1.12
+// name: sha384WithRSAEncryption
 export def SHA384_WITH_RSAENCRYPTION: asn1::oid = 5;
+
+// id:   1.2.840.113549.1.1.13
+// name: sha512WithRSAEncryption
 export def SHA512_WITH_RSAENCRYPTION: asn1::oid = 6;
+
+// id:   1.3.14.3.2.26
+// name: id-sha1
 export def ID_SHA1: asn1::oid = 7;
+
+// id:   2.16.840.1.101.3.4.2.4
+// name: id-sha224
 export def ID_SHA224: asn1::oid = 8;
+
+// id:   2.16.840.1.101.3.4.2.1
+// name: id-sha256
 export def ID_SHA256: asn1::oid = 9;
+
+// id:   2.16.840.1.101.3.4.2.2
+// name: id-sha384
 export def ID_SHA384: asn1::oid = 10;
+
+// id:   2.16.840.1.101.3.4.2.3
+// name: id-sha512
 export def ID_SHA512: asn1::oid = 11;
+
+// id:   1.2.840.10045.2.1
+// name: id-ecPublicKey
 export def ID_EC_PUBLIC_KEY: asn1::oid = 12;
+
+// id:   1.2.840.10045.3.1.7
+// name: prime256v1
 export def PRIME256V1: asn1::oid = 13;
+
+// id:   1.2.840.10045.3.1.7
+// name: ansix9p256r1
 export def ANSIX9P256R1: asn1::oid = 14;
+
+// id:   1.3.132.0.34
+// name: ansix9p384r1
 export def ANSIX9P384R1: asn1::oid = 15;
+
+// id:   1.3.132.0.35
+// name: ansix9p521r1
 export def ANSIX9P521R1: asn1::oid = 16;
+
+// id:   1.2.840.10045.4.1
+// name: ecdsa-with-SHA1
 export def ECDSA_WITH_SHA1: asn1::oid = 17;
+
+// id:   1.2.840.10045.4.3.1
+// name: ecdsa-with-SHA224
 export def ECDSA_WITH_SHA224: asn1::oid = 18;
+
+// id:   1.2.840.10045.4.3.2
+// name: ecdsa-with-SHA256
 export def ECDSA_WITH_SHA256: asn1::oid = 19;
+
+// id:   1.2.840.10045.4.3.3
+// name: ecdsa-with-SHA384
 export def ECDSA_WITH_SHA384: asn1::oid = 20;
+
+// id:   1.2.840.10045.4.3.4
+// name: ecdsa-with-SHA512
 export def ECDSA_WITH_SHA512: asn1::oid = 21;
+
+// id:   2.5.4.3
+// name: id-at-commonName
 export def ID_AT_COMMON_NAME: asn1::oid = 22;
+
+// id:   2.5.4.4
+// name: id-at-surname
 export def ID_AT_SURNAME: asn1::oid = 23;
+
+// id:   2.5.4.5
+// name: id-at-serialNumber
 export def ID_AT_SERIAL_NUMBER: asn1::oid = 24;
+
+// id:   2.5.4.6
+// name: id-at-countryName
 export def ID_AT_COUNTRY_NAME: asn1::oid = 25;
+
+// id:   2.5.4.7
+// name: id-at-localityName
 export def ID_AT_LOCALITY_NAME: asn1::oid = 26;
+
+// id:   2.5.4.8
+// name: id-at-stateOrProvinceName
 export def ID_AT_STATE_OR_PROVINCE_NAME: asn1::oid = 27;
+
+// id:   2.5.4.10
+// name: id-at-organizationName
 export def ID_AT_ORGANIZATION_NAME: asn1::oid = 28;
+
+// id:   2.5.4.11
+// name: id-at-organizationalUnitName
 export def ID_AT_ORGANIZATIONAL_UNIT_NAME: asn1::oid = 29;
+
+// id:   2.5.4.12
+// name: id-at-title
 export def ID_AT_TITLE: asn1::oid = 30;
+
+// id:   2.5.4.42
+// name: id-at-givenName
 export def ID_AT_GIVEN_NAME: asn1::oid = 31;
+
+// id:   2.5.4.43
+// name: id-at-initials
 export def ID_AT_INITIALS: asn1::oid = 32;
+
+// id:   2.5.4.43
+// name: id-at-generationQualifier
 export def ID_AT_GENERATION_QUALIFIER: asn1::oid = 33;
+
+// id:   2.5.4.46
+// name: id-at-dnQualifier
 export def ID_AT_DN_QUALIFIER: asn1::oid = 34;
+
+// id:   2.5.4.65
+// name: id-at-pseudonym
 export def ID_AT_PSEUDONYM: asn1::oid = 35;
+
+// id:   0.9.2342.19200300.100.1.25
+// name: id-domainComponent
 export def ID_DOMAIN_COMPONENT: asn1::oid = 36;
+
+// id:   2.5.29.15
+// name: id-ce-keyUsage
 export def ID_CE_KEY_USAGE: asn1::oid = 37;
+
+// id:   2.5.29.17
+// name: id-ce-subjectAltName
 export def ID_CE_SUBJECT_ALT_NAME: asn1::oid = 38;
+
+// id:   2.5.29.19
+// name: id-ce-basicConstraints
 export def ID_CE_BASIC_CONSTRAINTS: asn1::oid = 39;
+
+// id:   2.5.29.37
+// name: id-ce-extKeyUsage
 export def ID_CE_EXT_KEY_USAGE: asn1::oid = 40;

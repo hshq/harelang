@@ -38,11 +38,16 @@ export fn main() void = {
 	fmt::println("\t],")!;
 	fmt::println("};\n")!;
 
-	fmt::println("export const db = &_db;\n")!;
+	fmt::println("// Database")!;
+	fmt::println("export const db = &_db;")!;
 
 	for (let i = 0z; i < len(oids); i += 1) {
+		let oid = &oids[i];
+		fmt::println()!;
+		fmt::println("// id:  ", oid.val)!;
+		fmt::println("// name:", oid.name)!;
 		fmt::print("export def ")!;
-		write_varname(os::stdout, oids[i].name)!;
+		write_varname(os::stdout, oid.name)!;
 		fmt::printfln(": asn1::oid = {};", i)!;
 	};
 };
