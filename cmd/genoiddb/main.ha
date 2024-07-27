@@ -87,7 +87,7 @@ fn write_db(h: io::handle, oids: []entry) (void | io::error) = {
 	const maxcols = 12z;
 	let idx = 0z;
 
-	for (let e .. oids) {
+	for (let e &.. oids) {
 		e.idx = idx;
 
 		let der = oidtoder(e.val);
@@ -122,7 +122,8 @@ fn oidtoder(oid: str) []u8 = {
 	der[0] = nums[0]: u8 * 40 + nums[1]: u8;
 	let end = 1z;
 
-	for (let n .. nums) {
+	for (let i = 2z; i < len(nums); i += 1) {
+		let n = nums[i];
 		if (n == 0) {
 			insert(der[end], 0u8);
 			end = len(der);
