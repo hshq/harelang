@@ -68,6 +68,14 @@ tasks:
         echo "bootstrap makefiles out of date, run make bootstrap to regenerate"
         exit 1
     fi
+- genoiddb: |
+    cd hare
+    hare run cmd/genoiddb < encoding/asn1/stdoid/db.txt > encoding/asn1/stdoid/db.ha
+    if [ -n "$(git status --porcelain)" ]
+    then
+        echo "Either encoding/asn1/stdoid/db.ha is out of date or something broke genoiddb"
+        exit 1
+    fi
 - docs: |
     cd hare
     make docs/html
