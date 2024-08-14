@@ -114,11 +114,9 @@ fn writeslice(dest: io::handle, a: []u8) (size | io::error) = {
 
 // Counts the bits for given slice 'n'.
 fn bitlen(s: []u8) size = {
-	for (s[0] == 0) {
-		s = s[1..];
-	};
-
-	return countbits(s[0]) + 8 * (len(s) - 1);
+	let i = 0z;
+	for (i < len(s) && s[i] == 0; i += 1) void;
+	return countbits(s[i]) + 8 * (len(s) - i - 1);
 };
 
 fn countbits(x: u8) size = {
