@@ -222,12 +222,12 @@ export fn compile(expr: str) (regex | error) = {
 	let charsets: []charset = [];
 	let iter = strings::iter(expr);
 	let r_idx = 0z;
-	let anchored = false;
 	let jump_idxs: []size = [];
 	let in_bracket = false;
 	let skip_charclass_rest = false;
 	let bracket_idx = -1;
 	let is_charset_positive = true;
+	let was_prev_rune_pipe = false;
 	let n_reps = 0z;
 	let n_groupstarts = 0;
 
@@ -268,14 +268,24 @@ export fn compile(expr: str) (regex | error) = {
 				r_idx += 1;
 			};
 		case '^' =>
-			if (r_idx != 0) {
-				return `Anchor '^' not at start`: error;
+			if (n_groupstarts > 0) {
+				return `Anchor '^' in capture groups is unsupported`: error;
+			};
+			if (!(r_idx == 0 || was_prev_rune_pipe)) {
+				return `Anchor '^' not at start of whole pattern or alternation`: error;
 			};
 		case '$' =>
-			if (r_idx != len(expr) - 1) {
-				return `Anchor '$' not at end`: error;
+			if (n_groupstarts > 0) {
+				return `Anchor '$' in capture groups is unsupported`: error;
 			};
-			anchored = true;
+			const peek1 = strings::next(&iter);
+			if (peek1 is rune) {
+				if (peek1 as rune != '|') {
+					return `Anchor '$' not at end of whole pattern or alternation`: error;
+				};
+				strings::prev(&iter);
+			};
+			append(insts, true: inst_match);
 		case '[' =>
 			in_bracket = true;
 		case ']' =>
@@ -313,7 +323,13 @@ export fn compile(expr: str) (regex | error) = {
 			append(jump_idxs, len(insts) - 1);
 			// add skip if it's a whole-expression alternation
 			if (origin == 0) {
-				append(insts, inst_skip);
+				const peek1 = strings::next(&iter);
+				if (peek1 is rune) {
+					if (peek1 as rune != '^') {
+						append(insts, inst_skip);
+					};
+					strings::prev(&iter);
+				};
 			};
 		case '{' =>
 			let origin = len(insts) - 1;
@@ -402,6 +418,7 @@ export fn compile(expr: str) (regex | error) = {
 		case =>
 			append(insts, r: inst_lit);
 		};
+		was_prev_rune_pipe = (r == '|');
 		r_idx += 1;
 	};
 
@@ -412,7 +429,9 @@ export fn compile(expr: str) (regex | error) = {
 	};
 	jump_idxs = [];
 
-	append(insts, anchored: inst_match);
+	if (len(insts) == 0 || !(insts[len(insts) - 1] is inst_match)) {
+		append(insts, false: inst_match);
+	};
 
 	return regex {
 		insts = insts,

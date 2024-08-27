@@ -42,6 +42,15 @@ fn is_valid_yd(y: int, yd: int) bool = {
 	return yd >= 1 && yd <= calc_days_in_year(y);
 };
 
+// Calculates whether a given ISO week-numbering year, and day-of-year,
+// is a valid date.
+fn is_valid_isoywd(iy: int, iw: int, wd: int) bool = {
+	return (
+		iw > 0 && iw <= (if (islongisoyear(iy)) 53 else 52)
+		&& wd >= MONDAY && wd <= SUNDAY
+	);
+};
+
 // Calculates the number of days in the given month of the given year.
 fn calc_days_in_month(y: int, m: int) int = {
 	const days_per_month: [_]int = [
@@ -258,6 +267,17 @@ fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
 	return calc_daydate__ymd(y, 1, 1)? + yd - 1;
 };
 
+// Calculates the daydate,
+// given an ISO week-numbering year, ISO week, and day-of-week.
+fn calc_daydate__isoywd(iy: int, iw: int, wd: int) (i64 | invalid) = {
+	if (!is_valid_isoywd(iy, iw, wd)) {
+		return invalid;
+	};
+	const jan4 = calc_daydate__ymd(iy, 1, 4)?;
+	const isoyearstart = jan4 - calc_weekday(jan4);
+	return isoyearstart + (iw - 1) * 7 + wd;
+};
+
 @test fn calc_daydate__ymd() void = {
 	const cases = [
 		(( -768,  2,  5),  -999999, false),
@@ -380,6 +400,45 @@ fn calc_daydate__yd(y: int, yd: int) (i64 | invalid) = {
 		"calc_daydate__yd() did not reject invalid yearday");
 	assert(calc_daydate__yd(2020, 400) is invalid,
 		"calc_daydate__yd() did not reject invalid yearday");
+};
+
+@test fn calc_daydate__isoywd() void = {
+	const testcases = [
+		(( 1965, 12,  1),    -1745, false),
+		(( 1970,  1,  2),       -1, false),
+		(( 1970,  1,  3),        0, false),
+		(( 1970,  1,  4),        1, false),
+		(( 1999, 52,  4),    10956, false),
+		(( 1999, 52,  5),    10957, false),
+		(( 1999, 52,  6),    10958, false),
+		(( 2038,  3,  0),    24854, false),
+		(( 2038,  3,  1),    24855, false),
+		(( 2038,  3,  2),    24856, false),
+		(( 2243, 42,  1),   100000, false),
+		(( 4707, 48,  3),   999999, false),
+		(( 4707, 48,  4),  1000000, false),
+		((29349,  4,  5),  9999999, false),
+
+		(( 1970,-99,-99),  0, true),
+		(( 1970, -9, -9),  0, true),
+		(( 1970, -1, -1),  0, true),
+		(( 1970,  0,  0),  0, true),
+		(( 1970,  0,  1),  0, true),
+		(( 1970,  1, 99),  0, true),
+		(( 1970, 99, 99),  0, true),
+	];
+	for (let (params, expect, should_error) .. testcases) {
+		const actual = calc_daydate__isoywd(
+			params.0, params.1, params.2,
+		);
+
+		if (should_error) {
+			assert(actual is invalid, "invalid date accepted");
+		} else {
+			assert(actual is i64, "valid date not accepted");
+			assert(actual as i64 == expect, "date miscalculation");
+		};
+	};
 };
 
 @test fn calc_ymd() void = {

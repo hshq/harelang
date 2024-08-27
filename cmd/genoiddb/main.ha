@@ -38,11 +38,16 @@ export fn main() void = {
 	fmt::println("\t],")!;
 	fmt::println("};\n")!;
 
-	fmt::println("export const db = &_db;\n")!;
+	fmt::println("// Database")!;
+	fmt::println("export const db = &_db;")!;
 
 	for (let i = 0z; i < len(oids); i += 1) {
+		let oid = &oids[i];
+		fmt::println()!;
+		fmt::println("// id:  ", oid.val)!;
+		fmt::println("// name:", oid.name)!;
 		fmt::print("export def ")!;
-		write_varname(os::stdout, oids[i].name)!;
+		write_varname(os::stdout, oid.name)!;
 		fmt::printfln(": asn1::oid = {};", i)!;
 	};
 };
@@ -87,7 +92,7 @@ fn write_db(h: io::handle, oids: []entry) (void | io::error) = {
 	const maxcols = 12z;
 	let idx = 0z;
 
-	for (let e .. oids) {
+	for (let e &.. oids) {
 		e.idx = idx;
 
 		let der = oidtoder(e.val);
@@ -122,7 +127,8 @@ fn oidtoder(oid: str) []u8 = {
 	der[0] = nums[0]: u8 * 40 + nums[1]: u8;
 	let end = 1z;
 
-	for (let n .. nums) {
+	for (let i = 2z; i < len(nums); i += 1) {
+		let n = nums[i];
 		if (n == 0) {
 			insert(der[end], 0u8);
 			end = len(der);

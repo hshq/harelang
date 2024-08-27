@@ -364,9 +364,6 @@ fn realize_datetimezoff(
 					return invalid;
 				};
 				yield cc * 100 + yy;
-			} else {
-				lacking |= lack::DAYDATE;
-				yield :daydate;
 			};
 
 		if (
@@ -374,7 +371,7 @@ fn realize_datetimezoff(
 			v.day is int
 		) {
 			v.daydate = calc_daydate__ymd(
-				year,
+				year as int,
 				v.month as int,
 				v.day as int,
 			)?;
@@ -382,7 +379,7 @@ fn realize_datetimezoff(
 			v.yearday is int
 		) {
 			v.daydate = calc_daydate__yd(
-				year,
+				year as int,
 				v.yearday as int,
 			)?;
 		} else if (
@@ -390,13 +387,20 @@ fn realize_datetimezoff(
 			v.weekday is int
 		) {
 			v.daydate = calc_daydate__ywd(
-				year,
+				year as int,
 				v.week as int,
 				v.weekday as int,
 			)?;
-		} else if (false) {
-			// TODO: calendar.ha: calc_daydate__isoywd()
-			void;
+		} else if (
+			v.isoweekyear is int &&
+			v.isoweek is int &&
+			v.weekday is int
+		) {
+			v.daydate = calc_daydate__isoywd(
+				v.isoweekyear as int,
+				v.isoweek as int,
+				v.weekday as int,
+			)?;
 		} else {
 			// cannot deduce daydate
 			lacking |= insufficient::DAYDATE;

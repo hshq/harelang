@@ -12,13 +12,6 @@ use strings;
 // The URI provided to [[parse]] is invalid.
 export type invalid = !void;
 
-fn free_non_empty(in: (str | ip::addr6)) void = {
-	match (in) {
-	case let s: str => if (len(s) > 0) free(s);
-	case => void;
-	};
-};
-
 // Parses a URI string into [[uri]] structure. The return value must be freed
 // using [[finish]].
 export fn parse(in: str) (uri | invalid) = {
@@ -32,9 +25,11 @@ export fn parse(in: str) (uri | invalid) = {
 	let path = "";
 	let authority: ((str | ip::addr6), u16, str) = ("", 0u16, "");
 	defer if (!success) {
-		free_non_empty(authority.0);
-		free_non_empty(authority.2);
+		free(path);
+		free_host(authority.0);
+		free(authority.2);
 	};
+
 	match (strings::next(&in)) {
 	case let r: rune =>
 		switch (r) {
@@ -82,6 +77,7 @@ export fn parse(in: str) (uri | invalid) = {
 	};
 
 	let query = "";
+	defer if (!success) free(query);
 	match (strings::next(&in)) {
 	case let r: rune =>
 		if (r == '?') {
@@ -162,7 +158,10 @@ fn parse_authority(
 	let port = 0u16;
 	let userinfo = "";
 	let has_userinfo = false;
-	let want_port = false;
+	defer if (!success) {
+		free_host(host);
+		free(userinfo);
+	};
 
 	for (let r => strings::next(in)) {
 		if (r == '[') {
@@ -200,7 +199,6 @@ fn parse_authority(
 				};
 				// This was userinfo+host[+port]
 				userinfo = percent_decode(memio::string(&buf)!)?;
-				defer if (!success) free(userinfo);
 				memio::reset(&buf);
 				has_userinfo = true;
 			case '/' =>
@@ -211,7 +209,7 @@ fn parse_authority(
 			case ':' =>
 				// This was host+port
 				host = percent_decode(memio::string(&buf)!)?;
-				want_port = true;
+				port = parse_port(in)?;
 				break;
 			case =>
 				return invalid;
@@ -219,12 +217,6 @@ fn parse_authority(
 		} else {
 			memio::appendrune(&buf, r)!;
 		};
-	};
-
-	defer if (!success) free_non_empty(host);
-
-	if (want_port) {
-		port = parse_port(in)?;
 	};
 
 	match (host) {
@@ -398,6 +390,14 @@ fn wantrune(iter: *strings::iterator) (rune | invalid) = {
 		return r;
 	case =>
 		return invalid;
+	};
+};
+
+fn free_host(in: (str | ip::addr6)) void = {
+	match (in) {
+	case let s: str =>
+		free(s);
+	case => void;
 	};
 };
 

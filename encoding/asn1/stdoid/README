@@ -1,0 +1,5 @@
+This module contains a database of oids used in the standard lib. The database
+is provided by [[db]] and can be used with the oid functions found in
+[[encoding::asn1]].
+
+A project specific oid database can be generated with the genoiddb command.

@@ -18,9 +18,9 @@ export type iterator = struct {
 //	// Copying the iterator copies its state:
 //	let dup = iter;
 //	strings::next(&iter);	// '!'
-//	strings::next(&iter);	// void
+//	strings::next(&iter);	// done
 //	strings::next(&dup);	// '!'
-//	strings::next(&dup);	// void
+//	strings::next(&dup);	// done
 export fn iter(src: str) iterator = iterator {
 	dec = utf8::decode(toutf8(src)),
 	reverse = false,
