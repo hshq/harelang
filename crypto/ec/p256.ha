@@ -1250,6 +1250,6 @@ export def P256_SCALARSZ = 32;
 // A [[curve]] implementation of P-256, also known as secp256r1 or prime256v1.
 //
 // The point size is defined by [[P256_POINTSZ]] and the scalar size is defined
-// by [[P256_SCALARSZ]. See the documentation of [[curve]] on how to encode
+// by [[P256_SCALARSZ]]. See the documentation of [[curve]] on how to encode
 // such values.
 export const p256: *curve = &_p256;

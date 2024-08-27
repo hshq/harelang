@@ -703,7 +703,7 @@ export def P384_SCALARSZ = 48;
 // A [[curve]] implementation of P-384, also known as secp384r1;
 //
 // The point size is defined by [[P384_POINTSZ]] and the scalar size is defined
-// by [[P384_SCALARSZ]. See the documentation of [[curve]] on how to encode
+// by [[P384_SCALARSZ]]. See the documentation of [[curve]] on how to encode
 // such values.
 export const p384: *curve = &_p384;
 
@@ -769,6 +769,6 @@ export def P521_SCALARSZ = 66;
 // A [[curve]] implementation of P-521, also known as secp521r1;
 //
 // The point size is defined by [[P521_POINTSZ]] and the scalar size is defined
-// by [[P521_SCALARSZ]. See the documentation of [[curve]] on how to encode
+// by [[P521_SCALARSZ]]. See the documentation of [[curve]] on how to encode
 // such values.
 export const p521: *curve = &_p521;

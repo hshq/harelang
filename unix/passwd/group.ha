@@ -155,7 +155,7 @@ export fn getgid(gid: unix::gid) (grent | void) = {
 
 // Looks up groups by user name in a Unix-like group file. It expects a such
 // file at /etc/group. Aborts if that file doesn't exist or is not properly
-// formatted. The caller must pass the return value to [[grents_finish]].
+// formatted. The caller must pass the return value to [[grent_finish]].
 //
 // See [[nextgr]] for low-level parsing API.
 export fn getgroups(name: str) []grent = {
