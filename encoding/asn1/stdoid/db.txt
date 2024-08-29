@@ -1,19 +1,21 @@
 # OIDs that will be translated into db.ha using `genoiddb`
 
-rsaEncryption                 1.2.840.113549.1.1.1
 ed25519                       1.3.101.112
 
+rsaEncryption                 1.2.840.113549.1.1.1
 sha1WithRSAEncryption         1.2.840.113549.1.1.5
+id-mgf1                       1.2.840.113549.1.1.8
+rsassa-pss                    1.2.840.113549.1.1.10
 sha224WithRSAEncryption       1.2.840.113549.1.1.14
 sha256WithRSAEncryption       1.2.840.113549.1.1.11
 sha384WithRSAEncryption       1.2.840.113549.1.1.12
 sha512WithRSAEncryption       1.2.840.113549.1.1.13
 
 id-sha1                       1.3.14.3.2.26
-id-sha224                     2.16.840.1.101.3.4.2.4
 id-sha256                     2.16.840.1.101.3.4.2.1
 id-sha384                     2.16.840.1.101.3.4.2.2
 id-sha512                     2.16.840.1.101.3.4.2.3
+id-sha224                     2.16.840.1.101.3.4.2.4
 
 id-ecPublicKey                1.2.840.10045.2.1
 prime256v1                    1.2.840.10045.3.1.7
