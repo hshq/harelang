@@ -6,6 +6,7 @@ use encoding::utf8;
 use io;
 use memio;
 use strings;
+use types;
 
 @test fn read_byte() void = {
 	let buf = memio::fixed([1, 3, 3, 7]);
@@ -179,4 +180,22 @@ use strings;
 	assert(l == "I'm Done!");
 
 	assert(scan_line(&scanner) is io::EOF);
+};
+
+@test fn scan_uncomplete_line() void = {
+	let buf = memio::dynamic();
+	let scan = newscanner(&buf);
+
+	assert(scan_line(&scan) is io::EOF);
+
+	io::write(&buf, strings::toutf8("hello"))!;
+	io::seek(&buf, 0, io::whence::SET)!;
+
+	assert(scan_line(&scan) is io::EOF);
+
+	io::write(&buf, strings::toutf8("\n"))!;
+	io::seek(&buf, -1, io::whence::CUR)!;
+
+	let line = scan_line(&scan) as const str;
+	assert(strings::compare(line, "hello") == 0);
 };
