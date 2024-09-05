@@ -45,14 +45,13 @@ $(BINOUT)/hare: $(OBJS)
 	@$(LD) $(LDLINKFLAGS) -T $(RTSCRIPT) -o $@ $(OBJS)
 
 HARE_BUILD_ENV = HAREPATH=. HAREC="$(HAREC)" QBE="$(QBE)" AS="$(AS)" \
-	LD="$(LD)" HAREFLAGS="$(HAREFLAGS)" HARECFLAGS="$(HARECFLAGS)" \
-	QBEFLAGS="$(QBEFLAGS)" ASFLAGS="$(ASFLAGS)" LDLINKFLAGS="$(LDLINKFLAGS)"
+	LD="$(LD)" HARECFLAGS="$(HARECFLAGS)" QBEFLAGS="$(QBEFLAGS)" \
+	ASFLAGS="$(ASFLAGS)" LDLINKFLAGS="$(LDLINKFLAGS)"
 
 $(BINOUT)/haredoc: $(BINOUT)/hare
 	@mkdir -p $(BINOUT)
 	@printf 'HARE\t%s\n' "$@"
-	@env $(HARE_BUILD_ENV) \
-		$(BINOUT)/hare build $(HARE_DEFINES) -o $(BINOUT)/haredoc ./cmd/haredoc
+	@env $(HARE_BUILD_ENV) $(BINOUT)/hare build $(HAREFLAGS) -o $@ ./cmd/haredoc
 
 docs/html: $(BINOUT)/haredoc
 	mkdir -p docs/html
