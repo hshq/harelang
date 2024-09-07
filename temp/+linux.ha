@@ -60,10 +60,9 @@ export fn named(
 	static let pathbuf = path::buffer { ... };
 	static let namebuf: [32]u8 = [0...];
 	for (true) {
-		let rand: [size(u64)]u8 = [0...];
-		random::buffer(rand);
+		let id = 0u64;
+		random::buffer(&id: *[size(u64)]u8);
 
-		const id = *(&rand[0]: *u64);
 		const name = fmt::bsprintf(namebuf, "temp.{}", id);
 		const path = path::set(&pathbuf, path, name)!;
 
