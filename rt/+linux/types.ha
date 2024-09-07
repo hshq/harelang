@@ -405,7 +405,7 @@ export def SIG_SETMASK: int = 2;
 def SI_MAX_SIZE: size = 128;
 
 export type sigval = union {
-	sival_t: int,
+	sival_int: int,
 	sival_ptr: *opaque,
 };
 
