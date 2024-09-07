@@ -5,6 +5,7 @@ use bufio;
 use bytes;
 use encoding::utf8;
 use endian;
+use errors;
 use fs;
 use io;
 use os;
@@ -29,11 +30,18 @@ export type invalidtzif = !void;
 // All localities returned default to the [[utc]] [[timescale]] and
 // [[EARTH_DAY]] day-length.
 export fn tz(name: str) (locality | tzdberror) = {
-	const filepath =
-		if (!strings::hasprefix(name, TZDB_PATH))
-			path::init(TZDB_PATH, name)!
-		else
-			path::init(name)!;
+	const filepath = if (!strings::hasprefix(name, TZDB_PATH)) {
+		yield path::init(TZDB_PATH, name);
+	} else {
+		yield path::init(name);
+	};
+	const filepath = match (filepath) {
+	case let buf: path::buffer =>
+		yield buf;
+	case let err: path::error =>
+		assert(err is path::too_long);
+		return errors::noentry: fs::error;
+	};
 	const file = os::open(path::string(&filepath))?;
 
 	static let buf: [os::BUFSZ]u8 = [0...];
