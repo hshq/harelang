@@ -8,6 +8,7 @@ use encoding::utf8;
 use fmt;
 use fnmatch;
 use io;
+use math;
 use memio;
 use os;
 use rt;
@@ -58,7 +59,7 @@ type context = struct {
 	output: []output,
 	maxname: size,
 	total_time: time::duration,
-	default_round: uint,
+	default_round: math::fround,
 	cwd: str,
 };
 
@@ -115,7 +116,7 @@ export @symbol("__test_main") fn main() size = {
 		stdout = memio::dynamic(),
 		stderr = memio::dynamic(),
 		maxname = maxname,
-		default_round = rt::fegetround(),
+		default_round = math::getround(),
 		cwd = strings::dup(os::getcwd()),
 		...
 	};
@@ -195,8 +196,8 @@ export @symbol("__test_main") fn main() size = {
 };
 
 fn reset(ctx: *context) void = {
-	rt::fesetround(ctx.default_round);
-	rt::feclearexcept(~0u);
+	math::setround(ctx.default_round);
+	math::clearexcept(math::fexcept::ALL);
 	signal::resetall();
 	os::chdir(ctx.cwd)!;
 	want_abort = false;
