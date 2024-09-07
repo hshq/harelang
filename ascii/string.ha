@@ -15,8 +15,9 @@ export fn strlower(s: str) str = {
 
 // Converts all ASCII uppercase characters in a string to their lowercase
 // representation, returning a new string. The new string data is stored in the
-// supplied buffer. This function will abort if the buffer's length is too small
-// to fit the entire string.
+// supplied buffer. The buffer is permitted to exactly overlap the string. This
+// function will abort if the buffer's capacity is too small to fit the entire
+// string.
 export fn strlower_buf(s: str, buf: []u8) str = {
 	let it = strings::iter(s);
 	for (let r => strings::next(&it)) {
@@ -35,8 +36,9 @@ export fn strupper(s: str) str = {
 
 // Converts all ASCII lowercase characters in a string to their uppercase
 // representation, returning a new string. The new string data is stored in the
-// supplied buffer. This function will abort if the buffer's length is too small
-// to fit the entire string.
+// supplied buffer. The buffer is permitted to exactly overlap the string. This
+// function will abort if the buffer's capacity is too small to fit the entire
+// string.
 export fn strupper_buf(s: str, buf: []u8) str = {
 	let it = strings::iter(s);
 	for (let r => strings::next(&it)) {
