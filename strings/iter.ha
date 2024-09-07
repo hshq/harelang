@@ -75,9 +75,7 @@ export fn iterstr(iter: *iterator) str = {
 // the position of the second iterator must not be before the position of the
 // first one.
 export fn slice(begin: *iterator, end: *iterator) str = {
-	assert(begin.dec.src: *[*]u8 == end.dec.src: *[*]u8
-		&& begin.dec.offs <= end.dec.offs);
-	return fromutf8_unsafe(begin.dec.src[begin.dec.offs..end.dec.offs]);
+	return fromutf8_unsafe(utf8::slice(begin, end));
 };
 
 @test fn iter() void = {
