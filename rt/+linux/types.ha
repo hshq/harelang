@@ -250,7 +250,7 @@ export type st_flock = struct {
 	l_whence: i16,
 	l_start: i64,
 	l_len: i64,
-	pid: int,
+	l_pid: int,
 };
 
 export type f_owner_ex = struct {
