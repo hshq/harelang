@@ -11,191 +11,6 @@ use ascii;
 use math;
 use strings;
 
-def maxshift: u8 = 60;
-def decimal_point_range: u16 = 2047;
-
-type decimal = struct {
-	num_digits: size,
-	decimal_point: i32,
-	negative: bool,
-	truncated: bool,
-	digits: [800]u8,
-};
-
-// remove trailing zeroes
-fn trim(d: *decimal) void = {
-	for (d.num_digits > 0 && d.digits[d.num_digits - 1] == 0) {
-		d.num_digits -= 1;
-	};
-};
-
-fn leftshift_newdigits(d: *decimal, shift: u32) u32 = {
-	shift &= 63;
-	let x_a = left_shift_table[shift]: u32;
-	let x_b = left_shift_table[shift + 1]: u32;
-	let nn = x_a >> 11;
-	let pow5_a = 0x7FF & x_a, pow5_b = 0x7FF & x_b;
-	const p5 = pow5_table[pow5_a..];
-	let i = 0u32, n = pow5_b - pow5_a;
-	for (i < n; i += 1) {
-		if (i >= d.num_digits) {
-			return nn - 1;
-		} else if (d.digits[i] == p5[i]) {
-			continue;
-		} else if (d.digits[i] < p5[i]) {
-			return nn - 1;
-		} else {
-			return nn;
-		};
-	};
-	return nn;
-};
-
-fn leftshift(d: *decimal, k: u32) void = {
-	assert(k <= maxshift);
-	if (d.num_digits == 0) return;
-	let nn = leftshift_newdigits(d, k);
-	let r = d.num_digits: int - 1, w = r: size + nn;
-	let n = 0u64;
-	for (r >= 0) {
-		n += d.digits[r]: u64 << k;
-		const quo = n / 10, rem = n - 10 * quo;
-		if (w < len(d.digits)) {
-			d.digits[w] = rem: u8;
-		} else if (rem != 0) {
-			d.truncated = true;
-		};
-		n = quo;
-		r -= 1;
-		w -= 1;
-	};
-	for (n > 0) {
-		const quo = n / 10, rem = n - 10 * quo;
-		if (w < len(d.digits)) {
-			d.digits[w] = rem: u8;
-		} else if (rem != 0) {
-			d.truncated = true;
-		};
-		n = quo;
-		w -= 1;
-	};
-	d.num_digits += nn;
-	if (d.num_digits > len(d.digits)) {
-		d.num_digits = len(d.digits);
-	};
-	d.decimal_point += nn: i32;
-	trim(d);
-};
-
-fn rightshift(d: *decimal, k: u32) void = {
-	let r = 0z, w = 0z, n = 0u64;
-	for (n >> k == 0; r += 1) {
-		if (r >= d.num_digits) {
-			if (n == 0) {
-				d.num_digits = 0;
-				return;
-			};
-			for (n >> k == 0; r += 1) {
-				n *= 10;
-			};
-			break;
-		};
-		n = n * 10 + d.digits[r];
-	};
-	d.decimal_point -= r: i32 - 1;
-	if (d.decimal_point < -(decimal_point_range: i32)) {
-		*d = decimal { ... };
-		return;
-	};
-	const mask = (1u64 << k) - 1;
-	for (r < d.num_digits; r += 1) {
-		const dig = n >> k;
-		n &= mask;
-		d.digits[w] = dig: u8;
-		w += 1;
-		n = n * 10 + d.digits[r];
-	};
-	for (n > 0) {
-		const dig = n >> k;
-		n &= mask;
-		if (w < len(d.digits)) {
-			d.digits[w] = dig: u8;
-			w += 1;
-		} else if (dig > 0) {
-			d.truncated = true;
-		};
-		n *= 10;
-	};
-	d.num_digits = w;
-	trim(d);
-};
-
-fn decimal_shift(d: *decimal, k: int) void = {
-	if (d.num_digits == 0) return;
-	if (k > 0) {
-		for (k > maxshift: int) {
-			leftshift(d, maxshift);
-			k -= maxshift: i32;
-		};
-		leftshift(d, k: u32);
-	} else if (k < 0) {
-		for (k < -(maxshift: int)) {
-			rightshift(d, maxshift);
-			k += maxshift: i32;
-		};
-		rightshift(d, (-k): u32);
-	};
-};
-
-fn should_round_up(d: *decimal, nd: uint) bool = if (nd < d.num_digits) {
-	if (d.digits[nd] == 5 && nd + 1 == d.num_digits) {
-		return d.truncated ||
-			(nd > 0 && d.digits[nd - 1] & 1 != 0);
-	} else return d.digits[nd] >= 5;
-} else false;
-
-fn round(d: *decimal, nd: uint) void = {
-	if (nd >= d.num_digits) return;
-	if (should_round_up(d, nd)) roundup(d, nd)
-	else rounddown(d, nd);
-};
-
-fn rounddown(d: *decimal, nd: uint) void = {
-	if (nd >= d.num_digits) return;
-	d.num_digits = nd;
-	trim(d);
-};
-
-fn roundup(d: *decimal, nd: uint) void = {
-	if (nd >= d.num_digits) return;
-	for (let i = nd: int - 1; i >= 0; i -= 1) {
-		if (d.digits[i] < 9) {
-			d.digits[i] += 1;
-			d.num_digits = i: size + 1;
-			return;
-		};
-	};
-	d.digits[0] = 1;
-	d.num_digits = 1;
-	d.decimal_point += 1;
-};
-
-fn decimal_round(d: *decimal) u64 = {
-	if (d.num_digits == 0 || d.decimal_point < 0) return 0;
-	if (d.decimal_point > 18) return ~0u64;
-	let i = 0z, n: u64 = 0;
-	for (i < d.decimal_point: uint && i < d.num_digits; i += 1) {
-		n = n * 10 + d.digits[i];
-	};
-	for (i < d.decimal_point: uint; i += 1) {
-		n *= 10;
-	};
-	if (should_round_up(d, d.decimal_point: uint)) {
-		n += 1;
-	};
-	return n;
-};
-
 fn todig(c: u8) u8 = {
 	if ('0' <= c && c <= '9') {
 		return c - '0';
@@ -313,16 +128,16 @@ fn decimal_parse(d: *decimal, s: str) (void | invalid) = {
 		if (buf[i] == '.') {
 			if (sawdot) return i: invalid;
 			sawdot = true;
-			d.decimal_point = d.num_digits: int;
+			d.dp = d.nd: int;
 		} else if (ascii::isdigit(buf[i]: rune)) {
 			sawdigits = true;
-			if (buf[i] == '0' && d.num_digits == 0) {
-				d.decimal_point -= 1;
+			if (buf[i] == '0' && d.nd == 0) {
+				d.dp -= 1;
 				continue;
 			};
-			if (d.num_digits < len(d.digits)) {
-				d.digits[d.num_digits] = buf[i] - '0';
-				d.num_digits += 1;
+			if (d.nd < len(d.digits)) {
+				d.digits[d.nd] = buf[i] - '0';
+				d.nd += 1;
 			} else if (buf[i] != '0') {
 				d.truncated = true;
 			};
@@ -330,7 +145,7 @@ fn decimal_parse(d: *decimal, s: str) (void | invalid) = {
 	};
 	if (!sawdigits) return i: invalid;
 	if (!sawdot) {
-		d.decimal_point = d.num_digits: int;
+		d.dp = d.nd: int;
 	};
 	if (i < len(s) && (buf[i] == 'e' || buf[i] == 'E')) {
 		i += 1;
@@ -350,7 +165,7 @@ fn decimal_parse(d: *decimal, s: str) (void | invalid) = {
 				e = e * 10 + (buf[i] - '0'): int;
 			};
 		};
-		d.decimal_point += e * expsign;
+		d.dp += e * expsign;
 	};
 	if (i != len(s)) return i: invalid;
 };
@@ -435,37 +250,37 @@ fn floatbits(d: *decimal, f: *math::floatinfo) (u64 | overflow) = {
 		0, 3, 6, 9, 13, 16, 19, 23, 26, 29,
 		33, 36, 39, 43, 46, 49, 53, 56, 59,
 	];
-	if (d.num_digits == 0 || d.decimal_point < -326) {
+	if (d.nd == 0 || d.dp < -326) {
 		return if (d.negative) mkfloat(0, 0, d.negative, f)
 			else 0;
-	} else if (d.decimal_point > 310) {
+	} else if (d.dp > 310) {
 		return overflow;
 	};
-	if (d.num_digits <= 19) {
+	if (d.nd <= 19) {
 		let mant = 0u64;
-		for (let i = 0z; i < d.num_digits; i += 1) {
+		for (let i = 0z; i < d.nd; i += 1) {
 			mant = (10 * mant) + d.digits[i];
 		};
-		const exp10 = d.decimal_point - d.num_digits: i32;
+		const exp10 = d.dp - d.nd: i32;
 		const r = eisel_lemire(mant, exp10, d.negative, f);
 		if (r is u64) {
 			return r: u64;
 		};
 	};
-	for (d.decimal_point > 0) {
-		const n: int = if (d.decimal_point: uint >= len(powtab))
+	for (d.dp > 0) {
+		const n: int = if (d.dp: uint >= len(powtab))
 			maxshift: int
-			else powtab[d.decimal_point];
+			else powtab[d.dp];
 		decimal_shift(d, -n);
 		e += n;
 	};
-	for (d.decimal_point <= 0) {
-		const n: int = if (d.decimal_point == 0) {
+	for (d.dp <= 0) {
+		const n: int = if (d.dp == 0) {
 			if (d.digits[0] >= 5) break;
 			yield if (d.digits[0] < 2) 2 else 1;
-		} else if (-d.decimal_point >= len(powtab): i32)
+		} else if (-d.dp >= len(powtab): i32)
 			maxshift: int
-		else powtab[-d.decimal_point];
+		else powtab[-d.dp];
 		decimal_shift(d, n);
 		e -= n;
 	};
