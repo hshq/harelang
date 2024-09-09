@@ -29,15 +29,20 @@ const _db = asn1::oiddb {
 		0x03, 0x55, 0x04, 0x0b, 0x03, 0x55, 0x04, 0x0c, 0x03, 0x55, 0x04, 0x2a,
 		0x03, 0x55, 0x04, 0x2b, 0x03, 0x55, 0x04, 0x2b, 0x03, 0x55, 0x04, 0x2e,
 		0x03, 0x55, 0x04, 0x41, 0x0a, 0x09, 0x92, 0x26, 0x89, 0x93, 0xf2, 0x2c,
-		0x64, 0x01, 0x19, 0x03, 0x55, 0x1d, 0x0f, 0x03, 0x55, 0x1d, 0x11, 0x03,
-		0x55, 0x1d, 0x13, 0x03, 0x55, 0x1d, 0x25,
+		0x64, 0x01, 0x19, 0x03, 0x55, 0x1d, 0x09, 0x03, 0x55, 0x1d, 0x0e, 0x03,
+		0x55, 0x1d, 0x0f, 0x03, 0x55, 0x1d, 0x11, 0x03, 0x55, 0x1d, 0x12, 0x03,
+		0x55, 0x1d, 0x13, 0x03, 0x55, 0x1d, 0x1e, 0x03, 0x55, 0x1d, 0x1f, 0x03,
+		0x55, 0x1d, 0x20, 0x03, 0x55, 0x1d, 0x21, 0x03, 0x55, 0x1d, 0x23, 0x03,
+		0x55, 0x1d, 0x24, 0x03, 0x55, 0x1d, 0x25, 0x03, 0x55, 0x1d, 0x2e, 0x03,
+		0x55, 0x1d, 0x36,
 	],
 	index = [
 		0x0000, 0x0004, 0x000e, 0x0018, 0x0022, 0x002c, 0x0036, 0x0040, 0x004a,
 		0x0054, 0x005a, 0x0064, 0x006e, 0x0078, 0x0082, 0x008a, 0x0093, 0x009c,
 		0x00a2, 0x00a8, 0x00b0, 0x00b9, 0x00c2, 0x00cb, 0x00d4, 0x00d8, 0x00dc,
 		0x00e0, 0x00e4, 0x00e8, 0x00ec, 0x00f0, 0x00f4, 0x00f8, 0x00fc, 0x0100,
-		0x0104, 0x0108, 0x010c, 0x0117, 0x011b, 0x011f, 0x0123,
+		0x0104, 0x0108, 0x010c, 0x0117, 0x011b, 0x011f, 0x0123, 0x0127, 0x012b,
+		0x012f, 0x0133, 0x0137, 0x013b, 0x013f, 0x0143, 0x0147, 0x014b, 0x014f,
 	],
 	names = [
 		"ed25519",
@@ -79,10 +84,21 @@ const _db = asn1::oiddb {
 		"id-at-dnQualifier",
 		"id-at-pseudonym",
 		"id-domainComponent",
+		"id-ce-subjectDirectoryAttributes",
+		"id-ce-subjectKeyIdentifier",
 		"id-ce-keyUsage",
 		"id-ce-subjectAltName",
+		"id-ce-issuerAltName",
 		"id-ce-basicConstraints",
+		"id-ce-nameConstraints",
+		"id-ce-cRLDistributionPoints",
+		"id-ce-certificatePolicies",
+		"id-ce-policyMappings",
+		"id-ce-authorityKeyIdentifier",
+		"id-ce-policyConstraints",
 		"id-ce-extKeyUsage",
+		"id-ce-freshestCRL",
+		"id-ce-inhibitAnyPolicy",
 	],
 };
 
@@ -245,18 +261,62 @@ export def ID_AT_PSEUDONYM: asn1::oid = 37;
 // name: id-domainComponent
 export def ID_DOMAIN_COMPONENT: asn1::oid = 38;
 
+// id:   2.5.29.9
+// name: id-ce-subjectDirectoryAttributes
+export def ID_CE_SUBJECT_DIRECTORY_ATTRIBUTES: asn1::oid = 39;
+
+// id:   2.5.29.14
+// name: id-ce-subjectKeyIdentifier
+export def ID_CE_SUBJECT_KEY_IDENTIFIER: asn1::oid = 40;
+
 // id:   2.5.29.15
 // name: id-ce-keyUsage
-export def ID_CE_KEY_USAGE: asn1::oid = 39;
+export def ID_CE_KEY_USAGE: asn1::oid = 41;
 
 // id:   2.5.29.17
 // name: id-ce-subjectAltName
-export def ID_CE_SUBJECT_ALT_NAME: asn1::oid = 40;
+export def ID_CE_SUBJECT_ALT_NAME: asn1::oid = 42;
+
+// id:   2.5.29.18
+// name: id-ce-issuerAltName
+export def ID_CE_ISSUER_ALT_NAME: asn1::oid = 43;
 
 // id:   2.5.29.19
 // name: id-ce-basicConstraints
-export def ID_CE_BASIC_CONSTRAINTS: asn1::oid = 41;
+export def ID_CE_BASIC_CONSTRAINTS: asn1::oid = 44;
+
+// id:   2.5.29.30
+// name: id-ce-nameConstraints
+export def ID_CE_NAME_CONSTRAINTS: asn1::oid = 45;
+
+// id:   2.5.29.31
+// name: id-ce-cRLDistributionPoints
+export def ID_CE_C_RLDISTRIBUTION_POINTS: asn1::oid = 46;
+
+// id:   2.5.29.32
+// name: id-ce-certificatePolicies
+export def ID_CE_CERTIFICATE_POLICIES: asn1::oid = 47;
+
+// id:   2.5.29.33
+// name: id-ce-policyMappings
+export def ID_CE_POLICY_MAPPINGS: asn1::oid = 48;
+
+// id:   2.5.29.35
+// name: id-ce-authorityKeyIdentifier
+export def ID_CE_AUTHORITY_KEY_IDENTIFIER: asn1::oid = 49;
+
+// id:   2.5.29.36
+// name: id-ce-policyConstraints
+export def ID_CE_POLICY_CONSTRAINTS: asn1::oid = 50;
 
 // id:   2.5.29.37
 // name: id-ce-extKeyUsage
-export def ID_CE_EXT_KEY_USAGE: asn1::oid = 42;
+export def ID_CE_EXT_KEY_USAGE: asn1::oid = 51;
+
+// id:   2.5.29.46
+// name: id-ce-freshestCRL
+export def ID_CE_FRESHEST_CRL: asn1::oid = 52;
+
+// id:   2.5.29.54
+// name: id-ce-inhibitAnyPolicy
+export def ID_CE_INHIBIT_ANY_POLICY: asn1::oid = 53;
