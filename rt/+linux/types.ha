@@ -250,7 +250,7 @@ export type st_flock = struct {
 	l_whence: i16,
 	l_start: i64,
 	l_len: i64,
-	pid: int,
+	l_pid: int,
 };
 
 export type f_owner_ex = struct {
@@ -405,7 +405,7 @@ export def SIG_SETMASK: int = 2;
 def SI_MAX_SIZE: size = 128;
 
 export type sigval = union {
-	sival_t: int,
+	sival_int: int,
 	sival_ptr: *opaque,
 };
 

@@ -16,10 +16,10 @@ export def CHAR_MAX: char = SCHAR_MAX;
 export type short = i16;
 
 // Minimum value which can be stored in a [[short]] type.
-export def SHORT_MIN: short = types::I16_MIN;
+export def SHRT_MIN: short = types::I16_MIN;
 
 // Maximum value which can be stored in a [[short]] type.
-export def SHORT_MAX: short = types::I16_MAX;
+export def SHRT_MAX: short = types::I16_MAX;
 
 // Integer type compatible with `unsigned short`, as specified by ISO/IEC 9899.
 export type ushort = u16;

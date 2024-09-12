@@ -106,8 +106,8 @@ fn encode_zero(
 	return z;
 };
 
-fn encode_f_mp(
-	m: *mp,
+fn encode_f_dec(
+	dec: *decimal,
 	h: io::handle,
 	f: ffmt,
 	prec: (void | uint),
@@ -116,40 +116,40 @@ fn encode_f_mp(
 	// we will loop from lo <= i < hi, printing either zeros or a digit.
 	// lo is simple, but hi depends intricately on f, prec, and the
 	// SHOW_POINT flag.
-	const lo = if (m.dp <= 0) m.dp - 1 else 0;
+	const lo = if (dec.dp <= 0) dec.dp - 1 else 0i32;
 	let hi = match (prec) {
 	case void =>
-		yield if (m.nd: int > m.dp) m.nd: int else m.dp;
+		yield if (dec.nd: i32 > dec.dp) dec.nd: i32 else dec.dp;
 	case let u: uint =>
-		yield if (m.dp <= 0) lo + u: int + 1 else m.dp + u: int;
+		yield if (dec.dp <= 0) lo + u: i32 + 1 else dec.dp + u: i32;
 	};
 	// ffmt::G: we need to remove trailing zeros
 	if (f == ffmt::G) {
 		// first, make sure we include at least prec digits
 		if (prec is uint) {
 			const p = prec as uint;
-			if (m.dp <= 0 && hi < p: int) {
+			if (dec.dp <= 0 && hi < p: i32) {
 				hi = p: int;
 			};
 		};
 		// then, cut back to the decimal point or nd
-		if (hi > m.nd: int && m.dp <= 0) {
-			hi = m.nd: int;
-		} else if (hi > m.dp && m.dp > 0) {
-			hi = if (m.nd: int > m.dp) m.nd: int else m.dp;
+		if (hi > dec.nd: i32 && dec.dp <= 0) {
+			hi = dec.nd: int;
+		} else if (hi > dec.dp && dec.dp > 0) {
+			hi = if (dec.nd: i32 > dec.dp) dec.nd: int else dec.dp;
 		};
 	};
 	// SHOW_POINT: we need to go at least one past the decimal
-	if (ffpoint(flag) && hi <= m.dp) {
-		hi = m.dp + 1;
+	if (ffpoint(flag) && hi <= dec.dp) {
+		hi = dec.dp + 1;
 	};
 	let z = 0z;
 	for (let i = lo; i < hi; i += 1) {
-		if (i == m.dp) {
+		if (i == dec.dp) {
 			z += memio::appendrune(h, '.')?;
 		};
-		if (0 <= i && i < m.nd: int) {
-			z += memio::appendrune(h, (m.buf[i] + '0'): rune)?;
+		if (0 <= i && i < dec.nd: i32) {
+			z += memio::appendrune(h, (dec.digits[i] + '0'): rune)?;
 		} else {
 			z += memio::appendrune(h, '0')?;
 		};
@@ -157,42 +157,42 @@ fn encode_f_mp(
 	return z;
 };
 
-fn encode_e_mp(
-	m: *mp,
+fn encode_e_dec(
+	dec: *decimal,
 	h: io::handle,
 	f: ffmt,
 	prec: (void | uint),
 	flag: fflags,
 ) (size | io::error) = {
 	let z = 0z;
-	assert(m.nd > 0);
-	z += memio::appendrune(h, (m.buf[0] + '0'): rune)?;
+	assert(dec.nd > 0);
+	z += memio::appendrune(h, (dec.digits[0] + '0'): rune)?;
 	const zeros: uint = match (prec) {
 	case void =>
 		yield 0;
 	case let u: uint =>
 		yield switch (f) {
 		case ffmt::G =>
-			yield if (m.nd + 1 < u) u - m.nd + 1 else 0;
+			yield if (dec.nd + 1 < u) u - dec.nd: uint + 1 else 0;
 		case ffmt::E =>
-			yield if (m.nd < u + 1) u - m.nd + 1 else 0;
+			yield if (dec.nd < u + 1) u - dec.nd: uint + 1 else 0;
 		case => abort();
 		};
 	};
-	if (m.nd <= 1 && ffpoint(flag) && zeros < 1) {
+	if (dec.nd <= 1 && ffpoint(flag) && zeros < 1) {
 		zeros = 1;
 	};
-	if (m.nd > 1 || zeros > 0) {
+	if (dec.nd > 1 || zeros > 0) {
 		z += memio::appendrune(h, '.')?;
 	};
-	for (let i = 1z; i < m.nd; i += 1) {
-		z += memio::appendrune(h, (m.buf[i] + '0'): rune)?;
+	for (let i = 1z; i < dec.nd; i += 1) {
+		z += memio::appendrune(h, (dec.digits[i] + '0'): rune)?;
 	};
 	for (let i = 0u; i < zeros; i += 1) {
 		z += memio::appendrune(h, '0')?;
 	};
 	z += memio::appendrune(h, if (ffcaps_exp(flag)) 'E' else 'e')?;
-	let e = m.dp - 1;
+	let e = dec.dp - 1;
 	if (e < 0) {
 		e = -e;
 		z += memio::appendrune(h, '-')?;
@@ -212,6 +212,90 @@ fn encode_e_mp(
 		z += memio::appendrune(h, (ebuf[i] + '0'): rune)?;
 	};
 	return z;
+};
+
+fn init_dec_mant_exp(d: *decimal, mantissa: u64, exponent: i32) void = {
+	const dl = declen(mantissa);
+	for (let i = 0u; i < dl; i += 1) {
+		d.digits[dl - i - 1] = (mantissa % 10): u8;
+		mantissa /= 10;
+	};
+	d.nd = dl;
+	d.dp = dl: i32 + exponent;
+};
+
+fn init_dec(
+	dec: *decimal,
+	mantissa: u64,
+	exponent: u32,
+	eb: u64,
+	mb: u64,
+) void = {
+	let e2 = (eb + mb): i32;
+	let m2: u64 = 0;
+	if (exponent == 0) {
+		e2 = 1 - e2;
+		m2 = mantissa;
+	} else {
+		e2 = (exponent: i32) - e2;
+		m2 = (1u64 << mb) | mantissa;
+	};
+
+	dec.nd = declen(m2);
+	dec.dp = dec.nd: int;
+	for (let i = 0z; i < dec.nd; i += 1) {
+		dec.digits[dec.nd - i - 1] = (m2 % 10): u8;
+		m2 /= 10;
+	};
+	decimal_shift(dec, e2);
+};
+
+// Compute the number of figs to round to for the given arguments.
+fn compute_round(
+	dec: *decimal,
+	f: ffmt,
+	prec: (void | uint),
+	flag: fflags,
+) uint = {
+	// nd is the number of sig figs that we want to end up with
+	let nd: int = match (prec) {
+	case void =>
+		// we should only get here if Ryu did not extend past the
+		// decimal point
+		assert(ffpoint(flag));
+		yield dec.nd: int + (if (dec.dp > 0) dec.dp: int else 0);
+	case let u: uint =>
+		yield switch (f) {
+		case ffmt::E =>
+			yield u: int + 1;
+		case ffmt::F =>
+			yield u: int + dec.dp: int;
+		case ffmt::G =>
+			yield if (u == 0) 1 else u: int;
+		};
+	};
+	const nde = if (nd < 2) 2 else nd;
+	const ndf = if (dec.dp >= 0 && nd: int < dec.dp: int + 1) dec.dp + 1
+		else nd;
+	if (ffpoint(flag)) {
+		nd = switch (f) {
+		case ffmt::E =>
+			// need at least two digits, d.de0.
+			yield nde;
+		case ffmt::F =>
+			// need enough to clear the decimal point by one.
+			yield ndf: int;
+		case ffmt::G =>
+			// XXX: dup'd with the condition in ftosf_handle
+			if (dec.dp < -1 || dec.dp: int - dec.nd: int > 2)
+				yield nde: int;
+			yield ndf: int;
+		};
+	};
+	if (nd <= 0) {
+		nd = 0;
+	};
+	return if (nd: uint > dec.nd) dec.nd: uint else nd: uint;
 };
 
 // Converts a [[types::floating]] to a string in base 10 and writes the result
@@ -262,7 +346,7 @@ export fn fftosf(
 		return z + encode_zero(h, f, prec, flag)?;
 	};
 
-	let m = mp { ... };
+	let dec = decimal { ... };
 	let ok = false;
 	if (prec is void) {
 		// Shortest via Ryū. It is not correct to use f64todecf64 for
@@ -275,43 +359,45 @@ export fn fftosf(
 			const d = f32todecf32(mantissa: u32, exponent);
 			yield (d.mantissa: u64, d.exponent);
 		};
-		init_mp_dec(&m, mdec, edec);
+		init_dec_mant_exp(&dec, mdec, edec);
 		// If SHOW_POINT and we have too few digits, then we need to
 		// fall back to multiprecision.
-		ok = !ffpoint(flag) || m.dp < m.nd: int;
+		ok = !ffpoint(flag) || dec.dp < dec.nd: i32;
 	};
 
 	if (!ok) {
 		// Fall back to multiprecision.
 		match (n) {
 		case f64 =>
-			init_mp(&m, mantissa, exponent, math::F64_EXPONENT_BIAS,
+			init_dec(&dec, mantissa, exponent,
+				math::F64_EXPONENT_BIAS,
 				math::F64_MANTISSA_BITS);
 		case f32 =>
-			init_mp(&m, mantissa, exponent, math::F32_EXPONENT_BIAS,
+			init_dec(&dec, mantissa, exponent,
+				math::F32_EXPONENT_BIAS,
 				math::F32_MANTISSA_BITS);
 		};
-		trim_mp(&m);
-		const nd = compute_round_mp(&m, f, prec, flag);
-		round_mp(&m, nd);
+		trim(&dec);
+		const nd = compute_round(&dec, f, prec, flag);
+		round(&dec, nd);
 	};
 
 	if (f == ffmt::G) {
-		trim_mp(&m);
+		trim(&dec);
 	};
 
 	if (f == ffmt::G && prec is uint) {
 		if (prec as uint == 0) prec = 1;
 	};
 
-	if (m.nd == 0) {
+	if (dec.nd == 0) {
 		// rounded to zero
 		return z + encode_zero(h, f, prec, flag)?;
 	} else if (f == ffmt::E || (f == ffmt::G &&
-			(m.dp < -1 || m.dp - m.nd: int > 2))) {
-		return z + encode_e_mp(&m, h, f, prec, flag)?;
+			(dec.dp < -1 || dec.dp - dec.nd: i32 > 2))) {
+		return z + encode_e_dec(&dec, h, f, prec, flag)?;
 	} else {
-		return z + encode_f_mp(&m, h, f, prec, flag)?;
+		return z + encode_f_dec(&dec, h, f, prec, flag)?;
 	};
 };
 

@@ -5,7 +5,7 @@ use errors;
 use io;
 use net;
 use rt;
-use types;
+use types::c;
 
 // Opens a UNIX socket connection to the path. Blocks until the connection is
 // established.
@@ -103,11 +103,6 @@ fn to_native(addr: addr) (rt::sockaddr | invalid) = {
 			...
 		}
 	};
-	match ((&addr: *types::string).data) {
-	case null => void;
-	case let data: *[*]u8 =>
-		ret.un.sun_path[..len(addr)] = data[..len(addr)];
-	};
-	ret.un.sun_path[len(addr)] = 0;
+	c::fromstr_buf(addr, ret.un.sun_path: []c::char);
 	return ret;
 };

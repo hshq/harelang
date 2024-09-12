@@ -106,9 +106,8 @@ fn resolve_addr(addr: str) ([]ip::addr | error) = {
 	const domain = dns::parse_domain(addr);
 	defer free(domain);
 
-	let rand: []u8 = [0, 0];
-	random::buffer(rand);
-	let id = *(&rand[0]: *u16);
+	let id = 0u16;
+	random::buffer(&id: *[size(u16)]u8);
 
 	const query6 = dns::message {
 		header = dns::header {

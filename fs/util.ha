@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use errors;
 use path;
 use strings;
 
@@ -103,8 +104,13 @@ export fn dirents_free(dirents: []dirent) void = {
 
 // Removes a directory, and anything in it.
 export fn rmdirall(fs: *fs, path: str) (void | error) = {
-	let buf = path::init(path)!;
-	return rmdirall_path(fs, &buf);
+	match (path::init(path)) {
+	case let buf: path::buffer =>
+		return rmdirall_path(fs, &buf);
+	case let err: path::error =>
+		assert(err is path::too_long);
+		return errors::noentry;
+	};
 };
 
 fn rmdirall_path(fs: *fs, buf: *path::buffer) (void | error) = {

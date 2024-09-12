@@ -220,7 +220,7 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 
 	const ambiguous = modpath != "" && len(decls) > 0;
 
-	if (len(decls) == 0) {
+	if (len(decls) == 0) :nodecls {
 		for (let ha .. modsrcs.ha) {
 			let d = match (doc::scan(ha)) {
 			case let d: []ast::decl =>
@@ -242,7 +242,13 @@ fn doc(name: str, cmd: *getopt::command) (void | error) = {
 			append(decls, d...);
 		};
 
-		const rpath = path::init(modpath, "README")!;
+		const rpath = match (path::init(modpath, "README")) {
+		case let buf: path::buffer =>
+			yield buf;
+		case let err: path::error =>
+			assert(err is path::too_long);
+			yield :nodecls;
+		};
 		match (os::open(path::string(&rpath))) {
 		case let f: io::file =>
 			readme = f;

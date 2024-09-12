@@ -42,7 +42,8 @@ export fn parse(in: io::handle, start: lex::location) (doc | error) = {
 	let sc = bufio::newscanner(in);
 	defer bufio::finish(&sc);
 
-	match (_parse(&sc)) {
+	let loc = lex::location { ... };
+	match (_parse(&sc, &loc)) {
 	case let doc: doc =>
 		return doc;
 	case let err: lex::syntax =>
@@ -53,13 +54,17 @@ export fn parse(in: io::handle, start: lex::location) (doc | error) = {
 	case let err: io::error =>
 		return err;
 	case utf8::invalid =>
-		// XXX: the location for this error is inaccurate
-		return lex::syntaxerr(start, "Invalid UTF-8");
+		loc.path = start.path;
+		loc.line += start.line;
+		loc.col += start.col;
+		return lex::syntaxerr(loc, "Invalid UTF-8");
 	};
 };
 
-fn _parse(sc: *bufio::scanner) (doc | ...error | utf8::invalid) = {
-	let loc = lex::location { ... };
+fn _parse(
+	sc: *bufio::scanner,
+	loc: *lex::location,
+) (doc | ...error | utf8::invalid) = {
 	let doc: doc = [];
 
 	for (let r => bufio::scan_rune(sc)?) {
@@ -76,16 +81,16 @@ fn _parse(sc: *bufio::scanner) (doc | ...error | utf8::invalid) = {
 		switch (r) {
 		case '\t' =>
 			loc.col = 8;
-			append(doc, scan_code_sample(sc, &loc)?);
+			append(doc, scan_code_sample(sc, loc)?);
 		case '\n' =>
 			loc.line += 1;
 			loc.col = 0;
 		case '-' =>
 			loc.col += 1;
-			append(doc, scan_list(sc, &loc)?);
+			append(doc, scan_list(sc, loc)?);
 		case =>
 			bufio::unreadrune(sc, r);
-			append(doc, scan_paragraph(sc, &loc)?);
+			append(doc, scan_paragraph(sc, loc)?);
 		};
 	};
 

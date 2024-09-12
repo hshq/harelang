@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use bytes;
+
 export type decoder = struct {
 	offs: size,
 	src: []u8,
@@ -63,6 +65,18 @@ export fn prev(d: *decoder) (rune | done | more | invalid) = {
 		};
 	};
 	return more;
+};
+
+// Returns a subslice from the next byte in the decoder to the end of the slice.
+export fn remaining(d: *decoder) []u8 = d.src[d.offs..];
+
+// Return a subslice from the position of the first decoder to the position of
+// the second decoder. The decoders must originate from the same slice and the
+// position of the second decoder must not be before the position of the first
+// one.
+export fn slice(begin: *decoder, end: *decoder) []u8 = {
+	assert(begin.src: *[*]u8 == end.src: *[*]u8 && begin.offs <= end.offs);
+	return begin.src[begin.offs..end.offs];
 };
 
 @test fn decode() void = {
@@ -150,6 +164,34 @@ export fn prev(d: *decoder) (rune | done | more | invalid) = {
 	assert(next(&decoder) is invalid);
 	decoder.offs = 4;
 	assert(prev(&decoder) is invalid);
+};
+
+@test fn slice() void = {
+	const input: [_]u8 = [
+		0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3, 0x81,
+		0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0x00,
+	];
+	let d1 = decode(input);
+	let d2 = d1;
+	assert(bytes::equal(remaining(&d1), input));
+	assert(len(slice(&d1, &d2)) == 0 && len(slice(&d2, &d1)) == 0);
+	for (let i = 0; i < 2; i += 1) {
+		next(&d1)!;
+		next(&d2)!;
+	};
+	assert(bytes::equal(remaining(&d1), input[6..]));
+	assert(len(slice(&d1, &d2)) == 0 && len(slice(&d2, &d1)) == 0);
+	for (let i = 0; i < 3; i += 1) {
+		next(&d2)!;
+	};
+	assert(bytes::equal(remaining(&d2), input[15..]));
+	assert(bytes::equal(slice(&d1, &d2), input[6..15]));
+	for (let i = 0; i < 3; i += 1) {
+		next(&d1)!;
+	};
+	assert(len(slice(&d1, &d2)) == 0 && len(slice(&d2, &d1)) == 0);
+	next(&d1)!;
+	assert(len(remaining(&d1)) == 0);
 };
 
 // Returns void if a given byte slice contains only valid UTF-8 sequences,

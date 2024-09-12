@@ -53,7 +53,7 @@ export def SIG_UNBLOCK: int = 2;
 export def SIG_SETMASK: int = 3;
 
 export type sigval = union {
-	sival_t: int,
+	sival_int: int,
 	sival_ptr: *opaque,
 };
 
