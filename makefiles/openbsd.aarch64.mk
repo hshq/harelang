@@ -4,7 +4,7 @@ TDENV = env HARE_TD_rt=$(HARECACHE)/rt.td HARE_TD_types=$(HARECACHE)/types.td HA
 RTSCRIPT = rt/+openbsd/hare.sc
 OBJS = $(HARECACHE)/rt.o $(HARECACHE)/types.o $(HARECACHE)/bytes.o $(HARECACHE)/encoding_utf8.o $(HARECACHE)/sort_cmp.o $(HARECACHE)/strings.o $(HARECACHE)/ascii.o $(HARECACHE)/errors.o $(HARECACHE)/io.o $(HARECACHE)/bufio.o $(HARECACHE)/crypto_math.o $(HARECACHE)/endian.o $(HARECACHE)/hash.o $(HARECACHE)/crypto_sha256.o $(HARECACHE)/math.o $(HARECACHE)/memio.o $(HARECACHE)/path.o $(HARECACHE)/time.o $(HARECACHE)/fs.o $(HARECACHE)/types_c.o $(HARECACHE)/os.o $(HARECACHE)/strconv.o $(HARECACHE)/fmt.o $(HARECACHE)/encoding_hex.o $(HARECACHE)/sort.o $(HARECACHE)/hare_lex.o $(HARECACHE)/hare_ast.o $(HARECACHE)/hare_parse.o $(HARECACHE)/hare_unparse.o $(HARECACHE)/time_chrono.o $(HARECACHE)/time_date.o $(HARECACHE)/hare_module.o $(HARECACHE)/unix.o $(HARECACHE)/unix_signal.o $(HARECACHE)/os_exec.o $(HARECACHE)/shlex.o $(HARECACHE)/unix_tty.o $(HARECACHE)/cmd_hare_build.o $(HARECACHE)/dirs.o $(HARECACHE)/getopt.o $(HARECACHE)/cmd_hare.o
 
-rt_ha = rt/+aarch64/arch_jmp.ha rt/+aarch64/cpuid.ha rt/+openbsd/+aarch64.ha rt/+openbsd/dynamic_linker.ha rt/+openbsd/env.ha rt/+openbsd/errno.ha rt/+openbsd/libc.ha rt/+openbsd/platform_abort.ha rt/+openbsd/signal.ha rt/+openbsd/socket.ha rt/+openbsd/start.ha rt/+openbsd/syscalls.ha rt/+openbsd/types.ha rt/abort.ha rt/ensure.ha rt/fenv_defs.ha rt/jmp.ha rt/malloc.ha rt/memcpy.ha rt/memfunc_ptr.ha rt/memmove.ha rt/memset.ha rt/strcmp.ha rt/u64tos.ha rt/unknown_errno.ha
+rt_ha = rt/+aarch64/arch_jmp.ha rt/+aarch64/cpuid.ha rt/+openbsd/+aarch64.ha rt/+openbsd/dynamic_linker.ha rt/+openbsd/env.ha rt/+openbsd/errno.ha rt/+openbsd/libc.ha rt/+openbsd/platform_abort.ha rt/+openbsd/signal.ha rt/+openbsd/socket.ha rt/+openbsd/start.ha rt/+openbsd/syscalls.ha rt/+openbsd/types.ha rt/abort.ha rt/ensure.ha rt/fenv_defs.ha rt/jmp.ha rt/malloc+libc.ha rt/memcpy.ha rt/memfunc_ptr.ha rt/memmove.ha rt/memset.ha rt/strcmp.ha rt/u64tos.ha rt/unknown_errno.ha
 $(HARECACHE)/rt.ssa: $(rt_ha)
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
@@ -184,7 +184,7 @@ $(HARECACHE)/hare_unparse.ssa: $(hare_unparse_ha) $(HARECACHE)/fmt.td $(HARECACH
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/hare_unparse.td.tmp -N hare::unparse $(hare_unparse_ha)
 
 time_chrono_ha = time/chrono/+openbsd.ha time/chrono/arithmetic.ha time/chrono/chronology.ha time/chrono/error.ha time/chrono/leapsec.ha time/chrono/timescale.ha time/chrono/timezone.ha time/chrono/tzdb.ha
-$(HARECACHE)/time_chrono.ssa: $(time_chrono_ha) $(HARECACHE)/bufio.td $(HARECACHE)/bytes.td $(HARECACHE)/encoding_utf8.td $(HARECACHE)/endian.td $(HARECACHE)/fmt.td $(HARECACHE)/fs.td $(HARECACHE)/io.td $(HARECACHE)/os.td $(HARECACHE)/path.td $(HARECACHE)/sort.td $(HARECACHE)/strconv.td $(HARECACHE)/strings.td $(HARECACHE)/time.td
+$(HARECACHE)/time_chrono.ssa: $(time_chrono_ha) $(HARECACHE)/bufio.td $(HARECACHE)/bytes.td $(HARECACHE)/encoding_utf8.td $(HARECACHE)/endian.td $(HARECACHE)/errors.td $(HARECACHE)/fmt.td $(HARECACHE)/fs.td $(HARECACHE)/io.td $(HARECACHE)/os.td $(HARECACHE)/path.td $(HARECACHE)/sort.td $(HARECACHE)/strconv.td $(HARECACHE)/strings.td $(HARECACHE)/time.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/time_chrono.td.tmp -N time::chrono $(time_chrono_ha)
@@ -253,4 +253,4 @@ cmd_hare_ha = cmd/hare/arch.ha cmd/hare/build.ha cmd/hare/cache.ha cmd/hare/deps
 $(HARECACHE)/cmd_hare.ssa: $(cmd_hare_ha) $(HARECACHE)/ascii.td $(HARECACHE)/bufio.td $(HARECACHE)/cmd_hare_build.td $(HARECACHE)/dirs.td $(HARECACHE)/errors.td $(HARECACHE)/fmt.td $(HARECACHE)/fs.td $(HARECACHE)/getopt.td $(HARECACHE)/hare_ast.td $(HARECACHE)/hare_lex.td $(HARECACHE)/hare_module.td $(HARECACHE)/hare_parse.td $(HARECACHE)/io.td $(HARECACHE)/memio.td $(HARECACHE)/os.td $(HARECACHE)/os_exec.td $(HARECACHE)/path.td $(HARECACHE)/sort.td $(HARECACHE)/sort_cmp.td $(HARECACHE)/strconv.td $(HARECACHE)/strings.td $(HARECACHE)/unix_tty.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
-	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/cmd_hare.td.tmp $(HARE_DEFINES)  $(cmd_hare_ha)
+	@$(TDENV) $(HAREC) $(HARECFLAGS) -N "" -o $@ -t $(HARECACHE)/cmd_hare.td.tmp $(HARE_DEFINES)  $(cmd_hare_ha)
