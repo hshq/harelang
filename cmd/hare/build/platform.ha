@@ -5,6 +5,8 @@ export type platform = struct {
 	name: str,
 	// Do we always need to link with libc? (and use cc instead of ld)
 	need_libc: bool,
+	// Is debug:: supported on this platform?
+	debug_supported: bool,
 	// Additional default flags for this platform.
 	default_flags: [NSTAGES][]str,
 };
@@ -12,19 +14,23 @@ export type platform = struct {
 const platforms: [_]platform = [
 	platform {
 		name = "Linux",
+		debug_supported = true,
 		...
 	},
 	platform {
 		name = "FreeBSD",
+		debug_supported = true,
 		...
 	},
 	platform {
 		name = "NetBSD",
+		debug_supported = true,
 		...
 	},
 	platform {
 		name = "OpenBSD",
 		need_libc = true,
+		debug_supported = false,
 		default_flags = [
 			[],
 			[],
