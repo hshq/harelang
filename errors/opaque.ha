@@ -26,5 +26,6 @@ export type opaque_ = !struct {
 };
 
 // Up to 24 bytes of arbitrary data that the opaque error type may use for
-// domain-specific storage.
-export type opaque_data = [24]u8;
+// domain-specific storage. The data is properly aligned (8 bytes) for any Hare
+// type.
+export type opaque_data = [3]u64;
