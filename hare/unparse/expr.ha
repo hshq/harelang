@@ -446,7 +446,10 @@ fn _expr(ctx: *context, syn: *synfunc, e: *ast::expr) (size | io::error) = {
 		case let e: ast::vaarg_expr =>
 			let z = syn(ctx, "vaarg", synkind::KEYWORD)?;
 			z += syn(ctx, "(", synkind::PUNCTUATION)?;
-			z += _expr(ctx, syn, e)?;
+			z += _expr(ctx, syn, e.ap)?;
+			z += syn(ctx, ",", synkind::PUNCTUATION)?;
+			z += space(ctx)?;
+			z += __type(ctx, syn, e._type)?;
 			z += syn(ctx, ")", synkind::PUNCTUATION)?;
 			return z;
 		case let e: ast::vaend_expr =>

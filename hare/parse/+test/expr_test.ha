@@ -79,7 +79,7 @@
 	offset(foo.bar);
 	size(u32);
 	vastart();
-	vaarg(va);
+	vaarg(va, int);
 	vaend(va);
 };
 `);
