@@ -350,7 +350,7 @@ fn handle_segv(
 
 fn easter_egg(fails: []failure, tests: []test) void = {
 	// norwegian deadbeef
-	let blob: [_]u8 = [
+	let blob: ([0]u32, [96]u8) = ([], [
 		0xe1, 0x41, 0xf2, 0x21, 0x3f, 0x9e, 0x2d, 0xfe, 0x3f, 0x9e,
 		0x22, 0xfc, 0x43, 0xc2, 0x2f, 0x82, 0x15, 0xd1, 0x62, 0xae,
 		0x6c, 0x9e, 0x71, 0xfe, 0x33, 0xc2, 0x71, 0xfe, 0x63, 0xb4,
@@ -361,7 +361,7 @@ fn easter_egg(fails: []failure, tests: []test) void = {
 		0x30, 0xfe, 0x3f, 0x92, 0x2d, 0xfe, 0x31, 0x9e, 0x2d, 0xfe,
 		0x38, 0xb4, 0x2d, 0xf9, 0x22, 0x83, 0x52, 0xf9, 0x40, 0xe1,
 		0x30, 0xe3, 0x38, 0x9e, 0x2d, 0xd4,
-	];
+	]);
 	let words = &blob: *[24]u32;
 
 	// doesn't currently work on big-endian, would need to re-find the
@@ -372,7 +372,7 @@ fn easter_egg(fails: []failure, tests: []test) void = {
 
 	let hash = 2166136261u32;
 	for (let i = 0z; i < size(u32); i += 1) {
-		hash = (hash ^ blob[i]) * 16777619;
+		hash = (hash ^ blob.1[i]) * 16777619;
 	};
 
 	for (let i = 0z; i < len(words); i += 1) {
@@ -380,6 +380,6 @@ fn easter_egg(fails: []failure, tests: []test) void = {
 	};
 
 	if (-len(fails): u32 == words[0]) {
-		io::write(os::stdout, blob[size(u32)..])!;
+		io::write(os::stdout, blob.1[size(u32)..])!;
 	};
 };
