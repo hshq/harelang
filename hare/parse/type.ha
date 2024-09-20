@@ -134,7 +134,7 @@ fn primitive_type(lexer: *lex::lexer) (ast::_type | error) = {
 		yield builtin_type::NEVER;
 	case =>
 		return syntaxerr(lex::mkloc(lexer),
-			"Unexected {}, was expecting primitive type",
+			"Unexpected {}, was expecting primitive type",
 			lex::tokstr(tok));
 	};
 	return ast::_type {
