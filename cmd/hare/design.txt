@@ -42,8 +42,7 @@ described below, we also direct the tool's output to <hash>.<ext>.tmp then
 rename that to <hash>.<ext> when it's done
 
 there's also <hash>.<ext>.log (the stdout/stderr of the process, for displaying
-if it errors out) and <hash>.<ext>.txt (the command that was run, for debugging
-purposes. we might add more information here in the future)
+if it errors out)
 
 # queuing and running jobs
 
