@@ -627,3 +627,11 @@ export fn socketpair(
 	return wrap_return(syscall4(SYS_socketpair, domain: u64,
 		type_: u64, protocol: u64, sv: uintptr : u64))?: int;
 };
+
+export fn fsync(fd: int) (void | errno) = {
+	wrap_return(syscall1(SYS_fsync, fd: u64))?;
+};
+
+export fn fdatasync(fd: int) (void | errno) = {
+	wrap_return(syscall1(SYS_fdatasync, fd: u64))?;
+};
