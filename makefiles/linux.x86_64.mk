@@ -60,10 +60,11 @@ $(HARECACHE)/std/errors.ssa: $(errors_ha) $(HARECACHE)/std/rt.td
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/errors.td.tmp -N errors $(errors_ha)
 
-io_ha = io/+linux/dup.ha io/+linux/mmap.ha io/+linux/platform_file.ha io/+linux/vector.ha io/arch+x86_64.ha io/copy.ha io/drain.ha io/empty.ha io/file.ha io/handle.ha io/limit.ha io/stream.ha io/tee.ha io/types.ha io/util.ha io/zero.ha
-$(HARECACHE)/std/io.ssa: $(io_ha) $(HARECACHE)/std/bytes.td $(HARECACHE)/std/errors.td $(HARECACHE)/std/rt.td $(HARECACHE)/std/types.td
-	@mkdir -p -- "$(HARECACHE)/std"
-	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/io.td.tmp -N io $(io_ha)
+io_ha = io/+linux/dup.ha io/+linux/mmap.ha io/+linux/platform_file.ha io/+linux/sync.ha io/+linux/vector.ha io/arch+x86_64.ha io/copy.ha io/drain.ha io/empty.ha io/file.ha io/handle.ha io/limit.ha io/stream.ha io/tee.ha io/types.ha io/util.ha io/zero.ha
+$(HARECACHE)/io.ssa: $(io_ha) $(HARECACHE)/bytes.td $(HARECACHE)/errors.td $(HARECACHE)/rt.td $(HARECACHE)/types.td
+	@mkdir -p -- "$(HARECACHE)"
+	@printf 'HAREC\t%s\n' "$@"
+	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/io.td.tmp -N io $(io_ha)
 
 bufio_ha = bufio/scanner.ha bufio/stream.ha
 $(HARECACHE)/std/bufio.ssa: $(bufio_ha) $(HARECACHE)/std/bytes.td $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)/std/errors.td $(HARECACHE)/std/io.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/types.td

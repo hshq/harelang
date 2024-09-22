@@ -658,3 +658,11 @@ export fn shutdown(sockfd: int, how: int) (void | errno) = {
 	wrap_return(syscall2(SYS_shutdown,
 		sockfd: u64, how: u64))?;
 };
+
+export fn fsync(fd: int) (void | errno) = {
+	wrap_return(syscall1(SYS_fsync, fd: u64))?;
+};
+
+export fn fdatasync(fd: int) (void | errno) = {
+	wrap_return(syscall1(SYS_fdatasync, fd: u64))?;
+};

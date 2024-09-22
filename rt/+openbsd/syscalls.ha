@@ -713,7 +713,29 @@ export fn accept4(
 };
 
 // __thrsleep
+
 // fsync
+@symbol("fsync") fn libc_fsync(fd: int) int;
+
+export fn fsync(fd: int) (void | errno) = {
+	let res = libc_fsync(fd);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+	return res;
+};
+
+// fdatasync
+@symbol("fdatasync") fn libc_fdatasync(fd: int) int;
+
+export fn fdatasync(fd: int) (void | errno) = {
+	let res = libc_fdatasync(fd);
+	if (res == -1) {
+		return *__errno(): errno;
+	};
+	return res;
+};
+
 // setpriority
 
 @symbol("setpriority") fn libc_setpriority(

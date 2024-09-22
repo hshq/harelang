@@ -412,12 +412,17 @@ fn builtin(lexer: *lex::lexer) (ast::expr | error) = {
 	case ltok::VAARG =>
 		want(lexer, ltok::VAARG)?;
 		want(lexer, ltok::LPAREN)?;
-		const expr = alloc(objsel(lexer)?);
+		const ap = alloc(objsel(lexer)?);
+		want(lexer, ltok::COMMA)?;
+		const _type = alloc(_type(lexer)?);
 		want(lexer, ltok::RPAREN)?;
 		return ast::expr {
 			start = tok.2,
 			end = lex::prevloc(lexer),
-			expr = expr: ast::vaarg_expr: ast::variadic_expr,
+			expr = ast::vaarg_expr {
+				ap = ap,
+				_type = _type,
+			},
 		};
 	case ltok::VAEND =>
 		want(lexer, ltok::VAEND)?;

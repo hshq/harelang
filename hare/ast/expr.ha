@@ -421,8 +421,11 @@ export type vastart_expr = void;
 
 // A vaarg expression.
 //
-// 	vaarg(ap)
-export type vaarg_expr = *expr;
+// 	vaarg(ap, int)
+export type vaarg_expr = struct {
+	ap: *expr,
+	_type: *_type,
+};
 
 // A vaend expression.
 //
@@ -671,8 +674,10 @@ case let e: *expr =>
 		match (v) {
 		case vastart_expr => void;
 		case let v: vaarg_expr =>
-			expr_finish(v);
-			free(v);
+			expr_finish(v.ap);
+			free(v.ap);
+			type_finish(v._type);
+			free(v._type);
 		case let v: vaend_expr =>
 			expr_finish(v);
 			free(v);
