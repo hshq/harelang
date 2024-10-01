@@ -14,6 +14,7 @@ use sort::cmp;
 type deps_fmt = enum {
 	DOT,
 	TERM,
+	TEXT,
 };
 
 type link = struct {
@@ -41,6 +42,8 @@ fn deps(name: str, cmd: *getopt::command) (void | error) = {
 			merge_tags(&tags, opt.1)?;
 		case 's' =>
 			submodules = true;
+		case 't' =>
+			goal = deps_fmt::TEXT;
 		case =>
 			abort();
 		};
@@ -99,6 +102,15 @@ fn deps(name: str, cmd: *getopt::command) (void | error) = {
 			};
 		};
 		fmt::println("}")!;
+	case deps_fmt::TEXT =>
+		for (let mod .. mods) {
+			if (module::gathered(&mod) && len(mod.deps) == 0) {
+				fmt::printfln("{} -", mod.name)!;
+			} else for (let dep .. mod.deps) {
+				const child = mods[dep.0];
+				fmt::printfln("{} {}", mod.name, child.name)!;
+			};
+		};
 	};
 };
 

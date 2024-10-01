@@ -36,6 +36,13 @@ characters.
 	directory. A path should be a source directory to reliably collect
 	dependencies.
 
+*-t*
+	Print the dependency tree as a field-based plain text output. Each
+	line has two fields, a module and one of its dependencies. If the
+	module (or one of its submodules with the *-s* option) does not have
+	dependencies, the second field contains just a dash. The text output
+	is a suitable input for *tsort*(1).
+
 *-T* _tagset_
 	Set or unset build tags. See *BUILD TAGS* in *hare-module*(5).
 

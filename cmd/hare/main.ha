@@ -49,6 +49,7 @@ const help: []getopt::help = [
 		('d', "print dot syntax for use with graphviz"),
 		('s', "recursively collect submodules"),
 		('T', "tagset", "set/unset build tags"),
+		('t', "print text output for field-based parsing"),
 		"[path|module]",
 	]: []getopt::help),
 	("run", [
