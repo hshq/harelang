@@ -90,7 +90,9 @@ fn deps(name: str, cmd: *getopt::command) (void | error) = {
 	case deps_fmt::DOT =>
 		fmt::println("strict digraph deps {")!;
 		for (let mod .. mods) {
-			for (let dep .. mod.deps) {
+			if (module::gathered(&mod) && len(mod.deps) == 0) {
+				fmt::printfln("\t\"{}\"", mod.name)!;
+			} else for (let dep .. mod.deps) {
 				const child = mods[dep.0];
 				fmt::printfln("\t\"{}\" -> \"{}\";",
 					mod.name, child.name)!;
