@@ -28,7 +28,7 @@ export fn gather(ctx: *context, input: str) ([]module::module | error) = {
 	case let top: size =>
 		yield top;
 	case let e: module::error =>
-		if (!(unwrap_module_error(e) is module::not_found)
+		if (!(module::unwrap_error(e) is module::not_found)
 				|| nsubmods == 0) {
 			return e;
 		};
@@ -64,7 +64,7 @@ fn gather_submodules(
 		case size =>
 			n += 1;
 		case let e: module::error =>
-			if (!(unwrap_module_error(e) is module::not_found)) {
+			if (!(module::unwrap_error(e) is module::not_found)) {
 				return e;
 			};
 		};

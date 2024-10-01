@@ -305,16 +305,3 @@ fn write_args(ctx: *context, out: str, args: []str, t: *task) (void | error) = {
 	};
 	fmt::fprintln(txt)?;
 };
-
-// XXX: somewhat questionable, related to the hare::module context hackery, can
-// probably only be improved with language changes
-fn unwrap_module_error(err: module::error) module::error = {
-	let unwrapped = err;
-	for (true) match (unwrapped) {
-	case let e: module::errcontext =>
-		unwrapped = *e.1;
-	case =>
-		break;
-	};
-	return unwrapped;
-};

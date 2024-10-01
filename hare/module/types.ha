@@ -72,6 +72,18 @@ export fn locstr(loc: location) str = {
 // to carry context with errors
 fn attach(ctx: str, e: error) errcontext = (ctx, alloc(e)): errcontext;
 
+// Returns the original [[error]] that might be hidden behind more context.
+export fn unwrap_error(err: error) error = {
+	// XXX: somewhat questionable context hackery, can probably only be
+	// improved with language changes
+	for (true) match (err) {
+	case let e: errcontext =>
+		err = *e.1;
+	case =>
+		return err;
+	};
+};
+
 // Free the resources associated with an [[error]].
 export fn finish_error(e: error) void = {
 	match (e) {
