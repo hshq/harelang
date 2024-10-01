@@ -108,6 +108,12 @@ fn get_deps(cachedir: str, srcs: *srcset) ([]ast::ident | error) = {
 	return deps;
 };
 
+// Returns true if a module was requested via [[gather_submodules]] or
+// [[gather]], and not resolved as a collateral.
+export fn gathered(mod: *module) bool = {
+	return !mod.is_dep && (len(mod.srcs.ha) > 0 || len(mod.srcs.s) > 0);
+};
+
 // Gather a [[module]] and by default all its dependencies, appending them to
 // an existing slice, deduplicated, in reverse topological order, returning the
 // index of the input module within the slice. Dependencies will also be written
