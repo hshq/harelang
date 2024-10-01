@@ -121,6 +121,41 @@ export fn gather(
 	return _gather(ctx, out, &stack, mod)?;
 };
 
+// Gather submodules and all their dependencies, appending them to an existing
+// slice, deduplicated, in reverse topological order, returning the number of
+// modules added to the slice. The submodules are searched relative to a parent
+// directory that may target a module, or a source directory (for example a
+// HAREPATH component). The parent module identifier should reflect the nature
+// of the parent directory and may be left empty for source directories.
+// Dependencies will also be written to the cache.
+export fn gather_submodules(
+	ctx: *context,
+	out: *[]module,
+	buf: *path::buffer,
+	mod: *ast::ident,
+) (size | error) = {
+	let n = 0z;
+	let it = os::iter(path::string(buf))?;
+	defer fs::finish(it);
+
+	for (let dir => next(it)?) {
+		path::push(buf, dir.name)?;
+		defer path::pop(buf);
+		append(mod, dir.name);
+		defer delete(mod[len(mod) - 1]);
+		match (gather(ctx, out, *mod)) {
+		case size =>
+			n += 1;
+		case let e: error =>
+			if (!(unwrap_error(e) is not_found)) {
+				return e;
+			};
+		};
+		n += gather_submodules(ctx, out, buf, mod)?;
+	};
+	return n;
+};
+
 fn _gather(
 	ctx: *context,
 	out: *[]module,
