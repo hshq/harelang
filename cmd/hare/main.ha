@@ -45,7 +45,9 @@ const help: []getopt::help = [
 	]: []getopt::help),
 	("deps", [
 		"prints dependency information for a Hare program",
+		('D', "only print direct dependencies"),
 		('d', "print dot syntax for use with graphviz"),
+		('s', "recursively collect submodules"),
 		('T', "tagset", "set/unset build tags"),
 		"[path|module]",
 	]: []getopt::help),

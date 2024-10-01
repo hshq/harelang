@@ -24,8 +24,17 @@ characters.
 *-h*
 	Print the help text.
 
+*-D*
+	Print only the direct dependencies of the module, and its submodules
+	with the *-s* option.
+
 *-d*
 	Print the dependency tree as a dot file for use with *graphviz*(1).
+
+*-s*
+	Recursively collect submodules below the specified path or module's
+	directory. A path should be a source directory to reliably collect
+	dependencies.
 
 *-T* _tagset_
 	Set or unset build tags. See *BUILD TAGS* in *hare-module*(5).
