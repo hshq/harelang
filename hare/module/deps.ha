@@ -127,10 +127,48 @@ export fn gather(
 // an existing slice, deduplicated, in reverse topological order, returning the
 // number of modules added to the slice. The submodules are searched relative
 // to a parent directory that may target a module, or a source directory (for
-// example a HAREPATH component). The parent module identifier should reflect
-// the nature of the parent directory and should be left empty for source
-// directories. Dependencies will also be written to the cache.
+// example a HAREPATH component). Dependencies will also be written to the
+// cache.
 export fn gather_submodules(
+	ctx: *context,
+	out: *[]module,
+	mod: location,
+	recursive: bool = true,
+) (size | error) = {
+	let id: ast::ident = [];
+	defer ast::ident_free(id);
+
+	let buf = match (mod) {
+	case let b: *path::buffer =>
+		yield b;
+	case let m: ast::ident =>
+		append(id, m...);
+		static let b = path::buffer { ... };
+		let res = find(ctx, id)?;
+		defer finish_srcset(&res.1);
+		path::set(&b, res.0)?;
+		yield &b;
+	};
+
+	static let srcdir = path::buffer { ... };
+	srcdir = *buf;
+	for (let i = 0z; i < len(id); i += 1) {
+		path::pop(&srcdir);
+	};
+
+	let subpath = strings::concat(path::string(&srcdir), ":",
+		ctx.harepath);
+	defer free(subpath);
+
+	let subctx = context {
+		harepath = subpath,
+		harecache = ctx.harecache,
+		tags = ctx.tags,
+	};
+	return _gather_submodules(&subctx, out, buf, &id, recursive);
+};
+
+export fn _gather_submodules(
 	ctx: *context,
 	out: *[]module,
 	buf: *path::buffer,
@@ -156,7 +194,7 @@ export fn gather_submodules(
 				return e;
 			};
 		};
-		n += gather_submodules(ctx, out, buf, mod, recursive)?;
+		n += _gather_submodules(ctx, out, buf, mod, recursive)?;
 	};
 	return n;
 };

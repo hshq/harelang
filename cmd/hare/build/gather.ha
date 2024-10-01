@@ -19,9 +19,7 @@ export fn gather(ctx: *context, input: str) ([]module::module | error) = {
 		module::gather(&ctx.ctx, &mods, ["debug"])?;
 	};
 	const nsubmods = if (ctx.submods) {
-		let id: ast::ident = [];
-		defer ast::ident_free(id);
-		yield module::gather_submodules(&ctx.ctx, &mods, &buf, &id)?;
+		module::gather_submodules(&ctx.ctx, &mods, &buf)?;
 	} else 0z;
 
 	ctx.top = match (module::gather(&ctx.ctx, &mods, &buf)) {
