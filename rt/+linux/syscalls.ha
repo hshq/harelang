@@ -1093,3 +1093,8 @@ export fn fsync(fd: int) (void | errno) = {
 export fn fdatasync(fd: int) (void | errno) = {
 	wrap_return(syscall1(SYS_fdatasync, fd: u64))?;
 };
+
+export fn sigqueueinfo(tgid: int, sig: int, info: *siginfo) (void | errno) = {
+	wrap_return(syscall3(SYS_rt_sigqueueinfo, tgid: u64,
+		sig: u64, info: uintptr: u64))?;
+};
