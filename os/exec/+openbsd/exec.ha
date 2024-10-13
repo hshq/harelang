@@ -36,7 +36,7 @@ export fn fork() (process | void | error) = {
 // To capture the standard output of a process:
 //
 // 	let pipe = exec::pipe();
-// 	exec::addfile(&cmd, pipe.1, os::stdout_file);
+// 	exec::addfile(&cmd, os::stdout_file, pipe.1);
 // 	let proc = exec::start(&cmd)!;
 // 	io::close(pipe.1)!;
 //
