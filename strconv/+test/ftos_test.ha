@@ -160,6 +160,8 @@ use memio;
 		(1000.0, ffmt::G, 0, fflags::SHOW_POINT, "1.0e3"),
 		(0.0123, ffmt::G, 2, fflags::SHOW_POINT, "0.012"),
 		(0.0123, ffmt::G, 5, fflags::SHOW_POINT, "0.0123"),
+		// regression test
+		(6.022e23, ffmt::G, void, fflags::SHOW_POINT, "6.022e23"),
 	];
 	const stream = memio::dynamic();
 	defer io::close(&stream)!;
