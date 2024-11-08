@@ -62,3 +62,11 @@ id-ce-policyConstraints           2.5.29.36
 id-ce-extKeyUsage                 2.5.29.37
 id-ce-freshestCRL                 2.5.29.46
 id-ce-inhibitAnyPolicy            2.5.29.54
+
+anyExtendedKeyUsage               2.5.29.37
+id-kp-serverAuth                  1.3.6.1.5.5.7.3.1
+id-kp-clientAuth                  1.3.6.1.5.5.7.3.2
+id-kp-codeSigning                 1.3.6.1.5.5.7.3.3
+id-kp-emailProtection             1.3.6.1.5.5.7.3.4
+id-kp-timeStamping                1.3.6.1.5.5.7.3.8
+id-kp-OCSPSigning                 1.3.6.1.5.5.7.3.9
