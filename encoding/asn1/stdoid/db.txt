@@ -63,7 +63,7 @@ id-ce-extKeyUsage                 2.5.29.37
 id-ce-freshestCRL                 2.5.29.46
 id-ce-inhibitAnyPolicy            2.5.29.54
 
-anyExtendedKeyUsage               2.5.29.37
+anyExtendedKeyUsage               2.5.29.37.0
 id-kp-serverAuth                  1.3.6.1.5.5.7.3.1
 id-kp-clientAuth                  1.3.6.1.5.5.7.3.2
 id-kp-codeSigning                 1.3.6.1.5.5.7.3.3
