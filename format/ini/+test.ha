@@ -13,7 +13,8 @@ name=Sourcehut
 description=The hacker's forge
 [harelang.org]
 name=Hare
-description=The Hare programming language"));
+description=The Hare programming language
+"));
 	const sc = scan(&buf);
 	defer finish(&sc);
 

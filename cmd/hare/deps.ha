@@ -14,6 +14,7 @@ use sort::cmp;
 type deps_fmt = enum {
 	DOT,
 	TERM,
+	TEXT,
 };
 
 type link = struct {
@@ -28,13 +29,21 @@ fn deps(name: str, cmd: *getopt::command) (void | error) = {
 
 	let build_dir: str = "";
 	let goal = deps_fmt::TERM;
+	let recursive = true;
+	let submodules = false;
 
 	for (let opt .. cmd.opts) {
 		switch (opt.0) {
+		case 'D' =>
+			recursive = false;
 		case 'd' =>
 			goal = deps_fmt::DOT;
 		case 'T' =>
 			merge_tags(&tags, opt.1)?;
+		case 's' =>
+			submodules = true;
+		case 't' =>
+			goal = deps_fmt::TEXT;
 		case =>
 			abort();
 		};
@@ -53,6 +62,7 @@ fn deps(name: str, cmd: *getopt::command) (void | error) = {
 		tags = tags,
 	};
 	let mods: []module::module = [];
+	defer module::free_slice(mods);
 
 	let mod = match (parse::identstr(input)) {
 	case let id: ast::ident =>
@@ -62,8 +72,20 @@ fn deps(name: str, cmd: *getopt::command) (void | error) = {
 		path::set(&buf, os::realpath(input)?)?;
 		yield &buf;
 	};
-	module::gather(&ctx, &mods, mod)?;
-	defer module::free_slice(mods);
+
+	if (submodules) {
+		module::gather_submodules(&ctx, &mods, mod, recursive)?;
+	};
+
+	match (module::gather(&ctx, &mods, mod, recursive)) {
+	case let err: module::error =>
+		if (!(module::unwrap_error(err) is module::not_found) ||
+				len(mods) == 0) {
+			return err;
+		};
+	case =>
+		void;
+	};
 
 	switch (goal) {
 	case deps_fmt::TERM =>
@@ -71,13 +93,24 @@ fn deps(name: str, cmd: *getopt::command) (void | error) = {
 	case deps_fmt::DOT =>
 		fmt::println("strict digraph deps {")!;
 		for (let mod .. mods) {
-			for (let dep .. mod.deps) {
+			if (module::gathered(&mod) && len(mod.deps) == 0) {
+				fmt::printfln("\t\"{}\"", mod.name)!;
+			} else for (let dep .. mod.deps) {
 				const child = mods[dep.0];
 				fmt::printfln("\t\"{}\" -> \"{}\";",
 					mod.name, child.name)!;
 			};
 		};
 		fmt::println("}")!;
+	case deps_fmt::TEXT =>
+		for (let mod .. mods) {
+			if (module::gathered(&mod) && len(mod.deps) == 0) {
+				fmt::printfln("{} -", mod.name)!;
+			} else for (let dep .. mod.deps) {
+				const child = mods[dep.0];
+				fmt::printfln("{} {}", mod.name, child.name)!;
+			};
+		};
 	};
 };
 

@@ -48,10 +48,10 @@ def HOSTS_FILE = `
 };
 
 @test fn errors() void = {
-	const s = "127";
+	const s = "127\n";
 	assert(next(&read(&memio::fixed(strings::toutf8(s))))
 		is ip::invalid);
-	const s = "127.0.0.1";
+	const s = "127.0.0.1\n";
 	assert(next(&read(&memio::fixed(strings::toutf8(s))))
 		is invalid);
 };

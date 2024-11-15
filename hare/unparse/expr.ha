@@ -592,37 +592,39 @@ fn literal(
 		z += syn(ctx, "]", synkind::PUNCTUATION)?;
 		return z;
 	case let v: ast::number_literal =>
-		const s = fmt::asprintf("{}{}", v.value, switch (v.suff) {
+		const s = switch (v.suff) {
 		case ltok::LIT_U8 =>
-			yield "u8";
+			yield fmt::asprintf("{}u8", v.value);
 		case ltok::LIT_U16 =>
-			yield "u16";
+			yield fmt::asprintf("{}u16", v.value);
 		case ltok::LIT_U32 =>
-			yield "u32";
+			yield fmt::asprintf("{}u32", v.value);
 		case ltok::LIT_U64 =>
-			yield "u64";
+			yield fmt::asprintf("{}u64", v.value);
 		case ltok::LIT_UINT =>
-			yield "u";
+			yield fmt::asprintf("{}u", v.value);
 		case ltok::LIT_SIZE =>
-			yield "z";
+			yield fmt::asprintf("{}z", v.value);
 		case ltok::LIT_I8 =>
-			yield "i8";
+			yield fmt::asprintf("{}i8", v.value);
 		case ltok::LIT_I16 =>
-			yield "i16";
+			yield fmt::asprintf("{}i16", v.value);
 		case ltok::LIT_I32 =>
-			yield "i32";
+			yield fmt::asprintf("{}i32", v.value);
 		case ltok::LIT_I64 =>
-			yield "i64";
+			yield fmt::asprintf("{}i64", v.value);
 		case ltok::LIT_INT =>
-			yield "i";
-		case ltok::LIT_ICONST, ltok::LIT_FCONST =>
-			yield "";
+			yield fmt::asprintf("{}i", v.value);
+		case ltok::LIT_ICONST =>
+			yield fmt::asprint(v.value);
+		case ltok::LIT_FCONST =>
+			yield fmt::asprintf("{:F.}", v.value);
 		case ltok::LIT_F32 =>
-			yield "f32";
+			yield fmt::asprintf("{}f32", v.value);
 		case ltok::LIT_F64 =>
-			yield "f64";
+			yield fmt::asprintf("{}f64", v.value);
 		case => abort();
-		});
+		};
 		defer free(s);
 		return syn(ctx, s, synkind::NUMBER)?;
 	case let sc: ast::struct_literal =>

@@ -3,6 +3,7 @@
 
 use io;
 use os;
+use rt;
 
 // The global logger instance.
 export let global: *logger = &_default;
@@ -13,12 +14,7 @@ export const default: *logger = &_default;
 let _default: stdlogger = stdlogger {
 	println = &log_println,
 	printfln = &log_printfln,
-	sink = -1: io::file,
-};
-
-@init fn init() void = {
-	// XXX: Would be nice not to have to do this
-	_default.sink = os::stderr;
+	sink = rt::STDERR_FILENO: io::file,
 };
 
 // Sets the global logger instance to the provided logger.

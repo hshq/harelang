@@ -111,7 +111,7 @@
 		"};\n");
 };
 
-@test fn constant() void = {
+@test fn literal() void = {
 	roundtrip(`export fn main() void = {
 	2 + (-4 + void) * true % done / ("hello" << '?');
 	[1, 2, 3, 4];
@@ -151,6 +151,11 @@
 	coords {
 		...
 	};
+	0.0;
+	0f32;
+	0f64;
+	1.0;
+	1.0e10;
 	13.37;
 	13.37f32;
 	13.37f64;

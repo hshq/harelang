@@ -34,6 +34,8 @@ type vdso_ctx = struct {
 
 let ctx: nullable *vdso_ctx = null;
 
+@fini fn ctx() void = free(ctx);
+
 fn get_vdso_ctx() nullable *vdso_ctx = {
 	static let vdso_checked = false;
 	if (vdso_checked) {

@@ -362,7 +362,8 @@ export fn fftosf(
 		init_dec_mant_exp(&dec, mdec, edec);
 		// If SHOW_POINT and we have too few digits, then we need to
 		// fall back to multiprecision.
-		ok = !ffpoint(flag) || dec.dp < dec.nd: i32;
+		ok = !ffpoint(flag) || dec.dp < dec.nd: i32
+			|| (f != ffmt::F && dec.dp - dec.nd: i32 > 2);
 	};
 
 	if (!ok) {

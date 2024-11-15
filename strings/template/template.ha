@@ -139,7 +139,7 @@ fn parse_variable(
 				break;
 			};
 		} else {
-			if (ascii::isalnum(rn)) {
+			if (ascii::isalnum(rn) || rn == '_') {
 				memio::appendrune(buf, rn)!;
 			} else {
 				strings::prev(iter);

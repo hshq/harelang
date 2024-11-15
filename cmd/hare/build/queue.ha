@@ -143,9 +143,6 @@ fn run_task(ctx: *context, jobs: *[]job, t: *task) (bool | error) = {
 	let args = get_args(ctx, tmp, flags, t);
 	defer strings::freeall(args);
 
-	path::set(&buf, out)?;
-	write_args(ctx, path::push_ext(&buf, "txt")?, args, t)?;
-
 	let outdated = module::outdated(out, deps, mod.srcs.mtime);
 	let exec = t.kind != stage::SSA || len(mod.srcs.ha) != 0;
 	if (!exec || !outdated) {

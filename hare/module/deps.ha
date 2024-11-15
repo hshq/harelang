@@ -23,6 +23,7 @@ export type module = struct {
 	srcs: srcset,
 	// [](Index to the module, Identifier of of the module)
 	deps: [](size, ast::ident),
+	is_dep: bool,
 };
 
 // Get the list of dependencies referred to by a set of source files.
@@ -107,18 +108,101 @@ fn get_deps(cachedir: str, srcs: *srcset) ([]ast::ident | error) = {
 	return deps;
 };
 
-// Gather a [[module]] and all its dependencies, appending them to an existing
-// slice, deduplicated, in reverse topological order, returning the index of the
-// input module within the slice. Dependencies will also be written to the
-// cache.
+// Returns true if a module was requested via [[gather_submodules]] or
+// [[gather]], and not resolved as a collateral.
+export fn gathered(mod: *module) bool = {
+	return !mod.is_dep && (len(mod.srcs.ha) > 0 || len(mod.srcs.s) > 0);
+};
+
+// Gather a [[module]] and by default all its dependencies, appending them to
+// an existing slice, deduplicated, in reverse topological order, returning the
+// index of the input module within the slice. Dependencies will also be written
+// to the cache.
 export fn gather(
 	ctx: *context,
 	out: *[]module,
 	mod: location,
+	recursive: bool = true,
 ) (size | error) = {
 	let stack: []str = [];
 	defer free(stack);
-	return _gather(ctx, out, &stack, mod)?;
+	return _gather(ctx, out, &stack, mod, false, recursive)?;
+};
+
+// Gather submodules and by default all their dependencies, appending them to
+// an existing slice, deduplicated, in reverse topological order, returning the
+// number of modules added to the slice. The submodules are searched relative
+// to a parent directory that may target a module, or a source directory (for
+// example a HAREPATH component). Dependencies will also be written to the
+// cache.
+export fn gather_submodules(
+	ctx: *context,
+	out: *[]module,
+	mod: location,
+	recursive: bool = true,
+) (size | error) = {
+	let id: ast::ident = [];
+	defer ast::ident_free(id);
+
+	let buf = match (mod) {
+	case let b: *path::buffer =>
+		yield b;
+	case let m: ast::ident =>
+		append(id, m...);
+		static let b = path::buffer { ... };
+		let res = find(ctx, id)?;
+		defer finish_srcset(&res.1);
+		path::set(&b, res.0)?;
+		yield &b;
+	};
+
+	static let srcdir = path::buffer { ... };
+	srcdir = *buf;
+	for (let i = 0z; i < len(id); i += 1) {
+		path::pop(&srcdir);
+	};
+
+	let subpath = strings::concat(path::string(&srcdir), ":",
+		ctx.harepath);
+	defer free(subpath);
+
+	let subctx = context {
+		harepath = subpath,
+		harecache = ctx.harecache,
+		tags = ctx.tags,
+	};
+	return _gather_submodules(&subctx, out, buf, &id, recursive);
+};
+
+export fn _gather_submodules(
+	ctx: *context,
+	out: *[]module,
+	buf: *path::buffer,
+	mod: *ast::ident,
+	recursive: bool = true,
+) (size | error) = {
+	let n = 0z;
+	let it = os::iter(path::string(buf))?;
+	defer fs::finish(it);
+
+	for (let dir => next(it)?) {
+		let stack: []str = [];
+		defer free(stack);
+		path::push(buf, dir.name)?;
+		defer path::pop(buf);
+		append(mod, dir.name);
+		defer delete(mod[len(mod) - 1]);
+		match (_gather(ctx, out, &stack, *mod, false, recursive)) {
+		case size =>
+			n += 1;
+		case let e: error =>
+			if (!(unwrap_error(e) is not_found)) {
+				return e;
+			};
+		};
+		n += _gather_submodules(ctx, out, buf, mod, recursive)?;
+	};
+	return n;
 };
 
 fn _gather(
@@ -126,6 +210,8 @@ fn _gather(
 	out: *[]module,
 	stack: *[]str,
 	mod: location,
+	is_dep: bool,
+	recursive: bool,
 ) (size | error) = {
 	let (modpath, srcs) = match (find(ctx, mod)) {
 	case let r: (str, srcset) =>
@@ -147,6 +233,7 @@ fn _gather(
 	};
 	for (let j = 0z; j < len(out); j += 1) {
 		if (modpath == out[j].path) {
+			out[j].is_dep &&= is_dep;
 			return j;
 		};
 	};
@@ -157,10 +244,12 @@ fn _gather(
 	let depids = get_deps(cache, &srcs)?;
 	defer free(depids);
 	let deps: [](size, ast::ident) = alloc([], len(depids));
-	for (let i = 0z; i < len(depids); i += 1) {
-		static append(deps,
-			(_gather(ctx, out, stack, depids[i])?, depids[i])
-		);
+
+	if (!is_dep || recursive) {
+		for (let depid .. depids) {
+			static append(deps, (_gather(ctx, out, stack, depid,
+						true, recursive)?, depid));
+		};
 	};
 
 	append(out, module {
@@ -179,6 +268,7 @@ fn _gather(
 		path = strings::dup(modpath),
 		srcs = srcs,
 		deps = deps,
+		is_dep = is_dep,
 	});
 	return len(out) - 1;
 };

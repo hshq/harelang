@@ -25,6 +25,39 @@ export type scanner = struct {
 	pending: []u8,
 	// User-confirmed maximum size of read buffer
 	maxread: size,
+	// Change some scanning behaviors
+	opts: scan_options,
+};
+
+// Options which fine-tune the behavior of a [[scanner]].
+export type scan_options = enum uint {
+	DEFAULT = EOF_DISCARD,
+	// Upon encountering EOF, all bytes or characters between the
+	// final token and EOF are discarded and EOF is returned
+	// immediately.
+	//
+	// This option is recommended for use-cases where the user is
+	// scanning over a file or buffer which may contain partial
+	// content, and the user wishes to consume as many tokens as
+	// possible and assume that additional data may follow EOF
+	// before a new delimiter is written.
+	//
+	// This is the default behavior. Note that on Unix, text files
+	// are always terminated with a new line, and [[scan_line]] will
+	// enumerate all well-formed lines in a file with this flag --
+	// however, when scanning ill-formed text files which include
+	// text following the final line feed, this additional text will
+	// be discarded.
+	EOF_DISCARD = 0,
+	// Upon encountering EOF, all bytes or characters between the
+	// final token and EOF are treated as a token and returned to
+	// the caller before returning EOF.
+	//
+	// This is recommended for use-cases where EOF is effectively
+	// considered an additional delimiter between tokens, or where
+	// the remainder of the file following the final delimiter is
+	// meaningful.
+	EOF_GREEDY = 1 << 0,
 };
 
 // Creates a new [[scanner]] which will allocate and maintain a read buffer for
@@ -38,6 +71,7 @@ export type scanner = struct {
 export fn newscanner(
 	src: io::handle,
 	maxread: size = types::SIZE_MAX,
+	opts: scan_options = scan_options::DEFAULT,
 ) scanner = {
 	return scanner {
 		stream = &scanner_vtable,
@@ -46,6 +80,7 @@ export fn newscanner(
 		maxread = maxread,
 		start = 0,
 		pending = [],
+		opts = opts,
 	};
 };
 
@@ -53,7 +88,11 @@ export fn newscanner(
 // return [[errors::overflow]] if the buffer length is reached, but will not
 // perform any allocations. The user should not call [[finish]] after use unless
 // they wish to free the underlying buffer through bufio.
-export fn newscanner_static(src: io::handle, buffer: []u8) scanner = {
+export fn newscanner_static(
+	src: io::handle,
+	buffer: []u8,
+	opts: scan_options = scan_options::DEFAULT,
+) scanner = {
 	return scanner {
 		stream = &scanner_vtable,
 		src = src,
@@ -61,6 +100,7 @@ export fn newscanner_static(src: io::handle, buffer: []u8) scanner = {
 		maxread = len(buffer),
 		start = 0,
 		pending = [],
+		opts = opts,
 	};
 };
 
@@ -164,6 +204,9 @@ export fn scan_bytes(
 
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
+			if (scan.opts & scan_options::EOF_DISCARD == 0) {
+				return io::EOF;
+			};
 			if (len(scan.pending) == 0) {
 				return io::EOF;
 			};

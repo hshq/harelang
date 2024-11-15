@@ -237,7 +237,7 @@ fn decl_test(d: *ast::decl, expected: str) bool = {
 				symbol = "",
 				ident = ["foo", "bar"],
 				_type = &type_int,
-				init = alloc(expr_void),
+				init = &expr_void,
 			},
 			ast::decl_global {
 				is_const = false,
@@ -245,7 +245,7 @@ fn decl_test(d: *ast::decl, expected: str) bool = {
 				symbol = "",
 				ident = ["boo"],
 				_type = &type_int,
-				init = alloc(expr_void),
+				init = &expr_void,
 			},
 			ast::decl_global {
 				is_const = false,
@@ -253,7 +253,7 @@ fn decl_test(d: *ast::decl, expected: str) bool = {
 				symbol = "foobar",
 				ident = ["baz"],
 				_type = &type_int,
-				init = alloc(expr_void),
+				init = &expr_void,
 			},
 		],
 		...
@@ -265,7 +265,7 @@ fn decl_test(d: *ast::decl, expected: str) bool = {
 		ast::decl_const {
 			ident = ["foo"],
 			_type = &type_int,
-			init = alloc(expr_void),
+			init = &expr_void,
 		},
 	];
 	assert(decl_test(&d, "export def foo: int = void;"));
