@@ -65,6 +65,44 @@ fn fsflags_to_bsd(flags: fs::flag) (int | errors::unsupported) = {
 	return out;
 };
 
+fn bsd_to_fsflags(flags: int) fs::flag = {
+	let out: fs::flag = 0;
+	if (flags & rt::O_WRONLY == rt::O_WRONLY) {
+		out |= fs::flag::WRONLY;
+	};
+	if (flags & rt::O_RDWR == rt::O_RDWR) {
+		out |= fs::flag::RDWR;
+	};
+	if (flags & rt::O_CREAT == rt::O_CREAT) {
+		out |= fs::flag::CREATE;
+	};
+	if (flags & rt::O_EXCL == rt::O_EXCL) {
+		out |= fs::flag::EXCL;
+	};
+	if (flags & rt::O_TRUNC == rt::O_TRUNC) {
+		out |= fs::flag::TRUNC;
+	};
+	if (flags & rt::O_APPEND == rt::O_APPEND) {
+		out |= fs::flag::APPEND;
+	};
+	if (flags & rt::O_NONBLOCK == rt::O_NONBLOCK) {
+		out |= fs::flag::NONBLOCK;
+	};
+	if (flags & rt::O_SYNC == rt::O_SYNC) {
+		out |= fs::flag::SYNC;
+	};
+	if (flags & rt::O_DIRECTORY == rt::O_DIRECTORY) {
+		out |= fs::flag::DIRECTORY;
+	};
+	if (flags & rt::O_NOFOLLOW == rt::O_NOFOLLOW) {
+		out |= fs::flag::NOFOLLOW;
+	};
+	if (flags & rt::O_CLOEXEC == 0) {
+		out |= fs::flag::NOCLOEXEC;
+	};
+	return out;
+};
+
 fn _fs_open(
 	fs: *fs::fs,
 	path: str,
