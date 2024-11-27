@@ -247,7 +247,7 @@ export def WCHAR_MIN: wchar = types::I32_MIN;
 // Maximum value which can be stored in a [[wchar]] type.
 export def WCHAR_MAX: wchar = types::I32_MAX;
 
-// Integer type compatible with `wint_t`, as defined in <stdint.h> and specified
+// Integer type compatible with `wint_t`, as defined in <wchar.h> and specified
 // by ISO/IEC 9899:1994.
 export type wint = u32;
 
