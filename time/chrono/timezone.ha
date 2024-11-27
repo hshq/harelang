@@ -191,7 +191,13 @@ export const LOCAL: locality = &TZ_UTC;
 	case void =>
 		yield match (os::realpath(LOCALTIME_PATH)) {
 		case let path: str =>
-			yield path;
+			yield if (strings::hasprefix(path, TZDB_PATH)) {
+				yield strings::sub(
+					path, len(TZDB_PATH), strings::end,
+				);
+			} else {
+				yield path;
+			};
 		case =>
 			return;
 		};

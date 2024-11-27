@@ -30,10 +30,10 @@ export type invalidtzif = !void;
 // All localities returned default to the [[utc]] [[timescale]] and
 // [[EARTH_DAY]] day-length.
 export fn tz(name: str) (locality | tzdberror) = {
-	const filepath = if (!strings::hasprefix(name, TZDB_PATH)) {
-		yield path::init(TZDB_PATH, name);
-	} else {
+	const filepath = if (strings::hasprefix(name, "/")) {
 		yield path::init(name);
+	} else {
+		yield path::init(TZDB_PATH, name);
 	};
 	const filepath = match (filepath) {
 	case let buf: path::buffer =>
