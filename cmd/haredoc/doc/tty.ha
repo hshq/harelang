@@ -139,7 +139,7 @@ fn emit_submodules_tty(ctx: *context) (void | error) = {
 			};
 			defer free(submodule);
 
-			fmt::fprintfln(ctx.out, "// - [[{}]]", submodule)?;
+			fmt::fprintfln(ctx.out, "// - [[{}::]]", submodule)?;
 		};
 	};
 };
