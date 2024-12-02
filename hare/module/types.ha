@@ -47,7 +47,7 @@ export type error = !(
 	errcontext |
 );
 
-// A container struct for context, used by [[gather]].
+// A container struct for context, used by [[find]] and [[gather]].
 export type context = struct {
 	harepath: str,
 	harecache: str,

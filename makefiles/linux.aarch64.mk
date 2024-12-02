@@ -136,10 +136,11 @@ $(HARECACHE)/std/fs.ssa: $(fs_ha) $(HARECACHE)/std/encoding_utf8.td $(HARECACHE)
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/fs.td.tmp -N fs $(fs_ha)
 
-os_ha = os/+linux/dirfdfs.ha os/+linux/exit.ha os/+linux/fs.ha os/+linux/memfd.ha os/+linux/memory.ha os/+linux/platform_environ.ha os/+linux/shm.ha os/+linux/status.ha os/+linux/stdfd.ha os/environ.ha os/os.ha
-$(HARECACHE)/std/os.ssa: $(os_ha) $(HARECACHE)/std/bufio.td $(HARECACHE)/std/errors.td $(HARECACHE)/std/fs.td $(HARECACHE)/std/io.td $(HARECACHE)/std/math.td $(HARECACHE)/std/path.td $(HARECACHE)/std/rt.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/time.td $(HARECACHE)/std/types_c.td
-	@mkdir -p -- "$(HARECACHE)/std"
-	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/os.td.tmp -N os $(os_ha)
+os_ha = os/+linux/dirfdfs.ha os/+linux/exit.ha os/+linux/fcntl.ha os/+linux/fs.ha os/+linux/memfd.ha os/+linux/memory.ha os/+linux/platform_environ.ha os/+linux/shm.ha os/+linux/status.ha os/+linux/stdfd.ha os/environ.ha os/os.ha
+$(HARECACHE)/os.ssa: $(os_ha) $(HARECACHE)/bufio.td $(HARECACHE)/errors.td $(HARECACHE)/fs.td $(HARECACHE)/io.td $(HARECACHE)/math.td $(HARECACHE)/path.td $(HARECACHE)/rt.td $(HARECACHE)/strings.td $(HARECACHE)/time.td $(HARECACHE)/types_c.td
+	@mkdir -p -- "$(HARECACHE)"
+	@printf 'HAREC\t%s\n' "$@"
+	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/os.td.tmp -N os $(os_ha)
 
 strconv_ha = strconv/decimal.ha strconv/ftos.ha strconv/ftos_ryu.ha strconv/itos.ha strconv/numeric.ha strconv/stof.ha strconv/stof_data.ha strconv/stoi.ha strconv/stou.ha strconv/types.ha strconv/utos.ha
 $(HARECACHE)/strconv.ssa: $(strconv_ha) $(HARECACHE)/ascii.td $(HARECACHE)/bytes.td $(HARECACHE)/io.td $(HARECACHE)/math.td $(HARECACHE)/memio.td $(HARECACHE)/strings.td $(HARECACHE)/types.td

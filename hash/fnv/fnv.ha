@@ -8,8 +8,9 @@ use strings;
 
 def PRIME32: u32 = 16777619;
 def PRIME64: u64 = 1099511628211;
-def BASIS32: u32 = 2166136261;
-def BASIS64: u64 = 14695981039346656037;
+
+export def BASIS32: u32 = 2166136261;
+export def BASIS64: u64 = 14695981039346656037;
 
 export type state32 = struct {
 	hash::hash,
@@ -45,12 +46,12 @@ const fnv32_vtable: io::vtable = io::vtable {
 // when you're done with it.
 //
 // Unless you have a reason to use this, [[fnv32a]] is recommended instead.
-export fn fnv32() state32 = state32 {
+export fn fnv32(basis: u32 = BASIS32) state32 = state32 {
 	stream = &fnv32_vtable,
 	sum = &fnv32_sum,
 	reset = &fnv32_reset,
 	sz = 4,
-	v = BASIS32,
+	v = basis,
 	...
 };
 
@@ -62,12 +63,12 @@ const fnv32a_vtable: io::vtable = io::vtable {
 // Creates a [[hash::hash]] which computes the FNV-1a 32-bit hash function. This
 // hash does not allocate any state, so you do not need to call [[hash::close]]
 // when you're done with it.
-export fn fnv32a() state32 = state32 {
+export fn fnv32a(basis: u32 = BASIS32) state32 = state32 {
 	stream = &fnv32a_vtable,
 	sum = &fnv32_sum,
 	reset = &fnv32_reset,
 	sz = 4,
-	v = BASIS32,
+	v = basis,
 	...
 };
 
@@ -81,12 +82,12 @@ const fnv64_vtable: io::vtable = io::vtable {
 // when you're done with it.
 //
 // Unless you have a reason to use this, [[fnv64a]] is recommended instead.
-export fn fnv64() state64 = state64 {
+export fn fnv64(basis: u64 = BASIS64) state64 = state64 {
 	stream = &fnv64_vtable,
 	sum = &fnv64_sum,
 	reset = &fnv64_reset,
 	sz = 8,
-	v = BASIS64,
+	v = basis,
 	...
 };
 
@@ -98,12 +99,12 @@ const fnv64a_vtable: io::vtable = io::vtable {
 // Creates a [[hash::hash]] which computes the FNV-1a 64-bit hash function. This
 // hash does not allocate any state, so you do not need to call [[hash::close]]
 // when you're done with it.
-export fn fnv64a() state64 = state64 {
+export fn fnv64a(basis: u64 = BASIS64) state64 = state64 {
 	stream = &fnv64a_vtable,
 	sum = &fnv64_sum,
 	reset = &fnv64_reset,
 	sz = 8,
-	v = BASIS64,
+	v = basis,
 	...
 };
 

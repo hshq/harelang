@@ -10,7 +10,6 @@ use hare::module;
 use hare::parse;
 use io;
 use os;
-use types;
 
 type symkind = enum {
 	LOCAL,
@@ -186,7 +185,7 @@ export fn scan(path: str) ([]ast::decl | parse::error) = {
 		fmt::fatalf("Error reading {}: {}", path, fs::strerror(err));
 	};
 	defer io::close(input)!;
-	let sc = bufio::newscanner(input, types::SIZE_MAX);
+	let sc = bufio::newscanner(input);
 	defer bufio::finish(&sc);
 	let lexer = lex::init(&sc, path, lex::flag::COMMENTS);
 	let su = parse::subunit(&lexer)?;
