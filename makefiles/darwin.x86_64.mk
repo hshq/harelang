@@ -113,7 +113,7 @@ $(HARECACHE)/std/os.ssa: $(os_ha) $(HARECACHE)/std/bufio.td $(HARECACHE)/std/enc
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/os.td.tmp -N os $(os_ha)
 
-strconv_ha = strconv/decimal.ha strconv/ftos.ha strconv/ftos_ryu.ha strconv/itos.ha strconv/numeric.ha strconv/stof.ha strconv/stof_data.ha strconv/stoi.ha strconv/stou.ha strconv/types.ha strconv/utos.ha
+strconv_ha = strconv/decimal.ha strconv/ftos.ha strconv/ftos_ryu.ha strconv/itos.ha strconv/stof.ha strconv/stof_data.ha strconv/stoi.ha strconv/stou.ha strconv/types.ha strconv/utos.ha
 $(HARECACHE)/std/strconv.ssa: $(strconv_ha) $(HARECACHE)/std/ascii.td $(HARECACHE)/std/bytes.td $(HARECACHE)/std/io.td $(HARECACHE)/std/math.td $(HARECACHE)/std/memio.td $(HARECACHE)/std/strings.td $(HARECACHE)/std/types.td
 	@mkdir -p -- "$(HARECACHE)/std"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/std/strconv.td.tmp -N strconv $(strconv_ha)
