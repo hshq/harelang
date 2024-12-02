@@ -41,8 +41,8 @@ export def SIG_HOLD: uintptr = 3;
 
 export type sigact = struct {
 	union {
-		sa_handler: *fn (int) void,
-		sa_sigaction: *fn (int, *siginfo, *opaque) void,
+		sa_handler: nullable *fn (int) void,
+		sa_sigaction: nullable *fn (int, *siginfo, *opaque) void,
 	},
 	sa_flags: int,
 	sa_mask: sigset,
