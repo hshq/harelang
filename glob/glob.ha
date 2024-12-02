@@ -84,7 +84,6 @@ export fn finish(gen: *generator) void = {
 // Returns a generated pathname. The returned string is valid until [[next]]
 // is called again. If, during the search, a directory is encountered that
 // cannot be opened or read, a [[failure]] object is returned instead.
-// [[next]] can be repeatedly called until void is returned.
 export fn next(gen: *generator) (str | done | failure) = {
 	const init = strstack_size(&gen.pats) == 1
 		&& len(memio::string(&gen.tmpp.dir)!) == 0
