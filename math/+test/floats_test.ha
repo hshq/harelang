@@ -174,7 +174,7 @@
 	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
 		let res = modfracf64(TEST_INPUTS[idx]);
 		assert(res.0 == TEST_MODFRAC[idx].0);
-		assert(isclose(res.1, TEST_MODFRAC[idx].1));
+		assert(isclosef64(res.1, TEST_MODFRAC[idx].1));
 	};
 	let res = modfracf64(1.75f64);
 	assert(res.0 == 1f64);

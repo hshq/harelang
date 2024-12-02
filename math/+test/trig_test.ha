@@ -7,7 +7,7 @@
 		const j = reduced.0;
 		const z = reduced.1;
 		const xred = (j: i64: f64) * (PI / 4f64) + z;
-		assert(isclose(
+		assert(isclosef64(
 			sinf64(TEST_INPUTS[idx]),
 			sinf64(xred)));
 	};
@@ -15,7 +15,7 @@
 
 @test fn cos() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			cosf64(TEST_INPUTS[idx]), TEST_COS[idx]));
 	};
 	assert(isnan(cosf64(-INF)));
@@ -25,7 +25,7 @@
 
 @test fn sin() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			sinf64(TEST_INPUTS[idx]), TEST_SIN[idx]));
 	};
 	assert(isnan(sinf64(-INF)));
@@ -37,7 +37,7 @@
 
 @test fn tan() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			tanf64(TEST_INPUTS[idx]), TEST_TAN[idx]));
 	};
 	assert(isnan(sinf64(-INF)));
@@ -49,7 +49,7 @@
 
 @test fn asin() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			asinf64(TEST_INPUTS[idx] / 10f64),
 			TEST_ASIN[idx]));
 	};
@@ -62,7 +62,7 @@
 
 @test fn acos() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			acosf64(TEST_INPUTS[idx] / 10f64),
 			TEST_ACOS[idx]));
 	};
@@ -74,7 +74,7 @@
 
 @test fn atan() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			atanf64(TEST_INPUTS[idx]),
 			TEST_ATAN[idx]));
 	};
@@ -87,7 +87,7 @@
 
 @test fn sinh() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(eqwithin(
+		assert(isclosef64(
 			sinhf64(TEST_INPUTS[idx]),
 			TEST_SINH[idx],
 			1e-6f64));
@@ -101,7 +101,7 @@
 
 @test fn cosh() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			coshf64(TEST_INPUTS[idx]),
 			TEST_COSH[idx]));
 	};
@@ -114,7 +114,7 @@
 
 @test fn tanh() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			tanhf64(TEST_INPUTS[idx]),
 			TEST_TANH[idx]));
 	};
@@ -127,7 +127,7 @@
 
 @test fn asinh() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			asinhf64(TEST_INPUTS[idx]),
 			TEST_ASINH[idx]));
 	};
@@ -140,7 +140,7 @@
 
 @test fn acosh() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			acoshf64(1f64 + absf64(TEST_INPUTS[idx])),
 			TEST_ACOSH[idx]));
 	};
@@ -153,7 +153,7 @@
 
 @test fn atanh() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			atanhf64(TEST_INPUTS[idx] / 10f64),
 			TEST_ATANH[idx]));
 	};
@@ -170,7 +170,7 @@
 
 @test fn atan2() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			atan2f64(10f64, TEST_INPUTS[idx]),
 			TEST_ATAN2[idx]));
 	};
@@ -196,7 +196,7 @@
 @test fn hypot() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
 		const a = absf64(1e200f64 * TEST_TANH[idx] * SQRT_2);
-		assert(isclose(
+		assert(isclosef64(
 			hypotf64(1e200f64 * TEST_TANH[idx],
 				1e200f64 * TEST_TANH[idx]),
 			a));

@@ -49,13 +49,13 @@
 
 use types;
 
-// The standard tolerance used by isclose(), which is just an arbitrary way to
-// measure whether two floating-point numbers are "sufficiently" close to each
-// other.
-export def STANDARD_TOL: f64 = 1e-14;
+// The standard tolerance used by [[isclosef32]] and [[isclosef64]], which is
+// just an arbitrary way to measure whether two floating-point numbers are
+// "sufficiently" close to each other.
+export def STANDARD_TOL = 1e-14;
 
 // Returns whether x and y are within tol of each other.
-export fn eqwithinf64(x: f64, y: f64, tol: f64) bool = {
+export fn isclosef64(x: f64, y: f64, tol: f64 = STANDARD_TOL) bool = {
 	if (isnan(x) || isnan(y) || isnan(tol)) {
 		return false;
 	};
@@ -63,7 +63,7 @@ export fn eqwithinf64(x: f64, y: f64, tol: f64) bool = {
 };
 
 // Returns whether x and y are within tol of each other.
-export fn eqwithinf32(x: f32, y: f32, tol: f32) bool = {
+export fn isclosef32(x: f32, y: f32, tol: f32 = STANDARD_TOL) bool = {
 	if (isnan(x) || isnan(y) || isnan(tol)) {
 		return false;
 	};
@@ -71,36 +71,16 @@ export fn eqwithinf32(x: f32, y: f32, tol: f32) bool = {
 };
 
 // Returns whether x and y are within tol of each other.
-export fn eqwithin(
+export fn isclose(
 	x: types::floating,
 	y: types::floating,
 	tol: types::floating,
 ) bool = {
 	match (x) {
 	case let n: f64 =>
-		return eqwithinf64(n, y as f64, tol as f64);
+		return isclosef64(n, y as f64, tol as f64);
 	case let n: f32 =>
-		return eqwithinf32(n, y as f32, tol as f32);
-	};
-};
-
-// Returns whether x and y are within [[STANDARD_TOL]] of each other.
-export fn isclosef64(x: f64, y: f64) bool = {
-	return eqwithinf64(x, y, STANDARD_TOL);
-};
-
-// Returns whether x and y are within [[STANDARD_TOL]] of each other.
-export fn isclosef32(x: f32, y: f32) bool = {
-	return eqwithinf32(x, y, STANDARD_TOL: f32);
-};
-
-// Returns whether x and y are within [[STANDARD_TOL]] of each other.
-export fn isclose(x: types::floating, y: types::floating) bool = {
-	match (x) {
-	case let n: f64 =>
-		return isclosef64(n, y as f64);
-	case let n: f32 =>
-		return isclosef32(n, y as f32);
+		return isclosef32(n, y as f32, tol as f32);
 	};
 };
 
