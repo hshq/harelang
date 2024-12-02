@@ -1,12 +1,23 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
+use time;
+
 // State for a pseudorandom number generator.
 export type random = u64;
 
 // Initializes a pseudorandom number generator with a given seed. This seed will
-// yield the same sequence of psuedo-random numbers if used again.
-export fn init(seed: u64) random = seed;
+// yield the same sequence of psuedo-random numbers if used again. If 'seed' is
+// void, the seed is instead determined by the current time (as reported by
+// [[time::now]]).
+export fn init(seed: (u64 | void) = void) random = {
+	match (seed) {
+	case void =>
+		return time::now(time::clock::MONOTONIC).sec: random;
+	case let r: u64 =>
+		return r;
+	};
+};
 
 // Returns a psuedo-random 64-bit unsigned integer.
 export fn next(r: *random) u64 = {
