@@ -365,7 +365,7 @@ export fn asinhc128(z: c128) c128 = {
 		};
 	} else if (math::isinf(z.1)) {
 		return (math::copysignf64(z.1, z.0),
-			math::copysign(math::PI / 2f64, z.1));
+			math::copysignf64(math::PI / 2f64, z.1));
 	};
 	const zz = mulc128(z, z);
 	const z1 = (1f64 + zz.0, zz.1); // 1 + z * z
@@ -586,9 +586,9 @@ fn tanSeries(z: c128) f64 = {
 export fn tanc128(x: c128) c128 = {
 	if (math::isinf(x.1)) {
 		if (math::isinf(x.0) || math::isnan(x.0)) {
-			return (math::copysign(0f64, x.0), math::copysign(1f64, x.1));
+			return (math::copysignf64(0f64, x.0), math::copysignf64(1f64, x.1));
 		};
-		return (math::copysign(0f64, math::sinf64(2f64*x.0)), math::copysign(1f64, x.1));
+		return (math::copysignf64(0f64, math::sinf64(2f64*x.0)), math::copysignf64(1f64, x.1));
 	};
 	if (x.0 == 0f64 && math::isnan(x.1)) {
 		return x;
@@ -607,9 +607,9 @@ export fn tanc128(x: c128) c128 = {
 export fn tanhc128(x: c128) c128 = {
 	if (math::isinf(x.0)) {
 		if (math::isinf(x.1) || math::isnan(x.1)) {
-			return (math::copysign(1f64, x.0), math::copysign(0f64, x.1));
+			return (math::copysignf64(1f64, x.0), math::copysignf64(0f64, x.1));
 		};
-		return (math::copysign(1f64, x.0), math::copysign(0f64, math::sinf64(2f64*x.1)));
+		return (math::copysignf64(1f64, x.0), math::copysignf64(0f64, math::sinf64(2f64*x.1)));
 	};
 	if (x.1 == 0f64 && math::isnan(x.0)) {
 		return x;
@@ -629,9 +629,9 @@ export fn atanc128(x: c128) c128 = {
 		return (x.0, math::atanhf64(x.1));
 	} else if (math::isinf(x.1) || math::isinf(x.0)) {
 		if (math::isnan(x.0)) {
-			return (math::NAN, math::copysign(0f64, x.1));
+			return (math::NAN, math::copysignf64(0f64, x.1));
 		};
-		return (math::copysign(math::PI/2f64, x.0), math::copysign(0f64, x.1));
+		return (math::copysignf64(math::PI/2f64, x.0), math::copysignf64(0f64, x.1));
 	} else if (math::isnan(x.0) || math::isnan(x.1)) {
 		return (math::NAN, math::NAN);
 	};

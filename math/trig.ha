@@ -234,7 +234,7 @@ export fn cosf64(x: f64) f64 = {
 
 	// Make argument positive
 	let is_negative = false;
-	x = absf(x);
+	x = absf64(x);
 
 	let j = 0u64;
 	let y = 0f64;

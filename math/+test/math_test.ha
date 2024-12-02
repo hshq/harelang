@@ -2,9 +2,9 @@
 // (c) Hare authors <https://harelang.org>
 
 @test fn isclose() void = {
-	assert(isclose(1f64, 2f64, 2f64));
-	assert(isclose(1.0f32, 2.0f32, 2.0f32));
-	assert(!isclose(1.0005f32, 1.0004f32, 0.00001f32));
+	assert(isclosef64(1f64, 2f64, 2f64));
+	assert(isclosef32(1.0f32, 2.0f32, 2.0f32));
+	assert(!isclosef32(1.0005f32, 1.0004f32, 0.00001f32));
 	assert(isclosef64(1f64, 1.0000000000000000000000000001f64));
 	assert(isclosef32(1.0f32, 1.0000000000000000000000000001f32));
 	assert(!isclosef32(1.0005f32, 1.0004f32));
@@ -167,7 +167,7 @@
 	assert(powf64(0f64, 123f64) == 0f64);
 	const neg_zero = powf64(-0f64, 123f64);
 	assert(neg_zero == 0f64);
-	assert(isnegative(neg_zero));
+	assert(isnegativef64(neg_zero));
 	// pow(±0, y) = +0 for finite y > 0 and not an odd integer
 	assert(powf64(0f64, 8f64) == 0f64);
 	// pow(-1, ±Inf) = 1
