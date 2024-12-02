@@ -86,7 +86,7 @@ const NTZ8TAB: [256]u8 = [
 	0x02, 0x00, 0x01, 0x00,
 ];
 
-// See http://supertech.csail.mit.edu/papers/debruijn.pdf
+// See https://web.archive.org/web/20240314060050/http://supertech.csail.mit.edu/papers/debruijn.pdf
 def DEBRUIJN32: u32 = 0x077CB531;
 
 const DEBRUIJN32TAB: [32]u8 = [
