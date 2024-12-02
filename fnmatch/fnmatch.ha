@@ -2,7 +2,6 @@
 // (c) Hare authors <https://harelang.org>
 
 use ascii;
-use errors;
 use strings;
 
 // A set of flags that alter the matching behavior of [[fnmatch]]
@@ -27,6 +26,8 @@ type star = void;
 type question = void;
 type end = void;
 type token = (rune | bracket | star | question | end);
+
+type invalid = !void;
 
 // Check whether the 'string' matches the 'pattern', which is a shell wildcard
 // pattern with the following matching rules:
@@ -54,11 +55,7 @@ export fn fnmatch(pattern: str, string: str, flags: flag = flag::NONE) bool = {
 
 // Split the pattern and the string on every '/' and process each part
 // separately
-fn fnmatch_pathname(
-	pattern: str,
-	string: str,
-	fl: flag,
-) (bool | errors::unsupported | errors::invalid) = {
+fn fnmatch_pathname(pattern: str, string: str, fl: flag) (bool | invalid) = {
 	let tok = strings::tokenize(string, "/");
 	let p_iter = strings::iter(pattern);
 	let start = p_iter;
@@ -101,11 +98,7 @@ fn fnmatch_pathname(
 // after the last star produce exact matches and then proceed to greedily match
 // everything in between. Because of the greedy property this algorithm does not
 // have exponential corner cases.
-fn fnmatch_internal(
-	pattern: str,
-	string: str,
-	fl: flag,
-) (bool | errors::invalid | errors::unsupported) = {
+fn fnmatch_internal(pattern: str, string: str, fl: flag) (bool | invalid) = {
 	if (fl & flag::PERIOD != 0) {
 		if (strings::hasprefix(string, ".")
 				&& !strings::hasprefix(pattern, ".")) {
@@ -224,15 +217,12 @@ fn fnmatch_internal(
 	};
 };
 
-fn match_bracket(
-	it: *strings::iterator,
-	c: rune,
-) (bool | errors::invalid | errors::unsupported) = {
+fn match_bracket(it: *strings::iterator, c: rune) (bool | invalid) = {
 	let old = *it;
 	let first = advance_or_err(it)?;
 	let inv = false;
 	if (first == '^') {
-		return errors::invalid;
+		return invalid;
 	};
 	if (first == '!') {
 		inv = true;
@@ -259,7 +249,7 @@ fn match_bracket(
 			};
 			match (last) {
 			case void =>
-				return errors::invalid;
+				return invalid;
 			case let l: rune =>
 				found ||= (l: u32 <= c: u32 && c: u32 <= end: u32);
 				last = void; // forbid 'a-f-n'
@@ -268,7 +258,7 @@ fn match_bracket(
 			let next_rune = advance_or_err(it)?;
 			switch (next_rune) { // TODO localization
 			case '=', '.' =>
-				return errors::unsupported;
+				return invalid;
 			case ':' =>
 				let t = match_ctype(it, c)?;
 				found ||= t;
@@ -286,22 +276,22 @@ fn match_bracket(
 	let cnt = len(strings::iterstr(&old)) - len(strings::iterstr(it));
 	if (last is rune && first == last: rune && cnt >= 4
 			&& (first == '=' || first == '.' || first == ':')) {
-		return errors::invalid;
+		return invalid;
 	};
 	return found ^^ inv;
 };
 
-fn match_ctype(it: *strings::iterator, c: rune) (bool | errors::invalid) = {
+fn match_ctype(it: *strings::iterator, c: rune) (bool | invalid) = {
 	let s = strings::iterstr(it);
 	let i = 0z;
 	for (let r = '\0'; r != ':'; i += 1) {
 		r = advance_or_err(it)?;
 		if (!ascii::valid(r)) {
-			return errors::invalid;
+			return invalid;
 		};
 	};
 	if (advance_or_err(it)? != ']') {
-		return errors::invalid;
+		return invalid;
 	};
 	let name = strings::sub(s, 0, i - 1);
 	const map: [_](str, *fn(rune) bool) = [
@@ -317,10 +307,10 @@ fn match_ctype(it: *strings::iterator, c: rune) (bool | errors::invalid) = {
 			return map[i].1(c);
 		};
 	};
-	return errors::invalid;
+	return invalid;
 };
 
-fn pat_next(pat: *strings::iterator, fl: flag) (token | errors::invalid) = {
+fn pat_next(pat: *strings::iterator, fl: flag) (token | invalid) = {
 	let r = match (strings::next(pat)) {
 	case done =>
 		return end;
@@ -343,11 +333,11 @@ fn pat_next(pat: *strings::iterator, fl: flag) (token | errors::invalid) = {
 	};
 };
 
-fn advance_or_err(it: *strings::iterator) (rune | errors::invalid) = {
+fn advance_or_err(it: *strings::iterator) (rune | invalid) = {
 	match (strings::next(it)) {
 	case let r: rune =>
 		return r;
 	case done =>
-		return errors::invalid;
+		return invalid;
 	};
 };
