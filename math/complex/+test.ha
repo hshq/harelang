@@ -338,12 +338,11 @@ const TEST_TANH: []c128 = [
 ];
 
 // huge values along the real axis for testing reducepi in tan
-// TODO: these probably shouldn't have to be casted twice (harec bug?)
 const TEST_HUGEIN: []c128 = [
-	((1 << 28): u64: f64, 0f64),
-	((1 << 29): u64: f64, 0f64),
-	((1 << 30): u64: f64, 0f64),
-	((1 << 35): u64: f64, 0f64),
+	((1u64 << 28): f64, 0f64),
+	((1u64 << 29): f64, 0f64),
+	((1u64 << 30): f64, 0f64),
+	((1u64 << 35): f64, 0f64),
 	(-1.329227995784916e+36, 0f64),
 	(1.7668470647783843e+72, 0f64),
 	(2.037035976334486e+90, 0f64),
@@ -886,8 +885,7 @@ const TEST_TANHSC: [](c128, c128) = [
 // all possible branch cuts for the elementary functions are at one of these
 // points
 
-// TODO: this probably shouldn't need to be casted twice (harec bug?)
-def EPS: f64 = 1f64 / (1 << 53): u64: f64;
+def EPS: f64 = 1f64 / (1u64 << 53): f64;
 
 const BRANCHPOINTS: [](c128, c128) = [
 	((2f64, 0f64), (2f64, EPS)),
