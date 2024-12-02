@@ -303,9 +303,9 @@ fn compute_round(
 export fn fftosf(
 	h: io::handle,
 	n: types::floating,
-	f: ffmt,
-	prec: (void | uint),
-	flag: fflags,
+	f: ffmt = ffmt::G,
+	prec: (void | uint) = void,
+	flag: fflags = fflags::NONE,
 ) (size | io::error) = {
 	const (mantissa, exponent, sign, special) = match (n) {
 	case let n: f64 =>
@@ -412,9 +412,9 @@ export fn fftosf(
 //   trailing zeros are removed.
 export fn ftosf(
 	n: types::floating,
-	f: ffmt,
-	prec: (void | uint),
-	flag: fflags,
+	f: ffmt = ffmt::G,
+	prec: (void | uint) = void,
+	flag: fflags = fflags::NONE,
 ) str = {
 	let m = memio::dynamic();
 	fftosf(&m, n, f, prec, flag)!;
@@ -433,7 +433,7 @@ export fn f64tos(n: f64) const str = {
 	// (1 + 1 + 1 + 16 + 1 + 1 + 3) = 24
 	static let buf: [24]u8 = [0...];
 	let m = memio::fixed(buf);
-	fftosf(&m, n, ffmt::G, void, 0)!;
+	fftosf(&m, n)!;
 	return memio::string(&m)!;
 };
 
@@ -449,6 +449,6 @@ export fn f32tos(n: f32) const str = {
 	// (1 + 1 + 1 + 7 + 1 + 1 + 2) = 14
 	static let buf: [14]u8 = [0...];
 	let m = memio::fixed(buf);
-	fftosf(&m, n, ffmt::G, void, 0)!;
+	fftosf(&m, n)!;
 	return memio::string(&m)!;
 };
