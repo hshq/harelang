@@ -55,6 +55,7 @@
 // ====================================================
 
 use math;
+use math::checked;
 
 // A complex number containing a real component and an imaginary component,
 // represented as two single-precision floating point numbers.
@@ -519,8 +520,8 @@ fn reducePi(x: f64) f64 = {
 	let (z2hi, z2lo) = math::mulu64(z2, ix);
 	let (z1hi, z1lo) = math::mulu64(z1, ix);
 	let z0lo: u64 = z0 * ix;
-	let (lo, c) = math::addu64(z1lo, z2hi, 0);
-	let (hi, _) = math::addu64(z0lo, z1hi, c);
+	let (lo, c) = checked::addu64(z1lo, z2hi);
+	let hi = z0lo + z1hi + (if (c) 1u64 else 0u64);
 	// Find the magnitude of the fraction.
 	let lz: u8 = math::leading_zeros_u64(hi);
 	let e: u64 = (bias - (lz + 1)): u64;
