@@ -40,10 +40,10 @@ export def F64_MANTISSA_MASK: u64 = (1 << F64_MANTISSA_BITS) - 1;
 export def F64_EXPONENT_MASK: u64 = (1 << F64_EXPONENT_BITS) - 1;
 
 // Mask with each bit of an f32's mantissa set.
-export def F32_MANTISSA_MASK: u64 = (1 << F32_MANTISSA_BITS) - 1;
+export def F32_MANTISSA_MASK: u32 = (1 << F32_MANTISSA_BITS) - 1;
 
 // Mask with each bit of an f32's exponent set.
-export def F32_EXPONENT_MASK: u64 = (1 << F32_EXPONENT_BITS) - 1;
+export def F32_EXPONENT_MASK: u32 = (1 << F32_EXPONENT_BITS) - 1;
 
 // The largest representable f64 value which is less than Infinity.
 export def F64_MAX_NORMAL: f64 = 1.7976931348623157e+308;
@@ -301,8 +301,8 @@ export fn frexpf32(n: f32) (f32, i64) = {
 	const normal_float = normalized.0;
 	const normalization_exp = normalized.1;
 	const bits = f32bits(normal_float);
-	const raw_exp: u64 = ((bits >> (F32_MANTISSA_BITS: u32)) &
-		(F32_EXPONENT_MASK: u32));
+	const raw_exp: u64 = (bits >> F32_MANTISSA_BITS)
+		& F32_EXPONENT_MASK: u32;
 	const exp: i64 = normalization_exp +
 		(raw_exp: i64) - (F32_EXPONENT_BIAS: i64) + 1;
 	const mantissa: f32 =
