@@ -168,11 +168,8 @@ fn trig_reduce(x: f64) (u64, f64) = {
 		(MPI4[digit + 3] >> (64 - bitshift));
 	// Multiply mantissa by the digits and extract the upper two digits
 	// (hi, lo).
-	const z2 = mulu64(z2, ix);
-	const z2hi = z2.0;
-	const z1 = mulu64(z1, ix);
-	const z1hi = z1.0;
-	const z1lo = z1.1;
+	const (z2hi, _) = mulu64(z2, ix);
+	const (z1hi, z1lo) = mulu64(z1, ix);
 	const z0lo = z0 * ix;
 	const lo = z1lo + z2hi;
 	let hi = z0lo + z1hi;
