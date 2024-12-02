@@ -501,8 +501,8 @@ export fn nextafterf64(x: f64, y: f64) f64 = {
 // Round a f32 to nearest integer value in floating point format
 fn nearbyintf32(x: f32) f32 = {
 	let n = f32bits(x);
-	let e = n >> 23 & 0xff;
-	if (e >= 0x7f + 23) {
+	let e = (n & F32_EXPONENT_MASK) >> F32_MANTISSA_BITS;
+	if (e >= F32_EXPONENT_BIAS + F32_MANTISSA_BITS) {
 		return x;
 	};
 	let s = n >> 31;
@@ -520,8 +520,8 @@ fn nearbyintf32(x: f32) f32 = {
 // Round a f64 to nearest integer value in floating point format
 fn nearbyintf64(x: f64) f64 = {
 	let n = f64bits(x);
-	let e = n >> 52 & 0x7ff;
-	if (e >= 0x3ff + 52) {
+	let e = (n & F64_EXPONENT_MASK) >> F64_MANTISSA_BITS;
+	if (e >= F64_EXPONENT_BIAS + F64_MANTISSA_BITS) {
 		return x;
 	};
 	let s = n >> 63;
