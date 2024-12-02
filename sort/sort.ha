@@ -88,7 +88,7 @@ type run = struct {
 
 fn powersort(items: []opaque, itemsz: size, cmp: *cmpfunc) void = {
 	// npowers = floor(log2(n)) + 1
-	const npowers = math::bit_size_u64(len(items)) + 1;
+	const npowers = math::bit_size(len(items)) + 1;
 	const runs: []run = alloc([run { start = EMPTY, ... }...], npowers + 1);
 	defer free(runs);
 	let top = 0u8;

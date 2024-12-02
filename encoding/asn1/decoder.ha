@@ -3,7 +3,7 @@
 
 use bytes;
 use io;
-use math::{bit_size_u8};
+use math::{bit_size};
 use os;
 use strings;
 use time::chrono;
@@ -300,7 +300,7 @@ fn parse_longtag(p: *decoder, max: size) (u32 | error) = {
 		let b = scan_byte(p)?;
 		const part = b & 0x7f;
 
-		nbits += if (tag == 0) bit_size_u8(part) else 7;
+		nbits += if (tag == 0) bit_size(part) else 7;
 		if (nbits > maxbits) {
 			// overflows u32
 			return invalid;

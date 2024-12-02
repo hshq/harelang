@@ -107,36 +107,7 @@ const DEBRUIJN64TAB: [64]u8 = [
 def UINT_SIZE: u8 = (size(uint): u8) * 8;
 
 // Returns the minimum number of bits required to represent x.
-export fn bit_size_u8(x: u8) u8 = {
-	return LEN8TAB[x];
-};
-
-// Returns the minimum number of bits required to represent x.
-export fn bit_size_u16(x: u16) u8 = {
-	let res = 0u8;
-	if (x >= 1u16 << 8) {
-		x >>= 8;
-		res += 8;
-	};
-	return res + LEN8TAB[x];
-};
-
-// Returns the minimum number of bits required to represent x.
-export fn bit_size_u32(x: u32) u8 = {
-	let res = 0u8;
-	if (x >= 1u32 << 16) {
-		x >>= 16;
-		res += 16;
-	};
-	if (x >= 1u32 << 8) {
-		x >>= 8;
-		res += 8;
-	};
-	return res + LEN8TAB[x];
-};
-
-// Returns the minimum number of bits required to represent x.
-export fn bit_size_u64(x: u64) u8 = {
+export fn bit_size(x: u64) u8 = {
 	let res = 0u8;
 	if (x >= 1u64 << 32) {
 		x >>= 32;
@@ -153,48 +124,35 @@ export fn bit_size_u64(x: u64) u8 = {
 	return res + LEN8TAB[x];
 };
 
-// Returns the minimum number of bits required to represent x.
-export fn bit_size_u(x: uint) u8 = {
-	if (UINT_SIZE == 32) {
-		return bit_size_u32(x: u32);
-	};
-	return bit_size_u64(x: u64);
+@test fn bit_size() void = {
+	assert(bit_size(0) == 0);
+	assert(bit_size(1) == 1);
+	assert(bit_size(2) == 2);
+	assert(bit_size(5) == 3);
+	assert(bit_size(31111) == 15);
+	assert(bit_size(536870911) == 29);
+	assert(bit_size(8589934591) == 33);
 };
-
-@test fn bit_size_u() void = {
-	assert(bit_size_u8(0) == 0);
-	assert(bit_size_u8(2) == 2);
-	assert(bit_size_u8(5) == 3);
-	assert(bit_size_u16(5) == 3);
-	assert(bit_size_u32(5) == 3);
-	assert(bit_size_u64(5) == 3);
-	assert(bit_size_u16(31111) == 15);
-	assert(bit_size_u32(536870911) == 29);
-	assert(bit_size_u64(8589934591) == 33);
-	assert(bit_size_u(0) == 0);
-	assert(bit_size_u(1) == 1);
-};
-
 
 // Returns the number of leading zero bits in x
 // The result is UINT_SIZE for x == 0.
-export fn leading_zeros_u(x: uint) u8 = UINT_SIZE - bit_size_u(x);
+export fn leading_zeros_u(x: uint) u8 = UINT_SIZE - bit_size(x);
 
 // Returns the number of leading zero bits in x
 // The result is 8 for x == 0.
-export fn leading_zeros_u8(x: u8) u8 = 8 - bit_size_u8(x);
+export fn leading_zeros_u8(x: u8) u8 = 8 - bit_size(x);
 
 // Returns the number of leading zero bits in x
 // The result is 16 for x == 0.
-export fn leading_zeros_u16(x: u16) u8 = 16 - bit_size_u16(x);
+export fn leading_zeros_u16(x: u16) u8 = 16 - bit_size(x);
 
 // Returns the number of leading zero bits in x
 // The result is 32 for x == 0.
-export fn leading_zeros_u32(x: u32) u8 = 32 - bit_size_u32(x);
+export fn leading_zeros_u32(x: u32) u8 = 32 - bit_size(x);
 
 // Returns the number of leading zero bits in x
 // The result is 64 for x == 0.
-export fn leading_zeros_u64(x: u64) u8 = 64 - bit_size_u64(x);
+export fn leading_zeros_u64(x: u64) u8 = 64 - bit_size(x);
 
 @test fn leading_zeros_u() void = {
 	assert(leading_zeros_u(0) == UINT_SIZE);
