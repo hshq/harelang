@@ -279,7 +279,9 @@ export fn mulu64(x: u64, y: u64) (u64, u64) = {
 	return (hi, lo);
 };
 
-// Calls either mulu32() or mulu64() depending on size(uint).
+// Returns the product of x and y: (hi, lo) = x * y
+// with the product bits' upper half returned in hi and the lower
+// half returned in lo.
 export fn mulu(x: uint, y: uint) (uint, uint) = {
 	if (size(uint) == 4) {
 		const res = mulu32((x: u32), (y: u32));
@@ -375,7 +377,10 @@ export fn divu64(hi: u64, lo: u64, y: u64) (u64, u64) = {
 	return (quo, rem);
 };
 
-// Calls either divu32() or divu64() depending on size(uint).
+// Returns the quotient and remainder of (hi, lo) divided by y:
+// quo = (hi, lo) / y, rem = (hi, lo) % y with the dividend bits' upper
+// half in parameter hi and the lower half in parameter lo.
+// Aborts if y == 0 (division by zero) or y <= hi (quotient overflow).
 export fn divu(hi: uint, lo: uint, y: uint) (uint, uint) = {
 	if (size(uint) == 4) {
 		const res = divu32((hi: u32), (lo: u32), (y: u32));
@@ -453,7 +458,9 @@ export fn remu64(hi: u64, lo: u64, y: u64) u64 = {
 	return res.1;
 };
 
-// Calls either remu32() or remu64() depending on size(uint).
+// Returns the remainder of (hi, lo) divided by y.
+// Aborts if y == 0 (division by zero) but, unlike [[divu]], it doesn't abort on
+// a quotient overflow.
 export fn remu(hi: uint, lo: uint, y: uint) uint = {
 	if (size(uint) == 4) {
 		return (remu32((hi: u32), (lo: u32), (y: u32)): uint);
