@@ -126,19 +126,11 @@
 	assert(powf64(2f64, -F64_MAX_NORMAL) == 0f64);
 	assert(isinf(powf64(0.5f64, -F64_MAX_NORMAL)));
 	// Positive fractional powers
-	assert(isclosef64(powf64(2f64, 1.5f64),
-		2.8284271247461900976033774f64,
-		1e-10f64));
-	assert(isclosef64(powf64(2f64, 5.5f64),
-		45.254833995939041561654039f64,
-		1e-10f64));
+	assert(isclosef64(powf64(2f64, 1.5f64), 2.8284271247461900976033774f64));
+	assert(isclosef64(powf64(2f64, 5.5f64), 45.254833995939041561654039f64));
 	// Negative fractional powers
-	assert(isclosef64(powf64(2f64, -1.5f64),
-		0.3535533905932737622004221f64,
-		1e-10f64));
-	assert(isclosef64(powf64(2f64, -5.5f64),
-		0.0220970869120796101375263f64,
-		1e-10f64));
+	assert(isclosef64(powf64(2f64, -1.5f64), 0.3535533905932737622004221f64));
+	assert(isclosef64(powf64(2f64, -5.5f64), 0.0220970869120796101375263f64));
 
 	// Special cases
 	// pow(x, ±0) = 1 for any x
