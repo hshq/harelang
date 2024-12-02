@@ -250,12 +250,12 @@ export type st_flock = struct {
 	l_whence: i16,
 	l_start: i64,
 	l_len: i64,
-	l_pid: int,
+	l_pid: pid_t,
 };
 
 export type f_owner_ex = struct {
 	_type: int,
-	pid: int,
+	pid: pid_t,
 };
 
 export def CLOCK_REALTIME: int			= 0;

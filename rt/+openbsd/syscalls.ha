@@ -1015,9 +1015,9 @@ export fn writev(fd: int, iov: const *[*]iovec, iovcnt: int) (size | errno) = {
 
 // kill
 
-@symbol("kill") fn libc_kill(pid: int, signal: int) int;
+@symbol("kill") fn libc_kill(pid: pid_t, signal: int) int;
 
-export fn kill(pid: int, signal: int) (void | errno) = {
+export fn kill(pid: pid_t, signal: int) (void | errno) = {
 	let res = libc_kill(pid, signal);
 	if (res == -1) {
 		return *__errno(): errno;
