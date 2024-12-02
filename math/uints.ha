@@ -320,8 +320,8 @@ export fn mulu(x: uint, y: uint) (uint, uint) = {
 // half in parameter hi and the lower half in parameter lo.
 // Aborts if y == 0 (division by zero) or y <= hi (quotient overflow).
 export fn divu32(hi: u32, lo: u32, y: u32) (u32, u32) = {
-	assert(y != 0);
-	assert(y > hi);
+	assert(y != 0, "division by zero");
+	assert(y > hi, "quotient overflow");
 	const z = (hi: u64) << 32 | (lo: u64);
 	const quo = ((z / (y: u64)): u32);
 	const rem = ((z % (y: u64)): u32);
@@ -335,8 +335,8 @@ export fn divu32(hi: u32, lo: u32, y: u32) (u32, u32) = {
 export fn divu64(hi: u64, lo: u64, y: u64) (u64, u64) = {
 	const two32 = 1u64 << 32;
 	const mask32 = two32 - 1;
-	assert(y != 0);
-	assert(y > hi);
+	assert(y != 0, "division by zero");
+	assert(y > hi, "quotient overflow");
 
 	const s = leading_zeros_u64(y);
 	y <<= s;
@@ -433,7 +433,7 @@ export fn divu(hi: uint, lo: uint, y: uint) (uint, uint) = {
 // Aborts if y == 0 (division by zero) but, unlike [[divu32]], it doesn't abort
 // on a quotient overflow.
 export fn remu32(hi: u32, lo: u32, y: u32) u32 = {
-	assert(y != 0);
+	assert(y != 0, "division by zero");
 	const res = ((hi: u64) << 32 | (lo: u64)) % (y: u64);
 	return (res: u32);
 };
@@ -442,7 +442,7 @@ export fn remu32(hi: u32, lo: u32, y: u32) u32 = {
 // Aborts if y == 0 (division by zero) but, unlike [[divu64]], it doesn't abort
 // on a quotient overflow.
 export fn remu64(hi: u64, lo: u64, y: u64) u64 = {
-	assert(y != 0);
+	assert(y != 0, "division by zero");
 	// We scale down hi so that hi < y, then use divu() to compute the
 	// rem with the guarantee that it won't abort on quotient overflow.
 	// Given that

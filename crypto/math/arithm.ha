@@ -28,8 +28,8 @@
 // half in parameter hi and the lower half in parameter lo.
 // Aborts if y == 0 (division by zero) or y <= hi (quotient overflow).
 export fn divu32(hi: u32, lo: u32, y: u32) (u32, u32) = {
-	assert(y != 0);
-	assert(y > hi);
+	assert(y != 0, "division by zero");
+	assert(y > hi, "quotient overflow");
 
 	let q: u32 = 0;
 	const ch: u32 = equ32(hi, y);
