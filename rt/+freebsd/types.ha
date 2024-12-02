@@ -25,13 +25,13 @@ export type sigset = struct {
 	__bits: [4]u32,
 };
 
-export def SA_ONSTACK: u64 = 0x0001;
-export def SA_RESTART: u64 = 0x0002;
-export def SA_RESETHAND: u64 = 0x0004;
-export def SA_NOCLDSTOP: u64 = 0x0008;
-export def SA_NODEFER: u64 = 0x0010;
-export def SA_NOCLDWAIT: u64 = 0x0020;
-export def SA_SIGINFO: u64 = 0x0040;
+export def SA_ONSTACK: int = 0x0001;
+export def SA_RESTART: int = 0x0002;
+export def SA_RESETHAND: int = 0x0004;
+export def SA_NOCLDSTOP: int = 0x0008;
+export def SA_NODEFER: int = 0x0010;
+export def SA_NOCLDWAIT: int = 0x0020;
+export def SA_SIGINFO: int = 0x0040;
 
 export def SIG_ERR: uintptr = -1;
 export def SIG_DFL: uintptr = 0;

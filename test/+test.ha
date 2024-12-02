@@ -205,7 +205,7 @@ fn reset(ctx: *context) void = {
 
 fn do_test(ctx: *context, test: test) void = {
 	signal::handle(signal::sig::SEGV, &handle_segv,
-		signal::flag::NODEFER, signal::flag::ONSTACK);
+		signal::flag::NODEFER | signal::flag::ONSTACK);
 	memio::reset(&ctx.stdout);
 	memio::reset(&ctx.stderr);
 

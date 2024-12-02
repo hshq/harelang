@@ -15,33 +15,24 @@ export fn alarm(sec: uint) uint = {
 
 // Configures a new signal handler, returning the old details (which can be
 // passed to [[restore]] to restore its behavior).
-//
-// The variadic parameters specify either [[flag]]s to enable or a signal mask
-// to use via [[sigset]]; if the latter is provided no more than one may be
-// used.
 export fn handle(
 	signum: sig,
 	handler: *handler,
-	opt: (flag | sigset)...
+	flags: flag = flag::NONE,
+	mask: nullable *sigset = null,
 ) sigaction = {
-	let sa_mask = newsigset();
-
-	let sa_flags = rt::SA_SIGINFO: int, nmask = 0;
-	for (let i = 0z; i < len(opt); i += 1) {
-		match (opt[i]) {
-		case let flag: flag =>
-			sa_flags |= flag: int;
-		case let mask: sigset =>
-			assert(nmask == 0, "Multiple signal masks provided to signal::handle");
-			nmask += 1;
-			sa_mask = mask;
-		};
+	flags |= rt::SA_SIGINFO: flag;
+	let mask = match (mask) {
+	case null =>
+		yield newsigset();
+	case let set: *sigset =>
+		yield *set;
 	};
 
 	let new = rt::sigact {
 		sa_sigaction = handler: *fn(int, *rt::siginfo, *opaque) void,
-		sa_mask = sa_mask,
-		sa_flags = sa_flags,
+		sa_mask = mask,
+		sa_flags = flags,
 	};
 	let old = rt::sigact {
 		sa_sigaction = null: *fn(int, *rt::siginfo, *opaque) void,
@@ -362,27 +353,28 @@ export type code = enum int {
 
 // Flags used to configure the behavior of a signal handler.
 export type flag = enum int {
+	NONE = 0,
 	// For use with sig::CHLD. Prevents notifications when child processes
 	// stop (e.g. via sig::STOP) or resume (i.e. sig::CONT).
-	NOCLDSTOP = rt::SA_NOCLDSTOP: int,
+	NOCLDSTOP = rt::SA_NOCLDSTOP,
 	// For use with sig::CHLD. Do not transform children into zombies when
 	// they terminate. Note that POSIX leaves the delivery of sig::CHLD
 	// unspecified when this flag is present; some systems will still
 	// deliver a signal and others may not.
-	NOCLDWAIT = rt::SA_NOCLDWAIT: int,
+	NOCLDWAIT = rt::SA_NOCLDWAIT,
 	// Uses an alternate stack when handling this signal. See
 	// [[setaltstack]] and [[getaltstack]] for details.
-	ONSTACK = rt::SA_ONSTACK: int,
+	ONSTACK = rt::SA_ONSTACK,
 	// Do not add the signal to the signal mask while executing the signal
 	// handler. This can cause the same signal to be delivered again during
 	// the execution of the signal handler.
-	NODEFER = rt::SA_NODEFER: int,
+	NODEFER = rt::SA_NODEFER,
 	// Restore the signal handler to the default behavior upon entering the
 	// signal handler.
-	RESETHAND = rt::SA_RESETHAND: int,
+	RESETHAND = rt::SA_RESETHAND,
 	// Makes certain system calls restartable across signals. See signal(7)
 	// or similar documentation for your local system for details.
-	RESTART = rt::SA_RESTART: int,
+	RESTART = rt::SA_RESTART,
 };
 
 // All possible signals.
