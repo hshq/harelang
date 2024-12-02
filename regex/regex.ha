@@ -20,7 +20,7 @@ export type inst_lit = rune,
 	inst_jump = size,
 	inst_skip = void,
 	inst_match = bool,
-	inst_groupstart = void,
+	inst_groupstart = size,
 	inst_groupend = void,
 	inst_repeat = struct {
 		id: size,
@@ -58,8 +58,6 @@ type thread = struct {
 	start_bytesize: size,
 	root_capture: capture,
 	captures: []capture,
-	curr_capture: capture,
-	curr_capture_inited: bool,
 	rep_counters: []size,
 	matched: bool,
 	failed: bool,
@@ -107,13 +105,35 @@ export fn finish(re: *regex) void = {
 	free(re.charsets);
 };
 
-fn find_last_groupstart(insts: *[]inst) (size | error) = {
+fn find_last_groupstart(insts: []inst) (size | error) = {
+	let nested = 0u;
 	for (let i = len(insts); i > 0; i -= 1) {
-		if (insts[i - 1] is inst_groupstart) {
-			return i - 1;
+		match (insts[i - 1]) {
+		case inst_groupstart =>
+			if (nested == 0) {
+				return i - 1;
+			};
+			nested -= 1;
+		case inst_groupend =>
+			nested += 1;
+		case => void;
 		};
 	};
 	return `Unmatched ')'`: error;
+};
+
+// increments all [[inst_jump]] and [[inst_split]] instructions to account for a
+// newly inserted instruction before the given slice
+fn shift(sl: []inst) void = {
+	for (let inst &.. sl) {
+		match (*inst) {
+		case let z: inst_jump =>
+			*inst = (z + 1): inst_jump;
+		case let z: inst_split =>
+			*inst = (z + 1): inst_split;
+		case => void;
+		};
+	};
 };
 
 fn handle_bracket(
@@ -230,7 +250,8 @@ export fn compile(expr: str) (regex | error) = {
 	let is_charset_positive = true;
 	let was_prev_rune_pipe = false;
 	let n_reps = 0z;
-	let n_groupstarts = 0;
+	let group_level = 0z;
+	let capture_idx = 0z;
 
 	for (true) {
 		const next = strings::next(&iter);
@@ -253,7 +274,7 @@ export fn compile(expr: str) (regex | error) = {
 
 		const r = match (next) {
 		case done =>
-			if (n_groupstarts > 0) {
+			if (group_level > 0) {
 				return `Unmatched '('`: error;
 			};
 			break;
@@ -269,14 +290,14 @@ export fn compile(expr: str) (regex | error) = {
 				r_idx += 1;
 			};
 		case '^' =>
-			if (n_groupstarts > 0) {
+			if (group_level > 0) {
 				return `Anchor '^' in capture groups is unsupported`: error;
 			};
 			if (!(r_idx == 0 || was_prev_rune_pipe)) {
 				return `Anchor '^' not at start of whole pattern or alternation`: error;
 			};
 		case '$' =>
-			if (n_groupstarts > 0) {
+			if (group_level > 0) {
 				return `Anchor '$' in capture groups is unsupported`: error;
 			};
 			const peek1 = strings::next(&iter);
@@ -292,16 +313,14 @@ export fn compile(expr: str) (regex | error) = {
 		case ']' =>
 			append(insts, r: inst_lit);
 		case '(' =>
-			if (n_groupstarts > 0) {
-				return `Nested capture groups are unsupported`: error;
-			};
-			append(insts, inst_groupstart);
-			n_groupstarts += 1;
+			append(insts, capture_idx: inst_groupstart);
+			group_level += 1;
+			capture_idx += 1;
 		case ')' =>
-			if (n_groupstarts == 0) {
+			if (group_level == 0) {
 				return `Unmatched ')'`: error;
 			};
-			n_groupstarts -= 1;
+			group_level -= 1;
 			append(insts, inst_groupend);
 			for (let jump_idx .. jump_idxs) {
 				assert(insts[jump_idx] is inst_jump);
@@ -310,7 +329,7 @@ export fn compile(expr: str) (regex | error) = {
 			delete(jump_idxs[..]);
 		case '|' =>
 			append(insts, types::SIZE_MAX: inst_jump);
-			const origin = match (find_last_groupstart(&insts)) {
+			const origin = match (find_last_groupstart(insts)) {
 			case error =>
 				yield 0z;
 			case let sz: size =>
@@ -321,6 +340,7 @@ export fn compile(expr: str) (regex | error) = {
 			const split_idx = if (len(jump_idxs) > 0)
 				jump_idxs[len(jump_idxs) - 1] + 1 else origin;
 			insert(insts[split_idx], newinst);
+			shift(insts[split_idx + 1..]);
 			append(jump_idxs, len(insts) - 1);
 			// add skip if it's a whole-expression alternation
 			if (origin == 0) {
@@ -335,7 +355,7 @@ export fn compile(expr: str) (regex | error) = {
 		case '{' =>
 			let origin = len(insts) - 1;
 			if (insts[origin] is inst_groupend) {
-				origin = find_last_groupstart(&insts)?;
+				origin = find_last_groupstart(insts[..origin])?;
 			};
 			const rest = strings::iterstr(&iter);
 			const rep_parts = parse_repetition(rest)?;
@@ -352,6 +372,7 @@ export fn compile(expr: str) (regex | error) = {
 				// advance to len(insts) + 2 to make space for the `inst_repeat`
 				insert(insts[origin],
 					len(insts) + 2: inst_split);
+				shift(insts[origin + 1..]);
 				origin += 1;
 			};
 			const newinst = inst_repeat {
@@ -374,7 +395,8 @@ export fn compile(expr: str) (regex | error) = {
 			match (insts[term_start_idx]) {
 			case (inst_lit | inst_charset | inst_any) => void;
 			case inst_groupend =>
-				term_start_idx = find_last_groupstart(&insts)?;
+				term_start_idx = find_last_groupstart(
+					insts[..term_start_idx])?;
 			case inst_groupstart =>
 				return `Unused '?'`: error;
 			case =>
@@ -382,6 +404,7 @@ export fn compile(expr: str) (regex | error) = {
 			};
 			const after_idx = len(insts) + 1;
 			insert(insts[term_start_idx], after_idx: inst_split);
+			shift(insts[term_start_idx + 1..]);
 		case '*' =>
 			if (r_idx == 0 || len(insts) == 0) {
 				return `Unused '*'`: error;
@@ -393,7 +416,8 @@ export fn compile(expr: str) (regex | error) = {
 			match (insts[term_start_idx]) {
 			case (inst_lit | inst_charset | inst_any) => void;
 			case inst_groupend =>
-				term_start_idx = find_last_groupstart(&insts)?;
+				term_start_idx = find_last_groupstart(
+					insts[..term_start_idx])?;
 			case inst_groupstart =>
 				return `Unused '*'`: error;
 			case =>
@@ -402,6 +426,7 @@ export fn compile(expr: str) (regex | error) = {
 			const split_idx = term_start_idx;
 			term_start_idx += new_inst_offset;
 			insert(insts[split_idx], after_idx: inst_split);
+			shift(insts[split_idx + 1..]);
 			append(insts, split_idx: inst_jump);
 		case '+' =>
 			if (r_idx == 0 || len(insts) == 0) {
@@ -411,7 +436,8 @@ export fn compile(expr: str) (regex | error) = {
 			match (insts[term_start_idx]) {
 			case (inst_lit | inst_charset | inst_any) => void;
 			case inst_groupend =>
-				term_start_idx = find_last_groupstart(&insts)?;
+				term_start_idx = find_last_groupstart(
+					insts[..term_start_idx])?;
 			case inst_groupstart =>
 				return `Unused '+'`: error;
 			case =>
@@ -530,8 +556,6 @@ fn add_thread(threads: *[]thread, parent_idx: size, new_pc: size) void = {
 		pc = new_pc,
 		start_idx = threads[parent_idx].start_idx,
 		start_bytesize = threads[parent_idx].start_bytesize,
-		curr_capture = threads[parent_idx].curr_capture,
-		curr_capture_inited = threads[parent_idx].curr_capture_inited,
 		matched = threads[parent_idx].matched,
 		failed = threads[parent_idx].failed,
 		captures = alloc(threads[parent_idx].captures...),
@@ -587,23 +611,38 @@ fn run_thread(
 			};
 			threads[i].matched = true;
 			return newmatch;
-		case inst_groupstart =>
-			assert(!threads[i].curr_capture_inited, "Found nested capture groups in expression, which are not supported");
-			threads[i].curr_capture.start = str_idx;
-			threads[i].curr_capture.start_bytesize = str_bytesize;
-			threads[i].curr_capture_inited = true;
+		case let idx: inst_groupstart =>
+			if (idx >= len(threads[i].captures)) {
+				append(threads[i].captures,
+					[capture { ... }...],
+					idx - len(threads[i].captures) + 1);
+			};
+			assert(threads[i].captures[idx].end != types::SIZE_MAX);
+			threads[i].captures[idx] = capture {
+				content = "",
+				start = str_idx,
+				start_bytesize = str_bytesize,
+				// end=types::SIZE_MAX indicates that the
+				// capture group hasn't ended yet
+				end = types::SIZE_MAX,
+				end_bytesize = types::SIZE_MAX,
+			};
 			threads[i].pc += 1;
 		case inst_groupend =>
-			assert(threads[i].curr_capture_inited, `Found a groupend token ")" without having previously seen a groupstart token "(". Please report this as a bug`);
-			threads[i].curr_capture.end = str_idx;
-			threads[i].curr_capture.end_bytesize = str_bytesize;
-			threads[i].curr_capture.content =
-				strings::fromutf8_unsafe(str_bytes[
-					threads[i].curr_capture.start_bytesize..
-					threads[i].curr_capture.end_bytesize]);
-			append(threads[i].captures, threads[i].curr_capture);
-			threads[i].curr_capture = capture { ... };
-			threads[i].curr_capture_inited = false;
+			let curr_capture = len(threads[i].captures);
+			for (curr_capture > 0; curr_capture -= 1) {
+				// find inner-most unclosed capture group
+				if (threads[i].captures[curr_capture - 1].end
+						== types::SIZE_MAX) {
+					break;
+				};
+			};
+			assert(curr_capture > 0, `Found a groupend token ")" without having previously seen a groupstart token "(". Please report this as a bug`);
+			let capture = &threads[i].captures[curr_capture - 1];
+			capture.end = str_idx;
+			capture.end_bytesize = str_bytesize;
+			capture.content = strings::fromutf8_unsafe(str_bytes[
+				capture.start_bytesize..capture.end_bytesize]);
 			threads[i].pc += 1;
 		case let ir: inst_repeat =>
 			assert(ir.id < len(threads[i].rep_counters));
@@ -741,10 +780,25 @@ fn search(
 					best_n_captures = len(threads[i].captures);
 				};
 			};
-			let res: []capture = alloc([],
-				len(threads[best_idx].captures) + 1);
-			append(res, threads[best_idx].root_capture);
-			append(res, threads[best_idx].captures...);
+
+			// length = number of captures (index of final group +
+			// 1) + root capture
+			let length = 1z;
+			for (let i = len(re.insts); i > 0; i -= 1) {
+				match (re.insts[i - 1]) {
+				case let z: inst_groupstart =>
+					length = z + 2;
+					break;
+				case => void;
+				};
+			};
+			let res: result = alloc([], length);
+			static append(res, threads[best_idx].root_capture);
+			static append(res, threads[best_idx].captures...);
+			if (length != len(res)) {
+				static append(res, [capture { ... }...],
+					length - len(res));
+			};
 			return res;
 		};
 
