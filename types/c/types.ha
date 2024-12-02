@@ -237,6 +237,16 @@ export def UINT_FAST64_MIN: uint_fast64 = types::U64_MIN;
 // Maximum value which can be stored in a [[uint_fast64]] type.
 export def UINT_FAST64_MAX: uint_fast64 = types::U64_MAX;
 
+// Integer type compatible with 'sig_atomic_t', as defined in <signal.h> and
+// specified by ISO/IEC 9899:1999.
+export type sig_atomic = int;
+
+// Minimum value which can be stored in a [[sig_atomic]] type.
+export def SIG_ATOMIC_MIN: sig_atomic = types::INT_MIN;
+
+// Maximum value which can be stored in a [[sig_atomic]] type.
+export def SIG_ATOMIC_MAX: sig_atomic = types::INT_MAX;
+
 // Integer type compatible with `wchar_t`, as defined in <stddef.h> and
 // specified by ISO/IEC 9899.
 export type wchar = i32;
