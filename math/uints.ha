@@ -318,7 +318,7 @@ export fn mulu(x: uint, y: uint) (uint, uint) = {
 // Returns the quotient and remainder of (hi, lo) divided by y:
 // quo = (hi, lo) / y, rem = (hi, lo) % y with the dividend bits' upper
 // half in parameter hi and the lower half in parameter lo.
-// Panics for y == 0 (division by zero) or y <= hi (quotient overflow).
+// Aborts if y == 0 (division by zero) or y <= hi (quotient overflow).
 export fn divu32(hi: u32, lo: u32, y: u32) (u32, u32) = {
 	assert(y != 0);
 	assert(y > hi);
@@ -331,7 +331,7 @@ export fn divu32(hi: u32, lo: u32, y: u32) (u32, u32) = {
 // Returns the quotient and remainder of (hi, lo) divided by y:
 // quo = (hi, lo) / y, rem = (hi, lo) % y with the dividend bits' upper
 // half in parameter hi and the lower half in parameter lo.
-// Panics for y == 0 (division by zero) or y <= hi (quotient overflow).
+// Aborts if y == 0 (division by zero) or y <= hi (quotient overflow).
 export fn divu64(hi: u64, lo: u64, y: u64) (u64, u64) = {
 	const two32 = 1u64 << 32;
 	const mask32 = two32 - 1;
@@ -396,7 +396,7 @@ export fn divu(hi: uint, lo: uint, y: uint) (uint, uint) = {
 	let res = divu32(1u32, 0u32, 2u32);
 	assert(res.0 == (1u32 << 31));
 	assert(res.1 == 0u32);
-	// These should panic.
+	// These should abort.
 	// let res = divu32(1u32, 1u32, 0u32);
 	// let res = divu32(1u32, 0u32, 1u32);
 
@@ -410,7 +410,7 @@ export fn divu(hi: uint, lo: uint, y: uint) (uint, uint) = {
 	let res = divu64(1u64, 0u64, 2u64);
 	assert(res.0 == (1u64 << 63));
 	assert(res.1 == 0u64);
-	// These should panic.
+	// These should abort.
 	// let res = divu64(1u64, 1u64, 0u64);
 	// let res = divu64(1u64, 0u64, 1u64);
 
@@ -424,14 +424,14 @@ export fn divu(hi: uint, lo: uint, y: uint) (uint, uint) = {
 	let res = divu(1u, 0u, 2u);
 	assert(res.0 == (1u << 31));
 	assert(res.1 == 0u);
-	// These should panic.
+	// These should abort.
 	// divu(1u, 1u, 0u);
 	// divu(1u, 0u, 1u);
 };
 
 // Returns the remainder of (hi, lo) divided by y.
-// Panics for y == 0 (division by zero) but, unlike divu(), it doesn't panic on
-// a quotient overflow.
+// Aborts if y == 0 (division by zero) but, unlike [[divu32]], it doesn't abort
+// on a quotient overflow.
 export fn remu32(hi: u32, lo: u32, y: u32) u32 = {
 	assert(y != 0);
 	const res = ((hi: u64) << 32 | (lo: u64)) % (y: u64);
@@ -439,12 +439,12 @@ export fn remu32(hi: u32, lo: u32, y: u32) u32 = {
 };
 
 // Returns the remainder of (hi, lo) divided by y.
-// Panics for y == 0 (division by zero) but, unlike divu(), it doesn't panic on
-// a quotient overflow.
+// Aborts if y == 0 (division by zero) but, unlike [[divu64]], it doesn't abort
+// on a quotient overflow.
 export fn remu64(hi: u64, lo: u64, y: u64) u64 = {
 	assert(y != 0);
 	// We scale down hi so that hi < y, then use divu() to compute the
-	// rem with the guarantee that it won't panic on quotient overflow.
+	// rem with the guarantee that it won't abort on quotient overflow.
 	// Given that
 	//   hi ≡ hi%y    (mod y)
 	// we have
@@ -467,7 +467,7 @@ export fn remu(hi: uint, lo: uint, y: uint) uint = {
 	assert(remu32(0u32, 5u32, 2u32) == 1u32);
 	assert(remu32(0u32, 5u32, 3u32) == 2u32);
 	assert(remu32(1u32, 1u32, 2u32) == 1u32);
-	// These should panic.
+	// These should abort.
 	// remu32(0u32, 4u32, 0u32);
 
 	// 64
@@ -475,7 +475,7 @@ export fn remu(hi: uint, lo: uint, y: uint) uint = {
 	assert(remu64(0u64, 5u64, 2u64) == 1u64);
 	assert(remu64(0u64, 5u64, 3u64) == 2u64);
 	assert(remu64(1u32, 1u32, 2u32) == 1u32);
-	// These should panic.
+	// These should abort.
 	// remu64(0u64, 4u64, 0u64);
 
 	// remu()
@@ -483,7 +483,7 @@ export fn remu(hi: uint, lo: uint, y: uint) uint = {
 	assert(remu(0u, 5u, 2u) == 1u);
 	assert(remu(0u, 5u, 3u) == 2u);
 	assert(remu(1u, 1u, 2u) == 1u);
-	// These should panic.
+	// These should abort.
 	// remu(0u, 4u, 0u);
 };
 

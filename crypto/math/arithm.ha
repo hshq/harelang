@@ -26,7 +26,7 @@
 // Returns the quotient and remainder of (hi, lo) divided by y:
 // quo = (hi, lo) / y, rem = (hi, lo) % y with the dividend bits' upper
 // half in parameter hi and the lower half in parameter lo.
-// Panics for y == 0 (division by zero) or y <= hi (quotient overflow).
+// Aborts if y == 0 (division by zero) or y <= hi (quotient overflow).
 export fn divu32(hi: u32, lo: u32, y: u32) (u32, u32) = {
 	assert(y != 0);
 	assert(y > hi);
