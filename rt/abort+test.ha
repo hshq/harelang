@@ -21,7 +21,7 @@ export type abort_reason = struct {
 	msg: str,
 };
 
-export let jmp: nullable *jmpbuf = null;
+export let jmp: nullable *jmp_buf = null;
 export let reason: abort_reason = abort_reason { ... };
 
 export @symbol("rt.abort") fn _abort(
@@ -31,7 +31,7 @@ export @symbol("rt.abort") fn _abort(
 	msg: str,
 ) void = {
 	match (jmp) {
-	case let j: *jmpbuf =>
+	case let j: *jmp_buf =>
 		reason = abort_reason {
 			path = path,
 			line = line,
