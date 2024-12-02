@@ -142,7 +142,7 @@ case let i: types::integer =>
 		};
 	};
 
-	let i = strconv::integertos(i, mod.base);
+	let i = strconv::u64tos(i, mod.base);
 	let pad = if (mod.prec < len(sign) + len(i)) {
 		yield 0z;
 	} else {
