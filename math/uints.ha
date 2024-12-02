@@ -103,9 +103,6 @@ const DEBRUIJN64TAB: [64]u8 = [
 	54, 26, 40, 15, 34, 20, 31, 10, 25, 14, 19, 9, 13, 8, 7, 6,
 ];
 
-// The size of an unsigned int: 32 or 64
-def UINT_SIZE: u8 = (size(uint): u8) * 8;
-
 // Returns the minimum number of bits required to represent x.
 export fn bit_size(x: u64) u8 = {
 	let res = 0u8;
@@ -135,8 +132,8 @@ export fn bit_size(x: u64) u8 = {
 };
 
 // Returns the number of leading zero bits in x
-// The result is UINT_SIZE for x == 0.
-export fn leading_zeros_u(x: uint) u8 = UINT_SIZE - bit_size(x);
+// The result is size(uint) * 8 for x == 0.
+export fn leading_zeros_u(x: uint) u8 = size(uint): u8 * 8 - bit_size(x);
 
 // Returns the number of leading zero bits in x
 // The result is 8 for x == 0.
@@ -155,8 +152,8 @@ export fn leading_zeros_u32(x: u32) u8 = 32 - bit_size(x);
 export fn leading_zeros_u64(x: u64) u8 = 64 - bit_size(x);
 
 @test fn leading_zeros_u() void = {
-	assert(leading_zeros_u(0) == UINT_SIZE);
-	assert(leading_zeros_u(1) == UINT_SIZE - 1);
+	assert(leading_zeros_u(0) == size(uint) * 8);
+	assert(leading_zeros_u(1) == size(uint) * 8 - 1);
 	assert(leading_zeros_u8(0) == 8);
 	assert(leading_zeros_u8(1) == 8 - 1);
 	assert(leading_zeros_u16(0) == 16);
@@ -168,9 +165,9 @@ export fn leading_zeros_u64(x: u64) u8 = 64 - bit_size(x);
 };
 
 // Returns the number of trailing zero bits in x
-// The result is UINT_SIZE for x == 0.
+// The result is size(uint) * 8 for x == 0.
 export fn trailing_zeros_u(x: uint) u8 = {
-	if (UINT_SIZE == 32) {
+	if (size(uint) == 4) {
 		return trailing_zeros_u32(x: u32);
 	};
 	return trailing_zeros_u64(x: u64);
@@ -232,7 +229,7 @@ export fn trailing_zeros_u64(x: u64) u8 = {
 		i -= 1;
 	};
 
-	assert(trailing_zeros_u(0) == UINT_SIZE);
+	assert(trailing_zeros_u(0) == size(uint) * 8);
 	assert(trailing_zeros_u(1) == 0);
 };
 
@@ -277,7 +274,7 @@ export fn addu64(x: u64, y: u64, carry: u64) (u64, u64) = {
 
 // Calls either addu32() or addu64() depending on size(uint).
 export fn addu(x: uint, y: uint, carry: uint) (uint, uint) = {
-	if (UINT_SIZE == 32) {
+	if (size(uint) == 4) {
 		const res = addu32((x: u32), (y: u32), (carry: u32));
 		return ((res.0: uint), (res.1: uint));
 	};
@@ -348,7 +345,7 @@ export fn subu64(x: u64, y: u64, borrow: u64) (u64, u64) = {
 
 // Calls either mulu32() or mulu64() depending on size(uint).
 export fn subu(x: uint, y: uint, carry: uint) (uint, uint) = {
-	if (UINT_SIZE == 32) {
+	if (size(uint) == 4) {
 		const res = subu32((x: u32), (y: u32), (carry: u32));
 		return ((res.0: uint), (res.1: uint));
 	};
@@ -425,7 +422,7 @@ export fn mulu64(x: u64, y: u64) (u64, u64) = {
 
 // Calls either mulu32() or mulu64() depending on size(uint).
 export fn mulu(x: uint, y: uint) (uint, uint) = {
-	if (UINT_SIZE == 32) {
+	if (size(uint) == 4) {
 		const res = mulu32((x: u32), (y: u32));
 		return ((res.0: uint), (res.1: uint));
 	};
@@ -521,7 +518,7 @@ export fn divu64(hi: u64, lo: u64, y: u64) (u64, u64) = {
 
 // Calls either divu32() or divu64() depending on size(uint).
 export fn divu(hi: uint, lo: uint, y: uint) (uint, uint) = {
-	if (UINT_SIZE == 32) {
+	if (size(uint) == 4) {
 		const res = divu32((hi: u32), (lo: u32), (y: u32));
 		return ((res.0: uint), (res.1: uint));
 	};
@@ -599,7 +596,7 @@ export fn remu64(hi: u64, lo: u64, y: u64) u64 = {
 
 // Calls either remu32() or remu64() depending on size(uint).
 export fn remu(hi: uint, lo: uint, y: uint) uint = {
-	if (UINT_SIZE == 32) {
+	if (size(uint) == 4) {
 		return (remu32((hi: u32), (lo: u32), (y: u32)): uint);
 	};
 	return (remu64((hi: u64), (lo: u64), (y: u64)): uint);
