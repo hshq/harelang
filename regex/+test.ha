@@ -31,13 +31,13 @@ fn run_find_case(
 		};
 		return;
 	};
+	defer finish(&re);
 
 	if (expected == matchres::ERROR) {
 		fmt::errorfln("Expected expression /{}/ to have error caught during compilation, but it did not",
 			expr)!;
 		abort();
 	};
-	defer finish(&re);
 
 	const result = find(&re, string);
 	defer result_free(result);

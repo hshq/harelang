@@ -223,6 +223,7 @@ export fn compile(expr: str) (regex | error) = {
 	let iter = strings::iter(expr);
 	let r_idx = 0z;
 	let jump_idxs: []size = [];
+	defer free(jump_idxs);
 	let in_bracket = false;
 	let skip_charclass_rest = false;
 	let bracket_idx = -1;
@@ -306,7 +307,7 @@ export fn compile(expr: str) (regex | error) = {
 				assert(insts[jump_idx] is inst_jump);
 				insts[jump_idx] = (len(insts) - 1): inst_jump;
 			};
-			jump_idxs = [];
+			delete(jump_idxs[..]);
 		case '|' =>
 			append(insts, types::SIZE_MAX: inst_jump);
 			const origin = match (find_last_groupstart(&insts)) {
@@ -431,7 +432,6 @@ export fn compile(expr: str) (regex | error) = {
 		assert(insts[jump_idx] is inst_jump);
 		insts[jump_idx] = len(insts): inst_jump;
 	};
-	jump_idxs = [];
 
 	if (len(insts) == 0 || !(insts[len(insts) - 1] is inst_match)) {
 		append(insts, false: inst_match);
