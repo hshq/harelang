@@ -65,10 +65,6 @@ type thread = struct {
 
 type newmatch = void;
 
-export type charclass = enum {
-	ALNUM, ALPHA, BLANK, CNTRL, DIGIT, GRAPH, LOWER, PRINT, PUNCT, SPACE,
-	UPPER, XDIGIT,
-};
 export type charset = [](charset_lit_item | charset_range_item |
 	charset_class_item),
 	charset_lit_item = rune,
