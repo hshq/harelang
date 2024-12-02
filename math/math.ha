@@ -814,7 +814,7 @@ export fn roundf64(x: f64) f64 = {
 		// [0,1).
 		// Numbers with larger exponents are returned unchanged since
 		// they must be either an integer, infinity, or NaN.
-		const half = 1 << (F64_MANTISSA_BITS - 1);
+		const half = 1u64 << (F64_MANTISSA_BITS - 1);
 		e -= F64_EXPONENT_BIAS;
 		bits += half >> e;
 		bits = bits & ~(F64_MANTISSA_MASK >> e);

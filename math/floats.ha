@@ -16,24 +16,24 @@ export fn f64frombits(n: u64) f64 = *(&n: *f64);
 export fn f32frombits(n: u32) f32 = *(&n: *f32);
 
 // The number of bits in the significand of the binary representation of f64.
-export def F64_MANTISSA_BITS: u64 = 52;
+export def F64_MANTISSA_BITS = 52;
 
 // The number of bits in the exponent of the binary representation of f64.
-export def F64_EXPONENT_BITS: u64 = 11;
+export def F64_EXPONENT_BITS = 11;
 
 // The bias of the exponent of the binary representation of f64. Subtract this
 // from the exponent in the binary representation to get the actual exponent.
-export def F64_EXPONENT_BIAS: u16 = 1023;
+export def F64_EXPONENT_BIAS = 1023;
 
 // The number of bits in the significand of the binary representation of f32.
-export def F32_MANTISSA_BITS: u64 = 23;
+export def F32_MANTISSA_BITS = 23;
 
 // The number of bits in the exponent of the binary representation of f32.
-export def F32_EXPONENT_BITS: u64 = 8;
+export def F32_EXPONENT_BITS = 8;
 
 // The bias of the exponent of the binary representation of f32. Subtract this
 // from the exponent in the binary representation to get the actual exponent.
-export def F32_EXPONENT_BIAS: u16 = 127;
+export def F32_EXPONENT_BIAS = 127;
 
 // Mask with each bit of an f64's mantissa set.
 export def F64_MANTISSA_MASK: u64 = (1 << F64_MANTISSA_BITS) - 1;
@@ -136,11 +136,11 @@ export const f32info: floatinfo = floatinfo {
 // The floating point value representing Not a Number, i.e. an undefined or
 // unrepresentable value. You cannot test if a number is NaN by comparing to
 // this value; see [[isnan]] instead.
-export def NAN: f32 = 0.0 / 0.0;
+export def NAN = 0.0 / 0.0;
 
 // The floating point value representing positive infinity. Use -[[INF]] for
 // negative infinity.
-export def INF: f32 = 1.0 / 0.0;
+export def INF = 1.0 / 0.0;
 
 // Returns true if the given floating-point number is NaN.
 export fn isnan(n: f64) bool = n != n;
