@@ -597,7 +597,7 @@ export fn stof32(s: str, b: base = base::DEC) (f32 | invalid | overflow) = {
 	assert(stof64("1.0000000000000p-1022", base::HEX)!
 		== math::F64_MIN_NORMAL);
 	assert(stof64("0.0000000000001p-1022", base::HEX)!
-		== math::F64_MIN);
+		== math::F64_MIN_SUBNORMAL);
 	assert(stof64("1p+1024", base::HEX) is overflow);
 	assert(stof64("0.00000000000001p-1022", base::HEX)! == 0.0);
 
@@ -608,7 +608,7 @@ export fn stof32(s: str, b: base = base::DEC) (f32 | invalid | overflow) = {
 	assert(stof32("1.fffffd586b834p+127", base::HEX)!
 		== math::F32_MAX_NORMAL);
 	assert(stof32("1.0p-126", base::HEX)! == math::F32_MIN_NORMAL);
-	assert(stof32("1.6p-150", base::HEX)! == math::F32_MIN);
+	assert(stof32("1.6p-150", base::HEX)! == math::F32_MIN_SUBNORMAL);
 	assert(stof32("1.0p+128", base::HEX) is overflow);
 	assert(stof32("1.0p-151", base::HEX)! == 0.0);
 };

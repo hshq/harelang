@@ -52,7 +52,7 @@ export def F64_MAX_NORMAL: f64 = 1.7976931348623157e+308;
 export def F64_MIN_NORMAL: f64 = 2.2250738585072014e-308;
 
 // The smallest (subnormal) f64 value greater than zero.
-export def F64_MIN: f64 = 5.0e-324;
+export def F64_MIN_SUBNORMAL: f64 = 5.0e-324;
 
 // The difference between 1 and the smallest f64 representable value that is
 // greater than 1.
@@ -65,7 +65,7 @@ export def F32_MAX_NORMAL: f32 = 3.4028234e+38;
 export def F32_MIN_NORMAL: f32 = 1.1754944e-38;
 
 // The smallest (subnormal) f32 value greater than zero.
-export def F32_MIN: f32 = 1.0e-45;
+export def F32_MIN_SUBNORMAL: f32 = 1.0e-45;
 
 // The difference between 1 and the smallest f32 representable value that is
 // greater than 1.

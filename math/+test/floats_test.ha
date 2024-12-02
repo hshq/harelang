@@ -3,12 +3,12 @@
 
 @test fn floatbits() void = {
 	const a: [_]f64 = [INF, -INF, 0.0, 1.0, -1.0, 123456789.0,
-		F64_MIN, F64_MIN_NORMAL, F64_MAX_NORMAL];
+		F64_MIN_SUBNORMAL, F64_MIN_NORMAL, F64_MAX_NORMAL];
 	for (let i = 0z; i < len(a); i += 1) {
 		assert(f64frombits(f64bits(a[i])) == a[i]);
 	};
 	const a: [_]f32 = [INF, -INF, 0.0, 1.0, -1.0, -123456.0,
-		F32_MIN, F32_MIN_NORMAL, F32_MAX_NORMAL];
+		F32_MIN_SUBNORMAL, F32_MIN_NORMAL, F32_MAX_NORMAL];
 	for (let i = 0z; i < len(a); i += 1) {
 		assert(f32frombits(f32bits(a[i])) == a[i]);
 	};

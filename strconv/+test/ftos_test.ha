@@ -197,12 +197,12 @@ use memio;
 		(9007199254740991.0, ffmt::F, void, 0, "9007199254740991"),
 		(90071992547409915.0, ffmt::F, void, 0, "90071992547409920"),
 		(90071992547409925.0, ffmt::F, void, 0, "90071992547409920"),
-		(math::F64_MIN, ffmt::E, void, 0, "5e-324"),
-		(math::F64_MIN, ffmt::E, void, fflags::SHOW_TWO_EXP_DIGITS, "5e-324"),
-		(-math::F64_MIN, ffmt::E, void, 0, "-5e-324"),
+		(math::F64_MIN_SUBNORMAL, ffmt::E, void, 0, "5e-324"),
+		(math::F64_MIN_SUBNORMAL, ffmt::E, void, fflags::SHOW_TWO_EXP_DIGITS, "5e-324"),
+		(-math::F64_MIN_SUBNORMAL, ffmt::E, void, 0, "-5e-324"),
 		(math::F64_MIN_NORMAL, ffmt::E, void, 0, "2.2250738585072014e-308"),
 		(math::F64_MAX_NORMAL, ffmt::E, void, 0, "1.7976931348623157e308"),
-		(math::F64_MIN, ffmt::E, 2, 0, "4.94e-324"),
+		(math::F64_MIN_SUBNORMAL, ffmt::E, 2, 0, "4.94e-324"),
 		(math::F64_MIN_NORMAL, ffmt::E, 0, 0, "2e-308"),
 		(math::F64_MAX_NORMAL, ffmt::E, 3, 0, "1.798e308"),
 	];
@@ -216,7 +216,7 @@ use memio;
 	};
 	// These tests will only pass for f32
 	const tcsf32: [](f32, ffmt, (void | uint), fflags, str) = [
-		(math::F32_MIN, ffmt::G, void, 0, "1e-45"),
+		(math::F32_MIN_SUBNORMAL, ffmt::G, void, 0, "1e-45"),
 		(math::F32_MIN_NORMAL, ffmt::G, void, 0, "1.1754944e-38"),
 		(math::F32_MAX_NORMAL, ffmt::G, void, 0, "3.4028235e38"),
 	];
@@ -231,7 +231,7 @@ use memio;
 	// Just make sure we can generate big numbers without breaking anything.
 	const tcslen: [](f64, ffmt, (void | uint), fflags, size) = [
 		(9007199254740991.0, ffmt::F, void, 0, 16),
-		(-math::F64_MIN, ffmt::E, 100, 0, 108),
+		(-math::F64_MIN_SUBNORMAL, ffmt::E, 100, 0, 108),
 		(1.0, ffmt::F, 1000, 0, 1002),
 		(2.22507385850720088902458687609E-308, ffmt::F, 1000, 0, 1002),
 	];
