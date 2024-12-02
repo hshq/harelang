@@ -5,7 +5,7 @@ use bytes;
 use endian;
 use errors;
 use io;
-use math::{bit_size_u8,bit_size_u32};
+use math::{bit_size};
 use memio;
 use strings;
 use types;
@@ -101,7 +101,7 @@ fn write_id(e: *encoder, c: class, t: u32, cons: bool) (void | overflow) = {
 
 	write(e, [head | 0x1f])?;
 
-	const bsz = bit_size_u32(t);
+	const bsz = bit_size(t);
 	const n = ((bsz + 6) / 7) - 1;
 	for (let i = 0z; i < n; i += 1) {
 		write(e, [0x80 | (t >> ((n - i) * 7)): u8])?;
@@ -193,7 +193,7 @@ fn pop_bt(e: *encoder) (size, datasz) = {
 	return x;
 };
 
-fn lensz(l: datasz) u8 = if (l < 128) 1: u8 else (1 + (bit_size_u32(l) + 7) / 8);
+fn lensz(l: datasz) u8 = if (l < 128) 1: u8 else (1 + (bit_size(l) + 7) / 8);
 
 fn encode_dsz(sz: size) []u8 = {
 	static let buf: [size(datasz) + 1]u8 = [0...];

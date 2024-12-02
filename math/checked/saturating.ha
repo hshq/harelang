@@ -65,6 +65,15 @@ export fn sat_addi64(a: i64, b: i64) i64 = {
 };
 
 // Computes the saturating addition of 'a' and 'b'.
+export fn sat_addi(a: int, b: int) int = {
+	const res = a + b;
+	if (a < 0 == b < 0 && a < 0 != res < 0) {
+		return if (res < 0) types::INT_MAX else types::INT_MIN;
+	};
+	return res;
+};
+
+// Computes the saturating addition of 'a' and 'b'.
 export fn sat_addu8(a: u8, b: u8) u8 = {
 	return if (a + b < a) types::U8_MAX else a + b;
 };
@@ -102,6 +111,16 @@ export fn sat_addu64(a: u64, b: u64) u64 = {
 @test fn sat_addu64() void = {
 	assert(sat_addu64(18446744073709551600, 10) == 18446744073709551610);
 	assert(sat_addu64(18446744073709551600, 50) == types::U64_MAX);
+};
+
+// Computes the saturating addition of 'a' and 'b'.
+export fn sat_addu(a: uint, b: uint) uint = {
+	return if (a + b < a) types::UINT_MAX else a + b;
+};
+
+// Computes the saturating addition of 'a' and 'b'.
+export fn sat_addz(a: size, b: size) size = {
+	return if (a + b < a) types::SIZE_MAX else a + b;
 };
 
 // Computes the saturating subtraction of 'b' from 'a'.
@@ -165,6 +184,15 @@ export fn sat_subi64(a: i64, b: i64) i64 = {
 };
 
 // Computes the saturating subtraction of 'b' from 'a'.
+export fn sat_subi(a: int, b: int) int = {
+	const res = a - b;
+	if (a < 0 != b < 0 && a < 0 != res < 0) {
+		return if (res < 0) types::INT_MAX else types::INT_MIN;
+	};
+	return res;
+};
+
+// Computes the saturating subtraction of 'b' from 'a'.
 export fn sat_subu8(a: u8, b: u8) u8 = {
 	return if (a - b > a) types::U8_MIN else a - b;
 };
@@ -202,6 +230,16 @@ export fn sat_subu64(a: u64, b: u64) u64 = {
 @test fn sat_subu64() void = {
 	assert(sat_subu64(18446744073709551610, 10) == 18446744073709551600);
 	assert(sat_subu64(44, 50) == types::U64_MIN);
+};
+
+// Computes the saturating subtraction of 'b' from 'a'.
+export fn sat_subu(a: uint, b: uint) uint = {
+	return if (a - b > a) types::UINT_MIN else a - b;
+};
+
+// Computes the saturating subtraction of 'b' from 'a'.
+export fn sat_subz(a: size, b: size) size = {
+	return if (a - b > a) types::SIZE_MIN else a - b;
 };
 
 // Computes the saturating multiplication of 'a' and 'b'.
@@ -276,6 +314,15 @@ export fn sat_muli64(a: i64, b: i64) i64 = {
 };
 
 // Computes the saturating multiplication of 'a' and 'b'.
+export fn sat_muli(a: int, b: int) int = {
+	if (size(int) == 4) {
+		return sat_muli32(a: i32, b: i32);
+	} else {
+		return sat_muli64(a, b): int;
+	};
+};
+
+// Computes the saturating multiplication of 'a' and 'b'.
 export fn sat_mulu8(a: u8, b: u8) u8 = {
 	const res = a: uint * b: uint;
 	return if (res > types::U8_MAX) types::U8_MAX else res: u8;
@@ -317,4 +364,22 @@ export fn sat_mulu64(a: u64, b: u64) u64 = {
 @test fn sat_mulu64() void = {
 	assert(sat_mulu64(4294967295, 4294967295) == 18446744065119617025);
 	assert(sat_mulu64(4294967296, 4294967296) == types::U64_MAX);
+};
+
+// Computes the saturating multiplication of 'a' and 'b'.
+export fn sat_mulu(a: uint, b: uint) uint = {
+	if (size(uint) == 4) {
+		return sat_mulu32(a: u32, b: u32);
+	} else {
+		return sat_mulu64(a, b): uint;
+	};
+};
+
+// Computes the saturating multiplication of 'a' and 'b'.
+export fn sat_mulz(a: size, b: size) size = {
+	if (size(size) == 4) {
+		return sat_mulu32(a: u32, b: u32);
+	} else {
+		return sat_mulu64(a, b): size;
+	};
 };

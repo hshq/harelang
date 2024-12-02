@@ -49,13 +49,13 @@
 
 use types;
 
-// The standard tolerance used by isclose(), which is just an arbitrary way to
-// measure whether two floating-point numbers are "sufficiently" close to each
-// other.
-export def STANDARD_TOL: f64 = 1e-14;
+// The standard tolerance used by [[isclosef32]] and [[isclosef64]], which is
+// just an arbitrary way to measure whether two floating-point numbers are
+// "sufficiently" close to each other.
+export def STANDARD_TOL = 1e-14;
 
 // Returns whether x and y are within tol of each other.
-export fn eqwithinf64(x: f64, y: f64, tol: f64) bool = {
+export fn isclosef64(x: f64, y: f64, tol: f64 = STANDARD_TOL) bool = {
 	if (isnan(x) || isnan(y) || isnan(tol)) {
 		return false;
 	};
@@ -63,45 +63,11 @@ export fn eqwithinf64(x: f64, y: f64, tol: f64) bool = {
 };
 
 // Returns whether x and y are within tol of each other.
-export fn eqwithinf32(x: f32, y: f32, tol: f32) bool = {
+export fn isclosef32(x: f32, y: f32, tol: f32 = STANDARD_TOL) bool = {
 	if (isnan(x) || isnan(y) || isnan(tol)) {
 		return false;
 	};
 	return absf32(x - y) < tol;
-};
-
-// Returns whether x and y are within tol of each other.
-export fn eqwithin(
-	x: types::floating,
-	y: types::floating,
-	tol: types::floating,
-) bool = {
-	match (x) {
-	case let n: f64 =>
-		return eqwithinf64(n, y as f64, tol as f64);
-	case let n: f32 =>
-		return eqwithinf32(n, y as f32, tol as f32);
-	};
-};
-
-// Returns whether x and y are within [[STANDARD_TOL]] of each other.
-export fn isclosef64(x: f64, y: f64) bool = {
-	return eqwithinf64(x, y, STANDARD_TOL);
-};
-
-// Returns whether x and y are within [[STANDARD_TOL]] of each other.
-export fn isclosef32(x: f32, y: f32) bool = {
-	return eqwithinf32(x, y, STANDARD_TOL: f32);
-};
-
-// Returns whether x and y are within [[STANDARD_TOL]] of each other.
-export fn isclose(x: types::floating, y: types::floating) bool = {
-	match (x) {
-	case let n: f64 =>
-		return isclosef64(n, y as f64);
-	case let n: f32 =>
-		return isclosef32(n, y as f32);
-	};
 };
 
 // e - https://oeis.org/A001113
@@ -201,9 +167,7 @@ export fn logf64(x: f64) f64 = {
 	};
 
 	// Reduce
-	const f1_and_ki = frexp(x);
-	let f1 = f1_and_ki.0;
-	let ki = f1_and_ki.1;
+	const (f1, ki) = frexpf64(x);
 	if (f1 < (SQRT_2 / 2f64)) {
 		f1 *= 2f64;
 		ki -= 1i64;
@@ -229,9 +193,7 @@ export fn log10f64(x: f64) f64 = {
 
 // Returns the binary logarithm of x.
 export fn log2f64(x: f64) f64 = {
-	const frexp_res = frexpf64(x);
-	let frac = frexp_res.0;
-	let exp = frexp_res.1;
+	const (frac, exp) = frexpf64(x);
 	// Make sure exact powers of two give an exact answer.
 	// Don't depend on log(0.5) * (1 / LN_2) + exp being exactly exp - 1.
 	if (frac == 0.5f64) {
@@ -762,7 +724,7 @@ export fn powf64(x: f64, p: f64) f64 = {
 	// Repeatedly square our number x, for each bit in our power p.
 	// If the current bit is 1 in p, add the respective power of x to our
 	// result.
-	let (x_mantissa, x_exp) = frexp(x);
+	let (x_mantissa, x_exp) = frexpf64(x);
 	for (let i = p_int: i64; i != 0; i >>= 1) {
 		// Check for over/underflow.
 		if (x_exp <= -1i64 << (F64_EXPONENT_BITS: i64)) {
@@ -834,7 +796,7 @@ export fn roundf64(x: f64) f64 = {
 		// [0,1).
 		// Numbers with larger exponents are returned unchanged since
 		// they must be either an integer, infinity, or NaN.
-		const half = 1 << (F64_MANTISSA_BITS - 1);
+		const half = 1u64 << (F64_MANTISSA_BITS - 1);
 		e -= F64_EXPONENT_BIAS;
 		bits += half >> e;
 		bits = bits & ~(F64_MANTISSA_MASK >> e);
@@ -854,18 +816,14 @@ export fn modf64(x: f64, y: f64) f64 = {
 
 	y = absf64(y);
 
-	const y_frexp = frexpf64(y);
-	const y_frac = y_frexp.0;
-	const y_exp = y_frexp.1;
+	const (y_frac, y_exp) = frexpf64(y);
 	let r = x;
 	if (x < 0f64) {
 		r = -x;
 	};
 
 	for (r >= y) {
-		const r_frexp = frexpf64(r);
-		const r_frac = r_frexp.0;
-		let r_exp = r_frexp.1;
+		const (r_frac, r_exp) = frexpf64(r);
 		if (r_frac < y_frac) {
 			r_exp -= 1i64;
 		};

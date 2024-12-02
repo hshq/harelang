@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-use types;
-
 // Returns the binary representation of the given f64.
 export fn f64bits(n: f64) u64 = *(&n: *u64);
 
@@ -16,24 +14,24 @@ export fn f64frombits(n: u64) f64 = *(&n: *f64);
 export fn f32frombits(n: u32) f32 = *(&n: *f32);
 
 // The number of bits in the significand of the binary representation of f64.
-export def F64_MANTISSA_BITS: u64 = 52;
+export def F64_MANTISSA_BITS = 52;
 
 // The number of bits in the exponent of the binary representation of f64.
-export def F64_EXPONENT_BITS: u64 = 11;
+export def F64_EXPONENT_BITS = 11;
 
 // The bias of the exponent of the binary representation of f64. Subtract this
 // from the exponent in the binary representation to get the actual exponent.
-export def F64_EXPONENT_BIAS: u16 = 1023;
+export def F64_EXPONENT_BIAS = 1023;
 
 // The number of bits in the significand of the binary representation of f32.
-export def F32_MANTISSA_BITS: u64 = 23;
+export def F32_MANTISSA_BITS = 23;
 
 // The number of bits in the exponent of the binary representation of f32.
-export def F32_EXPONENT_BITS: u64 = 8;
+export def F32_EXPONENT_BITS = 8;
 
 // The bias of the exponent of the binary representation of f32. Subtract this
 // from the exponent in the binary representation to get the actual exponent.
-export def F32_EXPONENT_BIAS: u16 = 127;
+export def F32_EXPONENT_BIAS = 127;
 
 // Mask with each bit of an f64's mantissa set.
 export def F64_MANTISSA_MASK: u64 = (1 << F64_MANTISSA_BITS) - 1;
@@ -42,10 +40,10 @@ export def F64_MANTISSA_MASK: u64 = (1 << F64_MANTISSA_BITS) - 1;
 export def F64_EXPONENT_MASK: u64 = (1 << F64_EXPONENT_BITS) - 1;
 
 // Mask with each bit of an f32's mantissa set.
-export def F32_MANTISSA_MASK: u64 = (1 << F32_MANTISSA_BITS) - 1;
+export def F32_MANTISSA_MASK: u32 = (1 << F32_MANTISSA_BITS) - 1;
 
 // Mask with each bit of an f32's exponent set.
-export def F32_EXPONENT_MASK: u64 = (1 << F32_EXPONENT_BITS) - 1;
+export def F32_EXPONENT_MASK: u32 = (1 << F32_EXPONENT_BITS) - 1;
 
 // The largest representable f64 value which is less than Infinity.
 export def F64_MAX_NORMAL: f64 = 1.7976931348623157e+308;
@@ -54,7 +52,7 @@ export def F64_MAX_NORMAL: f64 = 1.7976931348623157e+308;
 export def F64_MIN_NORMAL: f64 = 2.2250738585072014e-308;
 
 // The smallest (subnormal) f64 value greater than zero.
-export def F64_MIN: f64 = 5.0e-324;
+export def F64_MIN_SUBNORMAL: f64 = 5.0e-324;
 
 // The difference between 1 and the smallest f64 representable value that is
 // greater than 1.
@@ -67,7 +65,7 @@ export def F32_MAX_NORMAL: f32 = 3.4028234e+38;
 export def F32_MIN_NORMAL: f32 = 1.1754944e-38;
 
 // The smallest (subnormal) f32 value greater than zero.
-export def F32_MIN: f32 = 1.0e-45;
+export def F32_MIN_SUBNORMAL: f32 = 1.0e-45;
 
 // The difference between 1 and the smallest f32 representable value that is
 // greater than 1.
@@ -136,11 +134,11 @@ export const f32info: floatinfo = floatinfo {
 // The floating point value representing Not a Number, i.e. an undefined or
 // unrepresentable value. You cannot test if a number is NaN by comparing to
 // this value; see [[isnan]] instead.
-export def NAN: f32 = 0.0 / 0.0;
+export def NAN = 0.0 / 0.0;
 
 // The floating point value representing positive infinity. Use -[[INF]] for
 // negative infinity.
-export def INF: f32 = 1.0 / 0.0;
+export def INF = 1.0 / 0.0;
 
 // Returns true if the given floating-point number is NaN.
 export fn isnan(n: f64) bool = n != n;
@@ -161,16 +159,6 @@ export fn isinf(n: f64) bool = {
 	assert(!isinf(-1.23f32));
 };
 
-// Returns true if the given floating-point number is normal.
-export fn isnormal(n: types::floating) bool = {
-	match (n) {
-	case let n: f32 =>
-		return isnormalf32(n);
-	case let n: f64 =>
-		return isnormalf64(n);
-	};
-};
-
 // Returns true if the given f64 is normal.
 export fn isnormalf64(n: f64) bool = {
 	const bits = f64bits(n);
@@ -185,16 +173,6 @@ export fn isnormalf32(n: f32) bool = {
 	const mant = bits & F32_MANTISSA_MASK;
 	const exp = bits >> F32_MANTISSA_BITS & F32_EXPONENT_MASK;
 	return exp != F32_EXPONENT_MASK && (exp > 0 || mant == 0);
-};
-
-// Returns true if the given floating-point number is subnormal.
-export fn issubnormal(n: types::floating) bool = {
-	match (n) {
-	case let n: f32 =>
-		return issubnormalf32(n);
-	case let n: f64 =>
-		return issubnormalf64(n);
-	};
 };
 
 // Returns true if the given f64 is subnormal.
@@ -229,16 +207,6 @@ export fn absf32(n: f32) f32 = {
 	return f32frombits(f32bits(n) & ~F32_SIGN_MASK);
 };
 
-// Returns the absolute value of floating-point number n.
-export fn absf(n: types::floating) f64 = {
-	match (n) {
-	case let n: f64 =>
-		return absf64(n);
-	case let n: f32 =>
-		return (absf32(n): f64);
-	};
-};
-
 // Returns 1 if x is positive and -1 if x is negative. Note that zero is also
 // signed.
 export fn signf64(x: f64) i64 = {
@@ -259,48 +227,17 @@ export fn signf32(x: f32) i64 = {
 	};
 };
 
-// Returns 1 if x is positive and -1 if x is negative. Note that zero is also
-// signed.
-export fn signf(x: types::floating) i64 = {
-	match (x) {
-	case let n: f64 =>
-		return signf64(n);
-	case let n: f32 =>
-		return signf32(n);
-	};
-};
-
 // Returns whether or not x is positive.
 export fn ispositivef64(x: f64) bool = signf64(x) == 1i64;
 
 // Returns whether or not x is positive.
 export fn ispositivef32(x: f32) bool = signf32(x) == 1i32;
 
-// Returns whether or not x is positive.
-export fn ispositive(x: types::floating) bool = {
-	match (x) {
-	case let n: f64 =>
-		return ispositivef64(n);
-	case let n: f32 =>
-		return ispositivef32(n);
-	};
-};
-
 // Returns whether or not x is negative.
 export fn isnegativef64(x: f64) bool = signf64(x) == -1i64;
 
 // Returns whether or not x is negative.
 export fn isnegativef32(x: f32) bool = signf32(x) == -1i32;
-
-// Returns whether or not x is negative.
-export fn isnegative(x: types::floating) bool = {
-	match (x) {
-	case let n: f64 =>
-		return isnegativef64(n);
-	case let n: f32 =>
-		return isnegativef32(n);
-	};
-};
 
 // Returns x, but with the sign of y.
 export fn copysignf64(x: f64, y: f64) f64 = {
@@ -312,16 +249,6 @@ export fn copysignf64(x: f64, y: f64) f64 = {
 export fn copysignf32(x: f32, y: f32) f32 = {
 	return f32frombits((f32bits(x) & ~F32_SIGN_MASK) |
 		(f32bits(y) & F32_SIGN_MASK));
-};
-
-// Returns x, but with the sign of y.
-export fn copysign(x: types::floating, y: types::floating) f64 = {
-	match (x) {
-	case let n: f64 =>
-		return copysignf64(n, (y: f64));
-	case let n: f32 =>
-		return (copysignf32(n, (y: f32)): f64);
-	};
 };
 
 // Takes a potentially subnormal f64 n and returns a normal f64 normal_float
@@ -374,25 +301,13 @@ export fn frexpf32(n: f32) (f32, i64) = {
 	const normal_float = normalized.0;
 	const normalization_exp = normalized.1;
 	const bits = f32bits(normal_float);
-	const raw_exp: u64 = ((bits >> (F32_MANTISSA_BITS: u32)) &
-		(F32_EXPONENT_MASK: u32));
+	const raw_exp: u64 = (bits >> F32_MANTISSA_BITS)
+		& F32_EXPONENT_MASK: u32;
 	const exp: i64 = normalization_exp +
 		(raw_exp: i64) - (F32_EXPONENT_BIAS: i64) + 1;
 	const mantissa: f32 =
 		f32frombits((bits & F32_EXP_REMOVAL_MASK) | F32_EXP_ZERO);
 	return (mantissa, exp);
-};
-
-// Breaks a float down into its mantissa and exponent. The mantissa will be
-// between 0.5 and 1.
-export fn frexp(n: types::floating) (f64, i64) = {
-	match (n) {
-	case let n: f64 =>
-		return frexpf64(n);
-	case let n: f32 =>
-		let (mantissa, exp) = frexpf32(n);
-		return (mantissa, exp);
-	};
 };
 
 // Creates an f64 from a mantissa and an exponent.
@@ -410,7 +325,7 @@ export fn ldexpf64(mantissa: f64, exp: i64) f64 = {
 	let res_exp = exp + normalization_exp + mantissa_exp;
 	// Underflow
 	if (res_exp < -(F64_EXPONENT_BIAS: i64) - (F64_MANTISSA_BITS: i64)) {
-		return copysign(0f64, mantissa);
+		return copysignf64(0f64, mantissa);
 	};
 	// Overflow
 	if (res_exp > (F64_EXPONENT_BIAS: i64)) {
@@ -586,8 +501,8 @@ export fn nextafterf64(x: f64, y: f64) f64 = {
 // Round a f32 to nearest integer value in floating point format
 fn nearbyintf32(x: f32) f32 = {
 	let n = f32bits(x);
-	let e = n >> 23 & 0xff;
-	if (e >= 0x7f + 23) {
+	let e = (n & F32_EXPONENT_MASK) >> F32_MANTISSA_BITS;
+	if (e >= F32_EXPONENT_BIAS + F32_MANTISSA_BITS) {
 		return x;
 	};
 	let s = n >> 31;
@@ -605,8 +520,8 @@ fn nearbyintf32(x: f32) f32 = {
 // Round a f64 to nearest integer value in floating point format
 fn nearbyintf64(x: f64) f64 = {
 	let n = f64bits(x);
-	let e = n >> 52 & 0x7ff;
-	if (e >= 0x3ff + 52) {
+	let e = (n & F64_EXPONENT_MASK) >> F64_MANTISSA_BITS;
+	if (e >= F64_EXPONENT_BIAS + F64_MANTISSA_BITS) {
 		return x;
 	};
 	let s = n >> 63;

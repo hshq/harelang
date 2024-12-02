@@ -86,7 +86,7 @@ const NTZ8TAB: [256]u8 = [
 	0x02, 0x00, 0x01, 0x00,
 ];
 
-// See http://supertech.csail.mit.edu/papers/debruijn.pdf
+// See https://web.archive.org/web/20240314060050/http://supertech.csail.mit.edu/papers/debruijn.pdf
 def DEBRUIJN32: u32 = 0x077CB531;
 
 const DEBRUIJN32TAB: [32]u8 = [
@@ -103,40 +103,8 @@ const DEBRUIJN64TAB: [64]u8 = [
 	54, 26, 40, 15, 34, 20, 31, 10, 25, 14, 19, 9, 13, 8, 7, 6,
 ];
 
-// The size of an unsigned int: 32 or 64
-def UINT_SIZE: u8 = (size(uint): u8) * 8;
-
 // Returns the minimum number of bits required to represent x.
-export fn bit_size_u8(x: u8) u8 = {
-	return LEN8TAB[x];
-};
-
-// Returns the minimum number of bits required to represent x.
-export fn bit_size_u16(x: u16) u8 = {
-	let res = 0u8;
-	if (x >= 1u16 << 8) {
-		x >>= 8;
-		res += 8;
-	};
-	return res + LEN8TAB[x];
-};
-
-// Returns the minimum number of bits required to represent x.
-export fn bit_size_u32(x: u32) u8 = {
-	let res = 0u8;
-	if (x >= 1u32 << 16) {
-		x >>= 16;
-		res += 16;
-	};
-	if (x >= 1u32 << 8) {
-		x >>= 8;
-		res += 8;
-	};
-	return res + LEN8TAB[x];
-};
-
-// Returns the minimum number of bits required to represent x.
-export fn bit_size_u64(x: u64) u8 = {
+export fn bit_size(x: u64) u8 = {
 	let res = 0u8;
 	if (x >= 1u64 << 32) {
 		x >>= 32;
@@ -153,52 +121,39 @@ export fn bit_size_u64(x: u64) u8 = {
 	return res + LEN8TAB[x];
 };
 
-// Returns the minimum number of bits required to represent x.
-export fn bit_size_u(x: uint) u8 = {
-	if (UINT_SIZE == 32) {
-		return bit_size_u32(x: u32);
-	};
-	return bit_size_u64(x: u64);
+@test fn bit_size() void = {
+	assert(bit_size(0) == 0);
+	assert(bit_size(1) == 1);
+	assert(bit_size(2) == 2);
+	assert(bit_size(5) == 3);
+	assert(bit_size(31111) == 15);
+	assert(bit_size(536870911) == 29);
+	assert(bit_size(8589934591) == 33);
 };
-
-@test fn bit_size_u() void = {
-	assert(bit_size_u8(0) == 0);
-	assert(bit_size_u8(2) == 2);
-	assert(bit_size_u8(5) == 3);
-	assert(bit_size_u16(5) == 3);
-	assert(bit_size_u32(5) == 3);
-	assert(bit_size_u64(5) == 3);
-	assert(bit_size_u16(31111) == 15);
-	assert(bit_size_u32(536870911) == 29);
-	assert(bit_size_u64(8589934591) == 33);
-	assert(bit_size_u(0) == 0);
-	assert(bit_size_u(1) == 1);
-};
-
 
 // Returns the number of leading zero bits in x
-// The result is UINT_SIZE for x == 0.
-export fn leading_zeros_u(x: uint) u8 = UINT_SIZE - bit_size_u(x);
+// The result is size(uint) * 8 for x == 0.
+export fn leading_zeros_u(x: uint) u8 = size(uint): u8 * 8 - bit_size(x);
 
 // Returns the number of leading zero bits in x
 // The result is 8 for x == 0.
-export fn leading_zeros_u8(x: u8) u8 = 8 - bit_size_u8(x);
+export fn leading_zeros_u8(x: u8) u8 = 8 - bit_size(x);
 
 // Returns the number of leading zero bits in x
 // The result is 16 for x == 0.
-export fn leading_zeros_u16(x: u16) u8 = 16 - bit_size_u16(x);
+export fn leading_zeros_u16(x: u16) u8 = 16 - bit_size(x);
 
 // Returns the number of leading zero bits in x
 // The result is 32 for x == 0.
-export fn leading_zeros_u32(x: u32) u8 = 32 - bit_size_u32(x);
+export fn leading_zeros_u32(x: u32) u8 = 32 - bit_size(x);
 
 // Returns the number of leading zero bits in x
 // The result is 64 for x == 0.
-export fn leading_zeros_u64(x: u64) u8 = 64 - bit_size_u64(x);
+export fn leading_zeros_u64(x: u64) u8 = 64 - bit_size(x);
 
 @test fn leading_zeros_u() void = {
-	assert(leading_zeros_u(0) == UINT_SIZE);
-	assert(leading_zeros_u(1) == UINT_SIZE - 1);
+	assert(leading_zeros_u(0) == size(uint) * 8);
+	assert(leading_zeros_u(1) == size(uint) * 8 - 1);
 	assert(leading_zeros_u8(0) == 8);
 	assert(leading_zeros_u8(1) == 8 - 1);
 	assert(leading_zeros_u16(0) == 16);
@@ -210,9 +165,9 @@ export fn leading_zeros_u64(x: u64) u8 = 64 - bit_size_u64(x);
 };
 
 // Returns the number of trailing zero bits in x
-// The result is UINT_SIZE for x == 0.
+// The result is size(uint) * 8 for x == 0.
 export fn trailing_zeros_u(x: uint) u8 = {
-	if (UINT_SIZE == 32) {
+	if (size(uint) == 4) {
 		return trailing_zeros_u32(x: u32);
 	};
 	return trailing_zeros_u64(x: u64);
@@ -274,7 +229,7 @@ export fn trailing_zeros_u64(x: u64) u8 = {
 		i -= 1;
 	};
 
-	assert(trailing_zeros_u(0) == UINT_SIZE);
+	assert(trailing_zeros_u(0) == size(uint) * 8);
 	assert(trailing_zeros_u(1) == 0);
 };
 
@@ -293,147 +248,6 @@ export fn popcount(x: u64) u8 = {
 	assert(popcount(0) == 0);
 	assert(popcount(0b11010110) == 5);
 	assert(popcount(~0) == 64);
-};
-
-// Returns the sum with carry of x, y and carry: sum = x + y + carry.
-// The carry input must be 0 or 1, otherwise the behavior is undefined.
-// The carry_out output is guaranteed to be 0 or 1.
-export fn addu32(x: u32, y: u32, carry: u32) (u32, u32) = {
-	const sum64 = (x: u64) + (y: u64) + (carry: u64);
-	const sum = (sum64: u32);
-	const carry_out = ((sum64 >> 32): u32);
-	return (sum, carry_out);
-};
-
-// Returns the sum with carry of x, y and carry: sum = x + y + carry.
-// The carry input must be 0 or 1, otherwise the behavior is undefined.
-// The carry_out output is guaranteed to be 0 or 1.
-export fn addu64(x: u64, y: u64, carry: u64) (u64, u64) = {
-	const sum = x + y + carry;
-	// The sum will overflow if both top bits are set (x & y) or if one of
-	// them is (x | y), and a carry from the lower place happened. If such a
-	// carry happens, the top bit will be 1 + 0 + 1 = 0 (& ~sum).
-	const carry_out = ((x & y) | ((x | y) & ~sum)) >> 63;
-	return (sum, carry_out);
-};
-
-// Calls either addu32() or addu64() depending on size(uint).
-export fn addu(x: uint, y: uint, carry: uint) (uint, uint) = {
-	if (UINT_SIZE == 32) {
-		const res = addu32((x: u32), (y: u32), (carry: u32));
-		return ((res.0: uint), (res.1: uint));
-	};
-	const res = addu64((x: u64), (y: u64), (carry: u64));
-	return ((res.0: uint), (res.1: uint));
-};
-
-@test fn addu() void = {
-	// 32
-	let res = addu32(2u32, 2u32, 0u32);
-	assert(res.0 == 4u32);
-	assert(res.1 == 0u32);
-	let res = addu32(2u32, 2u32, 1u32);
-	assert(res.0 == 5u32);
-	assert(res.1 == 0u32);
-	let res = addu32(~0u32, 0u32, 0u32);
-	assert(res.0 == ~0u32);
-	assert(res.1 == 0u32);
-	let res = addu32(~0u32, 1u32, 0u32);
-	assert(res.0 == 0u32);
-	assert(res.1 == 1u32);
-
-	// 64
-	let res = addu64(2u64, 2u64, 0u64);
-	assert(res.0 == 4u64);
-	assert(res.1 == 0u64);
-	let res = addu64(2u64, 2u64, 1u64);
-	assert(res.0 == 5u64);
-	assert(res.1 == 0u64);
-	let res = addu64(~0u64, 0u64, 0u64);
-	assert(res.0 == ~0u64);
-	assert(res.1 == 0u64);
-	let res = addu64(~0u64, 1u64, 0u64);
-	assert(res.0 == 0u64);
-	assert(res.1 == 1u64);
-
-	// addu()
-	let res = addu(2u, 2u, 0u);
-	assert(res.0 == 4u);
-	assert(res.1 == 0u);
-	let res = addu(2u, 2u, 1u);
-	assert(res.0 == 5u);
-	assert(res.1 == 0u);
-};
-
-// Returns the difference of x, y and borrow, diff = x - y - borrow.
-// The borrow input must be 0 or 1, otherwise the behavior is undefined.
-// The borrow_out output is guaranteed to be 0 or 1.
-export fn subu32(x: u32, y: u32, borrow: u32) (u32, u32) = {
-	const diff = x - y - borrow;
-	// The difference will underflow if the top bit of x is not set and the
-	// top bit of y is set (^x & y) or if they are the same (^(x ^ y)) and a
-	// borrow from the lower place happens. If that borrow happens, the
-	// result will be 1 - 1 - 1 = 0 - 0 - 1 = 1 (& diff).
-	const borrow_out = ((~x & y) | (~(x ^ y) & diff)) >> 31;
-	return (diff, borrow_out);
-};
-
-// Returns the difference of x, y and borrow, diff = x - y - borrow.
-// The borrow input must be 0 or 1, otherwise the behavior is undefined.
-// The borrow_out output is guaranteed to be 0 or 1.
-export fn subu64(x: u64, y: u64, borrow: u64) (u64, u64) = {
-	const diff = x - y - borrow;
-	// See subu32 for the bit logic.
-	const borrow_out = ((~x & y) | (~(x ^ y) & diff)) >> 63;
-	return (diff, borrow_out);
-};
-
-// Calls either mulu32() or mulu64() depending on size(uint).
-export fn subu(x: uint, y: uint, carry: uint) (uint, uint) = {
-	if (UINT_SIZE == 32) {
-		const res = subu32((x: u32), (y: u32), (carry: u32));
-		return ((res.0: uint), (res.1: uint));
-	};
-	const res = subu64((x: u64), (y: u64), (carry: u64));
-	return ((res.0: uint), (res.1: uint));
-};
-
-@test fn subu() void = {
-	// 32
-	let res = subu32(4u32, 2u32, 0u32);
-	assert(res.0 == 2u32);
-	assert(res.1 == 0u32);
-	let res = subu32(4u32, 2u32, 1u32);
-	assert(res.0 == 1u32);
-	assert(res.1 == 0u32);
-	let res = subu32(0u32, 0u32, 0u32);
-	assert(res.0 == 0u32);
-	assert(res.1 == 0u32);
-	let res = subu32(0u32, 1u32, 0u32);
-	assert(res.0 == ~0u32);
-	assert(res.1 == 1u32);
-
-	// 64
-	let res = subu64(4u64, 2u64, 0u64);
-	assert(res.0 == 2u64);
-	assert(res.1 == 0u64);
-	let res = subu64(4u64, 2u64, 1u64);
-	assert(res.0 == 1u64);
-	assert(res.1 == 0u64);
-	let res = subu64(0u64, 0u64, 0u64);
-	assert(res.0 == 0u64);
-	assert(res.1 == 0u64);
-	let res = subu64(0u64, 1u64, 0u64);
-	assert(res.0 == ~0u64);
-	assert(res.1 == 1u64);
-
-	// subu()
-	let res = subu(4u, 2u, 0u);
-	assert(res.0 == 2u);
-	assert(res.1 == 0u);
-	let res = subu(4u, 2u, 1u);
-	assert(res.0 == 1u);
-	assert(res.1 == 0u);
 };
 
 // Returns the 64-bit product of x and y: (hi, lo) = x * y
@@ -465,9 +279,11 @@ export fn mulu64(x: u64, y: u64) (u64, u64) = {
 	return (hi, lo);
 };
 
-// Calls either mulu32() or mulu64() depending on size(uint).
+// Returns the product of x and y: (hi, lo) = x * y
+// with the product bits' upper half returned in hi and the lower
+// half returned in lo.
 export fn mulu(x: uint, y: uint) (uint, uint) = {
-	if (UINT_SIZE == 32) {
+	if (size(uint) == 4) {
 		const res = mulu32((x: u32), (y: u32));
 		return ((res.0: uint), (res.1: uint));
 	};
@@ -504,10 +320,10 @@ export fn mulu(x: uint, y: uint) (uint, uint) = {
 // Returns the quotient and remainder of (hi, lo) divided by y:
 // quo = (hi, lo) / y, rem = (hi, lo) % y with the dividend bits' upper
 // half in parameter hi and the lower half in parameter lo.
-// Panics for y == 0 (division by zero) or y <= hi (quotient overflow).
+// Aborts if y == 0 (division by zero) or y <= hi (quotient overflow).
 export fn divu32(hi: u32, lo: u32, y: u32) (u32, u32) = {
-	assert(y != 0);
-	assert(y > hi);
+	assert(y != 0, "division by zero");
+	assert(y > hi, "quotient overflow");
 	const z = (hi: u64) << 32 | (lo: u64);
 	const quo = ((z / (y: u64)): u32);
 	const rem = ((z % (y: u64)): u32);
@@ -517,12 +333,12 @@ export fn divu32(hi: u32, lo: u32, y: u32) (u32, u32) = {
 // Returns the quotient and remainder of (hi, lo) divided by y:
 // quo = (hi, lo) / y, rem = (hi, lo) % y with the dividend bits' upper
 // half in parameter hi and the lower half in parameter lo.
-// Panics for y == 0 (division by zero) or y <= hi (quotient overflow).
+// Aborts if y == 0 (division by zero) or y <= hi (quotient overflow).
 export fn divu64(hi: u64, lo: u64, y: u64) (u64, u64) = {
 	const two32 = 1u64 << 32;
 	const mask32 = two32 - 1;
-	assert(y != 0);
-	assert(y > hi);
+	assert(y != 0, "division by zero");
+	assert(y > hi, "quotient overflow");
 
 	const s = leading_zeros_u64(y);
 	y <<= s;
@@ -561,9 +377,12 @@ export fn divu64(hi: u64, lo: u64, y: u64) (u64, u64) = {
 	return (quo, rem);
 };
 
-// Calls either divu32() or divu64() depending on size(uint).
+// Returns the quotient and remainder of (hi, lo) divided by y:
+// quo = (hi, lo) / y, rem = (hi, lo) % y with the dividend bits' upper
+// half in parameter hi and the lower half in parameter lo.
+// Aborts if y == 0 (division by zero) or y <= hi (quotient overflow).
 export fn divu(hi: uint, lo: uint, y: uint) (uint, uint) = {
-	if (UINT_SIZE == 32) {
+	if (size(uint) == 4) {
 		const res = divu32((hi: u32), (lo: u32), (y: u32));
 		return ((res.0: uint), (res.1: uint));
 	};
@@ -582,7 +401,7 @@ export fn divu(hi: uint, lo: uint, y: uint) (uint, uint) = {
 	let res = divu32(1u32, 0u32, 2u32);
 	assert(res.0 == (1u32 << 31));
 	assert(res.1 == 0u32);
-	// These should panic.
+	// These should abort.
 	// let res = divu32(1u32, 1u32, 0u32);
 	// let res = divu32(1u32, 0u32, 1u32);
 
@@ -596,7 +415,7 @@ export fn divu(hi: uint, lo: uint, y: uint) (uint, uint) = {
 	let res = divu64(1u64, 0u64, 2u64);
 	assert(res.0 == (1u64 << 63));
 	assert(res.1 == 0u64);
-	// These should panic.
+	// These should abort.
 	// let res = divu64(1u64, 1u64, 0u64);
 	// let res = divu64(1u64, 0u64, 1u64);
 
@@ -610,27 +429,27 @@ export fn divu(hi: uint, lo: uint, y: uint) (uint, uint) = {
 	let res = divu(1u, 0u, 2u);
 	assert(res.0 == (1u << 31));
 	assert(res.1 == 0u);
-	// These should panic.
+	// These should abort.
 	// divu(1u, 1u, 0u);
 	// divu(1u, 0u, 1u);
 };
 
 // Returns the remainder of (hi, lo) divided by y.
-// Panics for y == 0 (division by zero) but, unlike divu(), it doesn't panic on
-// a quotient overflow.
+// Aborts if y == 0 (division by zero) but, unlike [[divu32]], it doesn't abort
+// on a quotient overflow.
 export fn remu32(hi: u32, lo: u32, y: u32) u32 = {
-	assert(y != 0);
+	assert(y != 0, "division by zero");
 	const res = ((hi: u64) << 32 | (lo: u64)) % (y: u64);
 	return (res: u32);
 };
 
 // Returns the remainder of (hi, lo) divided by y.
-// Panics for y == 0 (division by zero) but, unlike divu(), it doesn't panic on
-// a quotient overflow.
+// Aborts if y == 0 (division by zero) but, unlike [[divu64]], it doesn't abort
+// on a quotient overflow.
 export fn remu64(hi: u64, lo: u64, y: u64) u64 = {
-	assert(y != 0);
+	assert(y != 0, "division by zero");
 	// We scale down hi so that hi < y, then use divu() to compute the
-	// rem with the guarantee that it won't panic on quotient overflow.
+	// rem with the guarantee that it won't abort on quotient overflow.
 	// Given that
 	//   hi ≡ hi%y    (mod y)
 	// we have
@@ -639,9 +458,11 @@ export fn remu64(hi: u64, lo: u64, y: u64) u64 = {
 	return res.1;
 };
 
-// Calls either remu32() or remu64() depending on size(uint).
+// Returns the remainder of (hi, lo) divided by y.
+// Aborts if y == 0 (division by zero) but, unlike [[divu]], it doesn't abort on
+// a quotient overflow.
 export fn remu(hi: uint, lo: uint, y: uint) uint = {
-	if (UINT_SIZE == 32) {
+	if (size(uint) == 4) {
 		return (remu32((hi: u32), (lo: u32), (y: u32)): uint);
 	};
 	return (remu64((hi: u64), (lo: u64), (y: u64)): uint);
@@ -653,7 +474,7 @@ export fn remu(hi: uint, lo: uint, y: uint) uint = {
 	assert(remu32(0u32, 5u32, 2u32) == 1u32);
 	assert(remu32(0u32, 5u32, 3u32) == 2u32);
 	assert(remu32(1u32, 1u32, 2u32) == 1u32);
-	// These should panic.
+	// These should abort.
 	// remu32(0u32, 4u32, 0u32);
 
 	// 64
@@ -661,7 +482,7 @@ export fn remu(hi: uint, lo: uint, y: uint) uint = {
 	assert(remu64(0u64, 5u64, 2u64) == 1u64);
 	assert(remu64(0u64, 5u64, 3u64) == 2u64);
 	assert(remu64(1u32, 1u32, 2u32) == 1u32);
-	// These should panic.
+	// These should abort.
 	// remu64(0u64, 4u64, 0u64);
 
 	// remu()
@@ -669,7 +490,7 @@ export fn remu(hi: uint, lo: uint, y: uint) uint = {
 	assert(remu(0u, 5u, 2u) == 1u);
 	assert(remu(0u, 5u, 3u) == 2u);
 	assert(remu(1u, 1u, 2u) == 1u);
-	// These should panic.
+	// These should abort.
 	// remu(0u, 4u, 0u);
 };
 

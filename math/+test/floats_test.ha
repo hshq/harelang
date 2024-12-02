@@ -3,12 +3,12 @@
 
 @test fn floatbits() void = {
 	const a: [_]f64 = [INF, -INF, 0.0, 1.0, -1.0, 123456789.0,
-		F64_MIN, F64_MIN_NORMAL, F64_MAX_NORMAL];
+		F64_MIN_SUBNORMAL, F64_MIN_NORMAL, F64_MAX_NORMAL];
 	for (let i = 0z; i < len(a); i += 1) {
 		assert(f64frombits(f64bits(a[i])) == a[i]);
 	};
 	const a: [_]f32 = [INF, -INF, 0.0, 1.0, -1.0, -123456.0,
-		F32_MIN, F32_MIN_NORMAL, F32_MAX_NORMAL];
+		F32_MIN_SUBNORMAL, F32_MIN_NORMAL, F32_MAX_NORMAL];
 	for (let i = 0z; i < len(a); i += 1) {
 		assert(f32frombits(f32bits(a[i])) == a[i]);
 	};
@@ -23,13 +23,6 @@
 };
 
 @test fn float_normality() void = {
-	assert(isnormal(0.0));
-	assert(isnormal(1.0));
-	assert(!isnormal(NAN));
-	assert(!isnormal(INF));
-	assert(!isnormal(1.0e-310));
-	assert(!isnormal(1.0e-40f32));
-
 	assert(isnormalf32(1.0));
 	assert(isnormalf32(0.0));
 	assert(!isnormalf32(NAN));
@@ -43,13 +36,6 @@
 	assert(!isnormalf64(INF));
 	assert(!isnormalf64(-1.0e-320));
 	assert(isnormalf64(-1.0e-330));
-
-	assert(issubnormal(1.0e-320));
-	assert(issubnormal(1.0e-42f32));
-	assert(!issubnormal(NAN));
-	assert(!issubnormal(INF));
-	assert(!issubnormal(1.0));
-	assert(!issubnormal(0.0));
 
 	assert(issubnormalf32(1.0e-45));
 	assert(issubnormalf32(-1.0e-39));
@@ -68,45 +54,43 @@
 
 @test fn absf() void = {
 	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
-		assert(absf(TEST_INPUTS[idx]) == TEST_ABSF[idx]);
+		assert(absf64(TEST_INPUTS[idx]) == TEST_ABSF[idx]);
 	};
 	assert(absf64(2f64) == 2f64);
 	assert(absf32(2.0f32) == 2.0f32);
-	assert(absf(2f64) == 2f64);
-	assert(absf(2.0f32) == 2f64);
-	assert(absf(-2f64) == 2f64);
-	assert(absf(-2.0f32) == 2.0f32);
-	assert(absf(0f32) == 0f32);
-	assert(absf(0f64) == 0f64);
+	assert(absf64(-2f64) == 2f64);
+	assert(absf32(-2.0f32) == 2.0f32);
+	assert(absf64(0f64) == 0f64);
+	assert(absf32(0f32) == 0f32);
 };
 
 @test fn copysign() void = {
-	assert(copysign(100f64, 1f64) == 100f64);
-	assert(copysign(100f64, -1f64) == -100f64);
-	assert(copysign(100.0f32, 1.0f32) == 100.0f32);
-	assert(copysign(100.0f32, -1.0f32) == -100.0f32);
-	assert(copysign(100f64, 0f64) == 100f64);
-	assert(copysign(100f64, -0f64) == -100f64);
-	assert(copysign(0f64, 100f64) == 0f64);
-	assert(signf(copysign(0f64, 100f64)) > 0);
-	assert(copysign(0f64, -100f64) == 0f64);
-	assert(signf(copysign(0f64, -100f64)) < 0);
+	assert(copysignf64(100f64, 1f64) == 100f64);
+	assert(copysignf64(100f64, -1f64) == -100f64);
+	assert(copysignf32(100.0f32, 1.0f32) == 100.0f32);
+	assert(copysignf32(100.0f32, -1.0f32) == -100.0f32);
+	assert(copysignf64(100f64, 0f64) == 100f64);
+	assert(copysignf64(100f64, -0f64) == -100f64);
+	assert(copysignf64(0f64, 100f64) == 0f64);
+	assert(signf64(copysignf64(0f64, 100f64)) > 0);
+	assert(copysignf64(0f64, -100f64) == 0f64);
+	assert(signf64(copysignf64(0f64, -100f64)) < 0);
 };
 
 @test fn signf() void = {
 	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
-		assert(signf(TEST_INPUTS[idx]) == TEST_SIGNF[idx]);
+		assert(signf64(TEST_INPUTS[idx]) == TEST_SIGNF[idx]);
 	};
-	assert(signf(0f64) == 1i64);
-	assert(signf(-0f64) == -1i64);
-	assert(signf(0.0f32) == 1i64);
-	assert(signf(-0.0f32) == -1i64);
-	assert(signf(1.5f64) == 1i64);
-	assert(signf(-1.5f64) == -1i64);
-	assert(ispositive(1f64));
-	assert(!ispositive(-1f64));
-	assert(isnegative(-1f64));
-	assert(!isnegative(1f64));
+	assert(signf64(0f64) > 0);
+	assert(signf64(-0f64) < 0);
+	assert(signf32(0f32) > 0);
+	assert(signf32(-0f32) < 0);
+	assert(signf64(1.5f64) > 0);
+	assert(signf64(-1.5f64) < 0);
+	assert(ispositivef64(1f64));
+	assert(!ispositivef64(-1f64));
+	assert(isnegativef64(-1f64));
+	assert(!isnegativef64(1f64));
 };
 
 @test fn normalize() void = {
@@ -120,20 +104,20 @@
 
 @test fn frexp() void = {
 	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
-		let res = frexp(TEST_INPUTS[idx]);
+		let res = frexpf64(TEST_INPUTS[idx]);
 		let expected = TEST_FREXP[idx];
 		assert(res.0 == expected.0);
 		assert(res.1 == expected.1);
 	};
-	let res = frexp(3f64);
+	let res = frexpf64(3f64);
 	assert(res.0 == 0.75f64);
 	assert(res.1 == 2i64);
-	res = frexp(2.42f64);
+	res = frexpf64(2.42f64);
 	assert(res.0 == 0.605f64);
 	assert(res.1 == 2i64);
-	res = frexp(NAN);
+	let res = frexpf32(NAN);
 	assert(res.1 == 0);
-	res = frexp(INF);
+	res = frexpf32(INF);
 	assert(res.1 == 0);
 };
 
@@ -149,7 +133,7 @@
 	};
 	assert(ldexpf64(1f64, -1076i64) == 0f64);
 	assert(ldexpf64(-1f64, -1076i64) == -0f64);
-	assert(signf(ldexpf64(-1f64, -1076i64)) < 0);
+	assert(signf64(ldexpf64(-1f64, -1076i64)) < 0);
 	assert(ldexpf64(2f64, 1024i64) == INF);
 	assert(ldexpf64(-2f64, 1024i64) == -INF);
 
@@ -164,7 +148,7 @@
 	};
 	assert(ldexpf32(1.0f32, -1076i32) == 0.0f32);
 	assert(ldexpf32(-1.0f32, -1076i32) == -0.0f32);
-	assert(signf(ldexpf32(-1.0f32, -1076i32)) < 0);
+	assert(signf64(ldexpf32(-1.0f32, -1076i32)) < 0);
 	assert(ldexpf32(2.0f32, 1024i32) == INF);
 	assert(ldexpf32(-2.0f32, 1024i32) == -INF);
 };
@@ -174,7 +158,7 @@
 	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
 		let res = modfracf64(TEST_INPUTS[idx]);
 		assert(res.0 == TEST_MODFRAC[idx].0);
-		assert(isclose(res.1, TEST_MODFRAC[idx].1));
+		assert(isclosef64(res.1, TEST_MODFRAC[idx].1));
 	};
 	let res = modfracf64(1.75f64);
 	assert(res.0 == 1f64);
@@ -188,11 +172,11 @@
 	res = modfracf64(0f64);
 	assert(res.0 == 0f64);
 	assert(res.1 == 0f64);
-	assert(signf(res.1) > 0);
+	assert(signf64(res.1) > 0);
 	res = modfracf64(-0f64);
 	assert(res.0 == -0f64);
 	assert(res.1 == -0f64);
-	assert(signf(res.1) < 0);
+	assert(signf64(res.1) < 0);
 	res = modfracf64(23.50f64);
 	assert(res.0 == 23f64);
 	assert(res.1 == 0.50f64);
@@ -213,11 +197,11 @@
 	res = modfracf32(0.0f32);
 	assert(res.0 == 0f32);
 	assert(res.1 == 0.0f32);
-	assert(signf(res.1) > 0);
+	assert(signf64(res.1) > 0);
 	res = modfracf32(-0.0f32);
 	assert(res.0 == -0f32);
 	assert(res.1 == -0.0f32);
-	assert(signf(res.1) < 0);
+	assert(signf64(res.1) < 0);
 	res = modfracf32(23.50f32);
 	assert(res.0 == 23f32);
 	assert(res.1 == 0.50f32);

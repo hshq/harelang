@@ -55,6 +55,7 @@
 // ====================================================
 
 use math;
+use math::checked;
 
 // A complex number containing a real component and an imaginary component,
 // represented as two single-precision floating point numbers.
@@ -364,7 +365,7 @@ export fn asinhc128(z: c128) c128 = {
 		};
 	} else if (math::isinf(z.1)) {
 		return (math::copysignf64(z.1, z.0),
-			math::copysign(math::PI / 2f64, z.1));
+			math::copysignf64(math::PI / 2f64, z.1));
 	};
 	const zz = mulc128(z, z);
 	const z1 = (1f64 + zz.0, zz.1); // 1 + z * z
@@ -519,8 +520,8 @@ fn reducePi(x: f64) f64 = {
 	let (z2hi, z2lo) = math::mulu64(z2, ix);
 	let (z1hi, z1lo) = math::mulu64(z1, ix);
 	let z0lo: u64 = z0 * ix;
-	let (lo, c) = math::addu64(z1lo, z2hi, 0);
-	let (hi, _) = math::addu64(z0lo, z1hi, c);
+	let (lo, c) = checked::addu64(z1lo, z2hi);
+	let hi = z0lo + z1hi + (if (c) 1u64 else 0u64);
 	// Find the magnitude of the fraction.
 	let lz: u8 = math::leading_zeros_u64(hi);
 	let e: u64 = (bias - (lz + 1)): u64;
@@ -585,9 +586,9 @@ fn tanSeries(z: c128) f64 = {
 export fn tanc128(x: c128) c128 = {
 	if (math::isinf(x.1)) {
 		if (math::isinf(x.0) || math::isnan(x.0)) {
-			return (math::copysign(0f64, x.0), math::copysign(1f64, x.1));
+			return (math::copysignf64(0f64, x.0), math::copysignf64(1f64, x.1));
 		};
-		return (math::copysign(0f64, math::sinf64(2f64*x.0)), math::copysign(1f64, x.1));
+		return (math::copysignf64(0f64, math::sinf64(2f64*x.0)), math::copysignf64(1f64, x.1));
 	};
 	if (x.0 == 0f64 && math::isnan(x.1)) {
 		return x;
@@ -606,9 +607,9 @@ export fn tanc128(x: c128) c128 = {
 export fn tanhc128(x: c128) c128 = {
 	if (math::isinf(x.0)) {
 		if (math::isinf(x.1) || math::isnan(x.1)) {
-			return (math::copysign(1f64, x.0), math::copysign(0f64, x.1));
+			return (math::copysignf64(1f64, x.0), math::copysignf64(0f64, x.1));
 		};
-		return (math::copysign(1f64, x.0), math::copysign(0f64, math::sinf64(2f64*x.1)));
+		return (math::copysignf64(1f64, x.0), math::copysignf64(0f64, math::sinf64(2f64*x.1)));
 	};
 	if (x.1 == 0f64 && math::isnan(x.0)) {
 		return x;
@@ -628,9 +629,9 @@ export fn atanc128(x: c128) c128 = {
 		return (x.0, math::atanhf64(x.1));
 	} else if (math::isinf(x.1) || math::isinf(x.0)) {
 		if (math::isnan(x.0)) {
-			return (math::NAN, math::copysign(0f64, x.1));
+			return (math::NAN, math::copysignf64(0f64, x.1));
 		};
-		return (math::copysign(math::PI/2f64, x.0), math::copysign(0f64, x.1));
+		return (math::copysignf64(math::PI/2f64, x.0), math::copysignf64(0f64, x.1));
 	} else if (math::isnan(x.0) || math::isnan(x.1)) {
 		return (math::NAN, math::NAN);
 	};

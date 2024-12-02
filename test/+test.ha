@@ -80,7 +80,7 @@ fn colored() bool = {
 		&& tty::isatty(os::stdout_file);
 };
 
-let jmpbuf = rt::jmpbuf { ... };
+let jmp_buf = rt::jmp_buf { ... };
 
 const @symbol("__test_array_start") test_start: [*]test;
 const @symbol("__test_array_end") test_end: [*]test;
@@ -244,9 +244,9 @@ fn run_test(ctx: *context, test: test) status = {
 	os::stdout = &ctx.stdout;
 	os::stderr = &ctx.stderr;
 	defer rt::jmp = null;
-	const n = rt::setjmp(&jmpbuf): status;
+	const n = rt::setjmp(&jmp_buf): status;
 	if (n == status::RETURN) {
-		rt::jmp = &jmpbuf;
+		rt::jmp = &jmp_buf;
 		test.func();
 	};
 
@@ -345,7 +345,7 @@ fn handle_segv(
 	info: *signal::siginfo,
 	ucontext: *opaque,
 ) void = {
-	rt::longjmp(&jmpbuf, status::SEGV);
+	rt::longjmp(&jmp_buf, status::SEGV);
 };
 
 fn easter_egg(fails: []failure, tests: []test) void = {

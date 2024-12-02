@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: MPL-2.0
 // (c) Hare authors <https://harelang.org>
 
-@test fn eqwithin() void = {
-	assert(eqwithin(1f64, 2f64, 2f64));
-	assert(eqwithin(1.0f32, 2.0f32, 2.0f32));
-	assert(!eqwithin(1.0005f32, 1.0004f32, 0.00001f32));
-	assert(isclose(1f64, 1.0000000000000000000000000001f64));
-	assert(isclose(1.0f32, 1.0000000000000000000000000001f32));
-	assert(!isclose(1.0005f32, 1.0004f32));
+@test fn isclose() void = {
+	assert(isclosef64(1f64, 2f64, 2f64));
+	assert(isclosef32(1.0f32, 2.0f32, 2.0f32));
+	assert(!isclosef32(1.0005f32, 1.0004f32, 0.00001f32));
+	assert(isclosef64(1f64, 1.0000000000000000000000000001f64));
+	assert(isclosef32(1.0f32, 1.0000000000000000000000000001f32));
+	assert(!isclosef32(1.0005f32, 1.0004f32));
 };
 
 @test fn logf64() void = {
 	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			logf64(absf64(TEST_INPUTS[idx])),
 			TEST_LOG[idx]));
 	};
@@ -26,7 +26,7 @@
 
 @test fn log10f64() void = {
 	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			log10f64(absf64(TEST_INPUTS[idx])),
 			TEST_LOG10[idx]));
 	};
@@ -34,7 +34,7 @@
 
 @test fn log2f64() void = {
 	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			log2f64(absf64(TEST_INPUTS[idx])),
 			TEST_LOG2[idx]));
 	};
@@ -42,7 +42,7 @@
 
 @test fn log1p() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			log1pf64(TEST_INPUTS[idx] / 100f64),
 			TEST_LOG1P[idx]));
 	};
@@ -57,7 +57,7 @@
 
 @test fn expf64() void = {
 	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
-		assert(isclose(expf64(TEST_INPUTS[idx]), TEST_EXP[idx]));
+		assert(isclosef64(expf64(TEST_INPUTS[idx]), TEST_EXP[idx]));
 	};
 	assert(expf64(1f64) == E);
 	assert(isnan(expf64(NAN)));
@@ -70,7 +70,7 @@
 
 @test fn exp2f64() void = {
 	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
-		assert(isclose(exp2f64(TEST_INPUTS[idx]), TEST_EXP2[idx]));
+		assert(isclosef64(exp2f64(TEST_INPUTS[idx]), TEST_EXP2[idx]));
 	};
 	assert(exp2f64(0f64) == 1f64);
 	assert(exp2f64(3f64) == 8f64);
@@ -85,7 +85,7 @@
 
 @test fn sqrt() void = {
 	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			sqrtf64(absf64(TEST_INPUTS[idx])),
 			TEST_SQRT[idx]));
 	};
@@ -102,7 +102,7 @@
 
 @test fn powf64() void = {
 	for (let idx = 0z; idx < len(TEST_INPUTS); idx += 1) {
-		assert(eqwithin(
+		assert(isclosef64(
 			powf64(10f64, TEST_INPUTS[idx]),
 			TEST_POW[idx],
 			1e-8f64));
@@ -126,19 +126,11 @@
 	assert(powf64(2f64, -F64_MAX_NORMAL) == 0f64);
 	assert(isinf(powf64(0.5f64, -F64_MAX_NORMAL)));
 	// Positive fractional powers
-	assert(eqwithin(powf64(2f64, 1.5f64),
-		2.8284271247461900976033774f64,
-		1e-10f64));
-	assert(eqwithin(powf64(2f64, 5.5f64),
-		45.254833995939041561654039f64,
-		1e-10f64));
+	assert(isclosef64(powf64(2f64, 1.5f64), 2.8284271247461900976033774f64));
+	assert(isclosef64(powf64(2f64, 5.5f64), 45.254833995939041561654039f64));
 	// Negative fractional powers
-	assert(eqwithin(powf64(2f64, -1.5f64),
-		0.3535533905932737622004221f64,
-		1e-10f64));
-	assert(eqwithin(powf64(2f64, -5.5f64),
-		0.0220970869120796101375263f64,
-		1e-10f64));
+	assert(isclosef64(powf64(2f64, -1.5f64), 0.3535533905932737622004221f64));
+	assert(isclosef64(powf64(2f64, -5.5f64), 0.0220970869120796101375263f64));
 
 	// Special cases
 	// pow(x, ±0) = 1 for any x
@@ -167,7 +159,7 @@
 	assert(powf64(0f64, 123f64) == 0f64);
 	const neg_zero = powf64(-0f64, 123f64);
 	assert(neg_zero == 0f64);
-	assert(isnegative(neg_zero));
+	assert(isnegativef64(neg_zero));
 	// pow(±0, y) = +0 for finite y > 0 and not an odd integer
 	assert(powf64(0f64, 8f64) == 0f64);
 	// pow(-1, ±Inf) = 1
@@ -200,7 +192,7 @@
 
 @test fn floor() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			floorf64(TEST_INPUTS[idx]),
 				TEST_FLOOR[idx]));
 	};
@@ -213,7 +205,7 @@
 
 @test fn ceil() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			ceilf64(TEST_INPUTS[idx]),
 				TEST_CEIL[idx]));
 	};
@@ -228,7 +220,7 @@
 
 @test fn trunc() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			truncf64(TEST_INPUTS[idx]),
 			TEST_TRUNC[idx]));
 	};
@@ -243,7 +235,7 @@
 
 @test fn round() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			roundf64(TEST_INPUTS[idx]),
 				TEST_ROUND[idx]));
 	};
@@ -258,7 +250,7 @@
 
 @test fn modf64() void = {
 	for (let idx = 0z; idx < 10; idx += 1) {
-		assert(isclose(
+		assert(isclosef64(
 			modf64(10f64, TEST_INPUTS[idx]),
 			TEST_MODF[idx]));
 	};

@@ -110,12 +110,29 @@ case let f: types::floating =>
 	return strconv::fftosf(out, f, mod.ffmt,
 		if (mod.prec != 0) mod.prec: uint else void, mod.fflags)?;
 case let i: types::integer =>
-	let neg = match (i) {
-	case types::unsigned =>
-		yield false;
-	case let s: types::signed =>
-		i = math::absi(s);
-		yield math::signi(s) < 0;
+	let neg = false;
+	let i: u64 = match (i) {
+	case let i: i8 =>
+		neg = math::signi8(i) < 0;
+		yield math::absi8(i);
+	case let i: i16 =>
+		neg = math::signi16(i) < 0;
+		yield math::absi16(i);
+	case let i: i32 =>
+		neg = math::signi32(i) < 0;
+		yield math::absi32(i);
+	case let i: i64 =>
+		neg = math::signi64(i) < 0;
+		yield math::absi64(i);
+	case let i: int =>
+		neg = math::signi(i) < 0;
+		yield math::absi(i);
+	case let i: u8 => yield i;
+	case let i: u16 => yield i;
+	case let i: u32 => yield i;
+	case let i: u64 => yield i;
+	case let i: uint => yield i;
+	case let i: size => yield i;
 	};
 	let sign = if (neg) "-" else {
 		yield switch (mod.neg) {
@@ -125,7 +142,7 @@ case let i: types::integer =>
 		};
 	};
 
-	let i = strconv::integertos(i, mod.base);
+	let i = strconv::u64tos(i, mod.base);
 	let pad = if (mod.prec < len(sign) + len(i)) {
 		yield 0z;
 	} else {

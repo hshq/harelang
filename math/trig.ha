@@ -168,17 +168,12 @@ fn trig_reduce(x: f64) (u64, f64) = {
 		(MPI4[digit + 3] >> (64 - bitshift));
 	// Multiply mantissa by the digits and extract the upper two digits
 	// (hi, lo).
-	const z2 = mulu64(z2, ix);
-	const z2hi = z2.0;
-	const z1 = mulu64(z1, ix);
-	const z1hi = z1.0;
-	const z1lo = z1.1;
+	const (z2hi, _) = mulu64(z2, ix);
+	const (z1hi, z1lo) = mulu64(z1, ix);
 	const z0lo = z0 * ix;
-	const add1 = addu64(z1lo, z2hi, 0);
-	const lo = add1.0;
-	const c = add1.1;
-	const add2 = addu64(z0lo, z1hi, c);
-	let hi = add2.0;
+	const lo = z1lo + z2hi;
+	let hi = z0lo + z1hi;
+	hi += (z1lo >> 63) & (z2hi >> 63); // carry from lo
 	// The top 3 bits are j.
 	let j = hi >> 61;
 	// Extract the fraction and find its magnitude.
@@ -236,7 +231,7 @@ export fn cosf64(x: f64) f64 = {
 
 	// Make argument positive
 	let is_negative = false;
-	x = absf(x);
+	x = absf64(x);
 
 	let j = 0u64;
 	let y = 0f64;

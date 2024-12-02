@@ -69,6 +69,13 @@ export fn addi64(a: i64, b: i64) (i64, bool) = {
 };
 
 // Adds 'a' and 'b', returning the result and whether overflow occurred.
+export fn addi(a: int, b: int) (int, bool) = {
+	const res = a + b;
+	const overflow = a < 0 == b < 0 && a < 0 != res < 0;
+	return (res, overflow);
+};
+
+// Adds 'a' and 'b', returning the result and whether overflow occurred.
 export fn addu8(a: u8, b: u8) (u8, bool) = {
 	const res = a + b;
 	const overflow = res < a;
@@ -130,6 +137,20 @@ export fn addu64(a: u64, b: u64) (u64, bool) = {
 	const (res, overflow) = addu64(18446744073709551610, 50);
 	assert(res == 44);
 	assert(overflow);
+};
+
+// Adds 'a' and 'b', returning the result and whether overflow occurred.
+export fn addu(a: uint, b: uint) (uint, bool) = {
+	const res = a + b;
+	const overflow = res < a;
+	return (res, overflow);
+};
+
+// Adds 'a' and 'b', returning the result and whether overflow occurred.
+export fn addz(a: size, b: size) (size, bool) = {
+	const res = a + b;
+	const overflow = res < a;
+	return (res, overflow);
 };
 
 // Subtracts 'b' from 'a', returning the result and whether overflow occurred.
@@ -209,6 +230,13 @@ export fn subi64(a: i64, b: i64) (i64, bool) = {
 };
 
 // Subtracts 'b' from 'a', returning the result and whether overflow occurred.
+export fn subi(a: int, b: int) (int, bool) = {
+	const res = a - b;
+	const overflow = a < 0 != b < 0 && a < 0 != res < 0;
+	return (res, overflow);
+};
+
+// Subtracts 'b' from 'a', returning the result and whether overflow occurred.
 export fn subu8(a: u8, b: u8) (u8, bool) = {
 	const res = a - b;
 	const overflow = res > a;
@@ -270,6 +298,20 @@ export fn subu64(a: u64, b: u64) (u64, bool) = {
 	const (res, overflow) = subu64(44, 50);
 	assert(res == 18446744073709551610);
 	assert(overflow);
+};
+
+// Subtracts 'b' from 'a', returning the result and whether overflow occurred.
+export fn subu(a: uint, b: uint) (uint, bool) = {
+	const res = a - b;
+	const overflow = res > a;
+	return (res, overflow);
+};
+
+// Subtracts 'b' from 'a', returning the result and whether overflow occurred.
+export fn subz(a: size, b: size) (size, bool) = {
+	const res = a - b;
+	const overflow = res > a;
+	return (res, overflow);
 };
 
 // Multiplies 'a' and 'b' returning the result and whether overflow occurred.
@@ -341,6 +383,17 @@ export fn muli64(a: i64, b: i64) (i64, bool) = {
 };
 
 // Multiplies 'a' and 'b' returning the result and whether overflow occurred.
+export fn muli(a: int, b: int) (int, bool) = {
+	if (size(int) == 4) {
+		const ret = muli32(a: i32, b: i32);
+		return (ret.0, ret.1);
+	} else {
+		const ret = muli64(a, b);
+		return (ret.0: int, ret.1);
+	};
+};
+
+// Multiplies 'a' and 'b' returning the result and whether overflow occurred.
 export fn mulu8(a: u8, b: u8) (u8, bool) = {
 	const fullres = a: uint * b: uint;
 	const res = fullres: u8;
@@ -406,4 +459,26 @@ export fn mulu64(a: u64, b: u64) (u64, bool) = {
 	const (res, overflow) = mulu64(4294967296, 4294967296);
 	assert(res == 0);
 	assert(overflow);
+};
+
+// Multiplies 'a' and 'b' returning the result and whether overflow occurred.
+export fn mulu(a: uint, b: uint) (uint, bool) = {
+	if (size(uint) == 4) {
+		const ret = mulu32(a: u32, b: u32);
+		return (ret.0, ret.1);
+	} else {
+		const ret = mulu64(a, b);
+		return (ret.0: uint, ret.1);
+	};
+};
+
+// Multiplies 'a' and 'b' returning the result and whether overflow occurred.
+export fn mulz(a: size, b: size) (size, bool) = {
+	if (size(size) == 4) {
+		const ret = mulu32(a: u32, b: u32);
+		return (ret.0, ret.1);
+	} else {
+		const ret = mulu64(a, b);
+		return (ret.0: size, ret.1);
+	};
 };

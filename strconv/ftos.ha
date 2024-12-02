@@ -319,7 +319,7 @@ export fn fftosf(
 		yield (mantissa, exponent, sign, special);
 	case let n: f32 =>
 		const bits = math::f32bits(n);
-		const mantissa = bits & math::F32_MANTISSA_MASK;
+		const mantissa: u64 = bits & math::F32_MANTISSA_MASK;
 		const exponent = ((bits >> math::F32_MANTISSA_BITS) &
 			math::F32_EXPONENT_MASK): u32;
 		const sign = bits >> (math::F32_EXPONENT_BITS +

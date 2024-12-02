@@ -26,7 +26,7 @@ export fn skip(reason: str) never = {
 		msg = reason,
 		...
 	};
-	rt::longjmp(&jmpbuf, status::SKIP);
+	rt::longjmp(&jmp_buf, status::SKIP);
 };
 
 // Check the $HARETEST_INCLUDE space-delimited environment variable for
