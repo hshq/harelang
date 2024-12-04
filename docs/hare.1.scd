@@ -17,11 +17,10 @@ hare - compile, run, test, and inspect Hare programs and modules
 *hare -h* prints help text.
 
 *hare version* prints version information for the *hare* program. If *-v* is
-supplied, it also prints information about the build parameters, in an output
-format that's consistent for machine reading: the first line is always
-*hare $version*, and subsequent lines give configuration values in the form of a
-name on its own line unindenteed, followed by any number of values, each on its
-own line indented with a single tab.
+supplied, it also prints information about the build parameters. If *-vv* is
+specified, detailed information about the version and build parameters is
+printed as shell environment variables in a format which is consistent between
+versions and suitable for machine reading.
 
 *hare-build*(1) compiles a Hare program or module.
 
