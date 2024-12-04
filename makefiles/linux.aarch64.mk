@@ -256,7 +256,7 @@ $(HARECACHE)/getopt.ssa: $(getopt_ha) $(HARECACHE)/fmt.td $(HARECACHE)/io.td $(H
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/getopt.td.tmp -N getopt $(getopt_ha)
 
 cmd_hare_ha = cmd/hare/arch.ha cmd/hare/build.ha cmd/hare/cache.ha cmd/hare/deps.ha cmd/hare/error.ha cmd/hare/main.ha cmd/hare/util.ha cmd/hare/version.ha
-$(HARECACHE)/cmd_hare.ssa: $(cmd_hare_ha) $(HARECACHE)/ascii.td $(HARECACHE)/bufio.td $(HARECACHE)/cmd_hare_build.td $(HARECACHE)/dirs.td $(HARECACHE)/errors.td $(HARECACHE)/fmt.td $(HARECACHE)/fs.td $(HARECACHE)/getopt.td $(HARECACHE)/hare_ast.td $(HARECACHE)/hare_lex.td $(HARECACHE)/hare_module.td $(HARECACHE)/hare_parse.td $(HARECACHE)/io.td $(HARECACHE)/memio.td $(HARECACHE)/os.td $(HARECACHE)/os_exec.td $(HARECACHE)/path.td $(HARECACHE)/sort.td $(HARECACHE)/sort_cmp.td $(HARECACHE)/strconv.td $(HARECACHE)/strings.td $(HARECACHE)/unix_tty.td
+$(HARECACHE)/cmd_hare.ssa: $(cmd_hare_ha) $(HARECACHE)/ascii.td $(HARECACHE)/bufio.td $(HARECACHE)/cmd_hare_build.td $(HARECACHE)/crypto_sha256.td $(HARECACHE)/dirs.td $(HARECACHE)/errors.td $(HARECACHE)/fmt.td $(HARECACHE)/fs.td $(HARECACHE)/getopt.td $(HARECACHE)/hare_ast.td $(HARECACHE)/hare_lex.td $(HARECACHE)/hare_module.td $(HARECACHE)/hare_parse.td $(HARECACHE)/hash.td $(HARECACHE)/io.td $(HARECACHE)/memio.td $(HARECACHE)/os.td $(HARECACHE)/os_exec.td $(HARECACHE)/path.td $(HARECACHE)/sort.td $(HARECACHE)/sort_cmp.td $(HARECACHE)/strconv.td $(HARECACHE)/strings.td $(HARECACHE)/unix_tty.td
 	@mkdir -p -- "$(HARECACHE)"
 	@printf 'HAREC\t%s\n' "$@"
 	@$(TDENV) $(HAREC) $(HARECFLAGS) -o $@ -t $(HARECACHE)/cmd_hare.td.tmp $(HARE_DEFINES)  $(cmd_hare_ha)

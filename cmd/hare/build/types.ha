@@ -71,8 +71,6 @@ export type context = struct {
 	ns: ast::ident,
 	// index of the root module within the gathered module slice
 	top: size,
-	// output of harec -v
-	version: []u8,
 	// true if invoked as `hare test`
 	test: bool,
 	// true if building in release mode
@@ -85,6 +83,7 @@ export type context = struct {
 	libc: bool,
 
 	cmds: [NSTAGES]str,
+	cmd_hashes: [NSTAGES][sha256::SZ]u8,
 
 	mode: output,
 	completed: size,
@@ -107,7 +106,6 @@ export fn ctx_finish(ctx: *context) void = {
 	free(ctx.libdirs);
 	free(ctx.libs);
 	ast::ident_free(ctx.ns);
-	free(ctx.version);
 	module::free_slice(ctx.mods);
 	free(ctx.hashes);
 };
