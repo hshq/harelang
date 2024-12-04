@@ -29,21 +29,21 @@ export def NSIG: int = 32;
 // #define sa_handler      __sigaction_u.__sa_handler
 // #define sa_sigaction    __sigaction_u.__sa_sigaction
 
-export def SA_ONSTACK  : u64 = 0x0001; // take signal on signal stack
-export def SA_RESTART  : u64 = 0x0002; // restart system on signal return
-export def SA_RESETHAND: u64 = 0x0004; // reset to SIG_DFL when taking signal
-export def SA_NOCLDSTOP: u64 = 0x0008; // do not generate SIGCHLD on child stop
-export def SA_NODEFER  : u64 = 0x0010; // don't mask the signal we're delivering
-export def SA_NOCLDWAIT: u64 = 0x0020; // don't keep zombies around
-export def SA_SIGINFO  : u64 = 0x0040; // signal handler with SA_SIGINFO args
+export def SA_ONSTACK  : int = 0x0001; // take signal on signal stack
+export def SA_RESTART  : int = 0x0002; // restart system on signal return
+export def SA_RESETHAND: int = 0x0004; // reset to SIG_DFL when taking signal
+export def SA_NOCLDSTOP: int = 0x0008; // do not generate SIGCHLD on child stop
+export def SA_NODEFER  : int = 0x0010; // don't mask the signal we're delivering
+export def SA_NOCLDWAIT: int = 0x0020; // don't keep zombies around
+export def SA_SIGINFO  : int = 0x0040; // signal handler with SA_SIGINFO args
 
-export def SA_USERTRAMP: u64 = 0x0100; // do not bounce off kernel's sigtramp
+export def SA_USERTRAMP: int = 0x0100; // do not bounce off kernel's sigtramp
 // This will provide 64bit register set in a 32bit user address space
-export def SA_64REGSET : u64 = 0x0200; // signal handler with SA_SIGINFO args with 64bit regs information
+export def SA_64REGSET : int = 0x0200; // signal handler with SA_SIGINFO args with 64bit regs information
 
 // the following are the only bits we support from user space, the
 // rest are for kernel use only.
-export def SA_USERSPACE_MASK: u64 = (SA_ONSTACK | SA_RESTART | SA_RESETHAND | SA_NOCLDSTOP | SA_NODEFER | SA_NOCLDWAIT | SA_SIGINFO);
+export def SA_USERSPACE_MASK: int = (SA_ONSTACK | SA_RESTART | SA_RESETHAND | SA_NOCLDSTOP | SA_NODEFER | SA_NOCLDWAIT | SA_SIGINFO);
 
 // Flags for sigprocmask:
 export def SIG_BLOCK  : int = 1; // block specified signal set
@@ -63,8 +63,8 @@ export def SIG_HOLD: uintptr = 5;
 
 export type sigact = struct {
     union {
-        sa_handler: *fn (int) void,
-        sa_sigaction: *fn (int, *siginfo, *opaque) void,
+        sa_handler: nullable *fn (int) void,
+        sa_sigaction: nullable *fn (int, *siginfo, *opaque) void,
     },
     sa_mask: sigset,
     sa_flags: int,
