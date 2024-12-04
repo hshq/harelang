@@ -52,7 +52,13 @@ $(BINOUT)/hare: $(OBJS)
 
 HARE_BUILD_ENV = HAREPATH=. HAREC="$(HAREC)" QBE="$(QBE)" AS="$(AS)" \
 	LD="$(LD)" HARECFLAGS="$(HARECFLAGS)" QBEFLAGS="$(QBEFLAGS)" \
-	ASFLAGS="$(ASFLAGS)" LDLINKFLAGS="$(LDLINKFLAGS)"
+	ASFLAGS="$(ASFLAGS)" LDLINKFLAGS="$(LDLINKFLAGS)" LDFLAGS="$(LDFLAGS)"
+
+$(BINOUT)/hare-install: $(BINOUT)/hare
+	@mkdir -p $(BINOUT)
+	@printf 'HARE\t%s\n' "$@"
+	@env $(HARE_BUILD_ENV) \
+		$(BINOUT)/hare build $(HARE_DEFINES) $(HAREFLAGS) -o $@ ./cmd/hare
 
 $(BINOUT)/haredoc: $(BINOUT)/hare
 	@mkdir -p $(BINOUT)
@@ -100,11 +106,11 @@ check: $(BINOUT)/hare
 
 install: install-cmd install-mods
 
-install-cmd:
+install-cmd: all $(BINOUT)/hare-install
 	mkdir -p -- \
 		'$(DESTDIR)$(BINDIR)' '$(DESTDIR)$(MANDIR)/man1' \
 		'$(DESTDIR)$(BINDIR)' '$(DESTDIR)$(MANDIR)/man5'
-	install -m755 '$(BINOUT)/hare' '$(DESTDIR)$(BINDIR)/hare'
+	install -m755 '$(BINOUT)/hare-install' '$(DESTDIR)$(BINDIR)/hare'
 	install -m755 '$(BINOUT)/haredoc' '$(DESTDIR)$(BINDIR)/haredoc'
 	for i in $(MAN1); do install -m644 docs/$$i.1 '$(DESTDIR)$(MANDIR)'/man1/$$i.1; done
 	for i in $(MAN5); do install -m644 docs/$$i.5 '$(DESTDIR)$(MANDIR)'/man5/$$i.5; done
@@ -121,5 +127,5 @@ uninstall:
 	for i in $(MAN5); do rm -- '$(DESTDIR)$(MANDIR)'/man5/$$i.5; done
 	rm -r -- '$(DESTDIR)$(STDLIB)'
 
-.PHONY: all $(BINOUT)/haredoc bootstrap clean check docs \
-	docs/html install start uninstall
+.PHONY: all $(BINOUT)/hare-install $(BINOUT)/haredoc bootstrap clean check \
+	docs docs/html install start uninstall

@@ -250,12 +250,12 @@ export type st_flock = struct {
 	l_whence: i16,
 	l_start: i64,
 	l_len: i64,
-	l_pid: int,
+	l_pid: pid_t,
 };
 
 export type f_owner_ex = struct {
 	_type: int,
-	pid: int,
+	pid: pid_t,
 };
 
 export def CLOCK_REALTIME: int			= 0;
@@ -507,11 +507,11 @@ export def SIG_HOLD: uintptr = 2;
 
 export type sigact = struct {
 	union {
-		sa_handler: *fn (int) void,
-		sa_sigaction: *fn (int, *siginfo, *opaque) void,
+		sa_handler: nullable *fn (int) void,
+		sa_sigaction: nullable *fn (int, *siginfo, *opaque) void,
 	},
 	sa_flags: u64,
-	sa_restorer: *fn () void,
+	sa_restorer: nullable *fn () void,
 	sa_mask: sigset,
 };
 
