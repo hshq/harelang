@@ -159,14 +159,10 @@ fn build(name: str, cmd: *getopt::command) (void | error) = {
 	defer hash::close(&h);
 	for (let i = 1z; i < len(ctx.cmds); i += 1) {
 		defer hash::reset(&h);
-		const cmd_path = if (os::exists(ctx.cmds[i])) {
-			yield ctx.cmds[i];
-		} else {
-			yield match (exec::lookup(ctx.cmds[i])) {
-			case let cmd_path: str => yield cmd_path;
-			case void =>
-				fmt::fatalf("Error: Command not found: {}", ctx.cmds[i]);
-			};
+		const cmd_path = match (exec::lookup(ctx.cmds[i])) {
+		case let cmd_path: str => yield cmd_path;
+		case void =>
+			fmt::fatalf("Error: Command not found: {}", ctx.cmds[i]);
 		};
 		const cmd_file = match (os::open(cmd_path)) {
 		case let file: io::file => yield file;
