@@ -7,7 +7,7 @@ for ld
 
 the way the hash is computed varies slightly between extension: for everything
 but .td, the hash contains the full argument list for the command used to
-generate the file. for .ssa, the version of harec (the output of harec -v) and
+generate the file. for .ssa, a hash of the build binaries (cc, harec, ...), and
 the various HARE_TD_* environment variables are hashed as well
 
 .td is hashed solely based on its contents, in order to get better caching

@@ -18,30 +18,6 @@ use strings;
 // for use as a scratch buffer
 let buf = path::buffer { ... };
 
-export fn get_version(harec: str) ([]u8 | error) = {
-	let cmd = match (exec::cmd(harec, "-v")) {
-	case let c: exec::command =>
-		yield c;
-	case exec::nocmd =>
-		fmt::fatalf("Error: Command not found: {}", harec);
-	case let e: exec::error =>
-		return e;
-	};
-	let pipe = exec::pipe();
-	exec::addfile(&cmd, os::stdout_file, pipe.1);
-	let proc = exec::start(&cmd)?;
-	io::close(pipe.1)?;
-	const version = io::drain(pipe.0)?;
-	let status = exec::wait(&proc)?;
-	io::close(pipe.0)?;
-	match (exec::check(&status)) {
-	case void =>
-		return version;
-	case let status: !exec::exit_status =>
-		fmt::fatal(harec, "-v", exec::exitstr(status));
-	};
-};
-
 fn get_deps(ctx: *context, t: *task) []str = {
 	let mod = ctx.mods[t.idx];
 	switch (t.kind) {
@@ -184,7 +160,7 @@ fn get_hash(
 ) [sha256::SZ]u8 = {
 	let h = sha256::sha256();
 
-	hash::write(&h, strings::toutf8(ctx.cmds[t.kind]));
+	hash::write(&h, ctx.cmd_hashes[t.kind]);
 	for (let flag .. flags) {
 		hash::write(&h, strings::toutf8(flag));
 	};
@@ -192,10 +168,6 @@ fn get_hash(
 	switch (t.kind) {
 	case stage::TD => abort();
 	case stage::SSA =>
-		hash::write(&h, strings::toutf8(ctx.arch.name));
-		hash::write(&h, [0]);
-		hash::write(&h, ctx.version);
-		hash::write(&h, [0]);
 		for (let dep .. ctx.mods[t.idx].deps) {
 			let ns = unparse::identstr(dep.1);
 			defer free(ns);
@@ -212,9 +184,7 @@ fn get_hash(
 			hash::write(&h, strings::toutf8(path));
 			hash::write(&h, [0]);
 		};
-	case stage::S =>
-		hash::write(&h, strings::toutf8(ctx.arch.qbe_name));
-		hash::write(&h, [0]);
+	case stage::S => void;
 	case stage::O => void;
 	case stage::BIN =>
 		for (let lib .. ctx.libs) {
