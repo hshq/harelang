@@ -255,23 +255,3 @@ fn get_args(ctx: *context, tmp: str, flags: []str, t: *task) []str = {
 	};
 	return args;
 };
-
-fn write_args(ctx: *context, out: str, args: []str, t: *task) (void | error) = {
-	let txt = os::create(out, 0o644)?;
-	defer io::close(txt)!;
-	if (t.kind == stage::SSA) {
-		for (let (_, ident) .. ctx.mods[t.idx].deps) {
-			let ns = unparse::identstr(ident);
-			defer free(ns);
-			let var = strings::concat("HARE_TD_", ns);
-			defer free(var);
-			fmt::fprintfln(txt, "# {}={}", var, os::tryenv(var, ""))?;
-		};
-	};
-	fmt::fprint(txt, ctx.cmds[t.kind])?;
-	for (let arg .. args) {
-		fmt::fprint(txt, " ")?;
-		shlex::quote(txt, arg)?;
-	};
-	fmt::fprintln(txt)?;
-};

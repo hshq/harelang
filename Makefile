@@ -63,7 +63,8 @@ $(BINOUT)/hare-install: $(BINOUT)/hare
 $(BINOUT)/haredoc: $(BINOUT)/hare
 	@mkdir -p $(BINOUT)
 	@printf 'HARE\t%s\n' "$@"
-	@env $(HARE_BUILD_ENV) $(BINOUT)/hare build $(HAREFLAGS) -o $@ ./cmd/haredoc
+	@env $(HARE_BUILD_ENV) $(BINOUT)/hare build \
+		$(HARE_DEFINES) $(HAREFLAGS) -o $@ ./cmd/haredoc
 
 docs/html: $(BINOUT)/haredoc
 	mkdir -p docs/html
