@@ -345,6 +345,10 @@ export fn compile(expr: str) (regex | error) = {
 				yield rep_parts.0;
 			};
 			if (can_skip) {
+				// len(insts) - 1 is the current last instruction
+				// len(insts) is the next instruction
+				// advance to len(insts) + 1 to make space for the `inst_split`
+				// advance to len(insts) + 2 to make space for the `inst_repeat`
 				insert(insts[origin],
 					len(insts) + 2: inst_split);
 				origin += 1;

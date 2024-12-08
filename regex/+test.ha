@@ -412,6 +412,8 @@ fn run_rawreplace_case(
 		(`^x(abc){,2}$`, "xabc", matchres::MATCH, 0, -1),
 		(`^x(abc){,2}$`, "xabcabc", matchres::MATCH, 0, -1),
 		(`^x(abc){,2}`, "xabcabcabc", matchres::MATCH, 0, 7),
+		(`^x(abc){,0}de`, "xde", matchres::MATCH, 0, -1),
+		(`^x(abc){,0}de`, "xe", matchres::NOMATCH, 0, -1),
 		(`^x(abc){,2}$`, "xabcabcabc", matchres::NOMATCH, 0, -1),
 		(`^x(abc){1,}$`, "xabc", matchres::MATCH, 0, -1),
 		(`^x(abc){1,}$`, "xabcabc", matchres::MATCH, 0, -1),

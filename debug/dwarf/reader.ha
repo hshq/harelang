@@ -109,15 +109,21 @@ fn read_tell(rd: *table_reader) size = {
 
 fn read_sbyte(rd: *table_reader) (i8 | io::error) = {
 	read_advance(rd, size(i8))?;
-	return read_ubyte(rd)?: i8;
+
+	match (bufio::read_byte(rd.src)?) {
+	case let byte: u8 =>
+		return byte: i8;
+	case io::EOF =>
+		return 0: io::underread;
+	};
 };
 
 fn read_ubyte(rd: *table_reader) (u8 | io::error) = {
 	read_advance(rd, size(u8))?;
-	let b: [1]u8 = [0...];
-	match (io::read(rd.src, b)?) {
-	case size =>
-		return b[0];
+
+	match (bufio::read_byte(rd.src)?) {
+	case let byte: u8 =>
+		return byte;
 	case io::EOF =>
 		return 0: io::underread;
 	};
@@ -207,22 +213,12 @@ fn read_slice(rd: *table_reader, amt: size) ([]u8 | io::error) = {
 
 // Borrowed from underlying source
 fn read_string(rd: *table_reader) (const str | io::error) = {
-	const start = io::tell(rd.src)!;
-	for (true) {
-		match (memio::borrowedread(rd.src, 1)) {
-		case let d: []u8 =>
-			if (d[0] == 0) {
-				break;
-			};
-		case io::EOF =>
-			return 0: io::underread;
-		};
+	// XXX: Leaks, should probably borrow from memio
+	match (bufio::read_tok(rd.src, 0)?) {
+	case let data: []u8 =>
+		rd.length -= len(data) + 1;
+		return strings::fromutf8(data)!;
+	case io::EOF =>
+		return 0: io::underread;
 	};
-	const end = io::tell(rd.src)!;
-	const length = end - start;
-	io::seek(rd.src, start, io::whence::SET)!;
-
-	let data = read_slice(rd, length: size)?;
-	data = data[..len(data)-1]; // Trim \0
-	return strings::fromutf8(data)!;
 };
