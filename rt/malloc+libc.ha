@@ -4,6 +4,7 @@
 // Allocates n bytes of memory and returns a pointer to them, or null if there
 // is insufficient memory.
 export fn malloc(n: size) nullable *opaque = {
+	if (n == 0) return null;
 	return c_malloc(n);
 };
 
