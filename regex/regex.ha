@@ -860,7 +860,7 @@ export fn findall(re: *regex, string: str) []result = {
 				// zero-length match
 				// forward rune and byte indices
 				str_idx += 1;
-				str_bytesize += encoding::utf8::utf8sz(
+				str_bytesize += utf8::utf8sz(
 					str_bytes[str_bytesize])!;
 			};
 			io::seek(&strm, str_bytesize: io::off,
