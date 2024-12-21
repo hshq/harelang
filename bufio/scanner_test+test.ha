@@ -199,3 +199,16 @@ use types;
 	let line = scan_line(&scan) as const str;
 	assert(strings::compare(line, "hello") == 0);
 };
+
+@test fn greedy_scan_uncomplete_line() void = {
+	let buf = memio::dynamic();
+	let scan = newscanner(&buf, types::SIZE_MAX, scan_options::EOF_GREEDY);
+
+	assert(scan_line(&scan) is io::EOF);
+
+	io::write(&buf, strings::toutf8("hello"))!;
+	io::seek(&buf, 0, io::whence::SET)!;
+
+	let line = scan_line(&scan) as const str;
+	assert(strings::compare(line, "hello") == 0);
+};
