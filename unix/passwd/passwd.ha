@@ -166,7 +166,7 @@ export fn getuid(uid: unix::uid) (pwent | void) = {
 @test fn nextpw() void = {
 	const buf = memio::fixed(strings::toutf8(
 		"sircmpwn:x:1000:1000:sircmpwn's comment:/home/sircmpwn:/bin/rc\n"
-		"alex:x:1001:1001::/home/alex:/bin/zsh"));
+		"alex:x:1001:1001::/home/alex:/bin/zsh\n"));
 
 	const rd = users_read(&buf);
 	defer users_finish(&rd);
@@ -203,4 +203,6 @@ export fn getuid(uid: unix::uid) (pwent | void) = {
 		assert(ent.homedir == expect[i].homedir);
 		assert(ent.shell == expect[i].shell);
 	};
+
+	assert(i == len(expect));
 };

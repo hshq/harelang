@@ -188,7 +188,7 @@ export fn getgroups(name: str) []grent = {
 	const buf = memio::fixed(strings::toutf8(
 		"root:x:0:root\n"
 		"mail:x:12:\n"
-		"video:x:986:alex,wmuser"));
+		"video:x:986:alex,wmuser\n"));
 	const rd = groups_read(&buf);
 	defer groups_finish(&rd);
 
@@ -221,4 +221,5 @@ export fn getgroups(name: str) []grent = {
 		assert(ent.gid == expect[i].gid);
 		assert(ent.userlist == expect[i].userlist);
 	};
+	assert(i == len(expect));
 };
