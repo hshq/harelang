@@ -62,7 +62,7 @@ fn search_rightmost(
 fn insort(items: []opaque, itemsz: size, cmp: *cmpfunc) void = {
 	let ba = items: *[*]u8;
 	for (let i = 0z; i < len(items); i += 1) {
-		let bound = search_rightmost(items[0..i], itemsz,
+		let bound = search_rightmost(items[..i], itemsz,
 			&ba[i * itemsz], cmp);
 		for (let j = i; j > bound + 1; j -= 1) {
 			let a = &ba[(j - 1) * itemsz];
