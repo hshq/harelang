@@ -28,17 +28,14 @@ export type decl_ref = ast::ident;
 // A reference to a module.
 export type mod_ref = ast::ident;
 
-// All possible error types.
-export type error = !lex::error;
-
 // Converts an error into a human-friendly string. The result may be statically
 // allocated.
-export fn strerror(err: error) const str = lex::strerror(err);
+export fn strerror(err: lex::error) const str = lex::strerror(err);
 
 // Parses a haredoc document from an [[io::handle]]. 'start' is the location of
 // the top-left corner of the document, for accurate locations in error messages
 // (e.g. declaration documentation starts at col=3; READMEs start at col=1).
-export fn parse(in: io::handle, start: lex::location) (doc | error) = {
+export fn parse(in: io::handle, start: lex::location) (doc | lex::error) = {
 	let sc = bufio::newscanner(in);
 	defer bufio::finish(&sc);
 
@@ -64,7 +61,7 @@ export fn parse(in: io::handle, start: lex::location) (doc | error) = {
 fn _parse(
 	sc: *bufio::scanner,
 	loc: *lex::location,
-) (doc | ...error | utf8::invalid) = {
+) (doc | ...lex::error | utf8::invalid) = {
 	let doc: doc = [];
 
 	for (let r => bufio::scan_rune(sc)?) {
@@ -100,7 +97,7 @@ fn _parse(
 fn scan_code_sample(
 	sc: *bufio::scanner,
 	loc: *lex::location,
-) (code_sample | ...error | utf8::invalid) = {
+) (code_sample | ...lex::error | utf8::invalid) = {
 	let s = memio::dynamic();
 	for (let r => bufio::scan_rune(sc)?) {
 		switch (r) {
@@ -150,7 +147,7 @@ fn scan_code_sample(
 fn scan_list(
 	sc: *bufio::scanner,
 	loc: *lex::location,
-) (list | ...error | utf8::invalid) = {
+) (list | ...lex::error | utf8::invalid) = {
 	let li: list = [];
 	for (true) {
 		match (bufio::scan_rune(sc)?) {
@@ -189,7 +186,7 @@ type state = enum {
 fn scan_paragraph(
 	sc: *bufio::scanner,
 	loc: *lex::location,
-) (paragraph | ...error | utf8::invalid) = {
+) (paragraph | ...lex::error | utf8::invalid) = {
 	let p: paragraph = [];
 	let s = memio::dynamic();
 	defer io::close(&s)!;
