@@ -204,7 +204,7 @@ export fn scan_bytes(
 
 		match (scan_readahead(scan)?) {
 		case io::EOF =>
-			if (scan.opts & scan_options::EOF_DISCARD == 0) {
+			if (scan.opts == scan_options::EOF_DISCARD) {
 				return io::EOF;
 			};
 			if (len(scan.pending) == 0) {
