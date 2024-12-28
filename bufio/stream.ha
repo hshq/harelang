@@ -126,12 +126,11 @@ export fn setflush(s: io::handle, b: []u8) void = {
 export fn unread(s: io::handle, buf: []u8) void = {
 	match (s) {
 	case let st: *io::stream =>
-		switch (st.reader) {
-		case &read =>
+		if (st.reader == &read) {
 			stream_unread(s: *stream, buf);
-		case &scan_read =>
+		} else if (st.reader == &scan_read) {
 			scan_unread(s: *scanner, buf);
-		case =>
+		} else {
 			abort("Attempted unread on unbuffered stream");
 		};
 	case =>
