@@ -341,12 +341,13 @@ export fn compile(expr: str) (regex | error) = {
 				jump_idxs[group_level][len(jump_idxs[group_level]) - 1] + 1 else origin;
 			insert(insts[split_idx], newinst);
 			shift(insts[split_idx + 1..]);
-			// we have to now fix up all affected jump_idxs, since
-			// we've shifted them over using the insert
-			for (let jump_idx &.. jump_idxs[group_level]) {
-				if (*jump_idx >= split_idx) {
-					*jump_idx += 1;
-				};
+			// our insertion of our split_idx should never interfere
+			// with an existing jump_idx
+			for (let jump_idx .. jump_idxs[group_level]) {
+				// if this assertion ends up being hit in the
+				// future, it is a sign that jump_idx should be
+				// incremented
+				assert(jump_idx < split_idx, `Found jump_idx interference. Please report this as a bug`);
 			};
 			append(jump_idxs[group_level], len(insts) - 1);
 			// add skip if it's a whole-expression alternation
