@@ -31,13 +31,13 @@ fn run_find_case(
 		};
 		return;
 	};
+	defer finish(&re);
 
 	if (expected == matchres::ERROR) {
 		fmt::errorfln("Expected expression /{}/ to have error caught during compilation, but it did not",
 			expr)!;
 		abort();
 	};
-	defer finish(&re);
 
 	const result = find(&re, string);
 	defer result_free(result);
@@ -204,7 +204,7 @@ fn run_rawreplace_case(
 
 @test fn find() void = {
 	const cases = [
-		// literals
+		// Literals
 		(`^$`, "", matchres::MATCH, 0, 0),
 		(``, "", matchres::MATCH, 0, -1),
 		(`abcd`, "abcd", matchres::MATCH, 0, -1),
@@ -356,29 +356,29 @@ fn run_rawreplace_case(
 		(`^test[[:upper:]]+$`, "testa", matchres::NOMATCH, 0, -1),
 		(`^test[[:upper:]]+$`, "testA", matchres::MATCH, 0, -1),
 		(`^test[[:xdigit:]]+$`, "testCAFE", matchres::MATCH, 0, -1),
-		// range expressions
+		// Range expressions
 		(`[a-z]+`, "onlylatinletters", matchres::MATCH, 0, -1),
 		(`[x-z]+`, "xyz", matchres::MATCH, 0, -1),
 		(`[x-z]+`, "wxyz", matchres::MATCH, 1, 4),
 		(`[a-e]+`, "-abcdefg", matchres::MATCH, 1, 6),
 		(`[a-z]`, "-1234567890@#$%^&*(!)-+=", matchres::NOMATCH, 0, -1),
 		(`[0-9]+`, "9246", matchres::MATCH, 0, -1),
-		// # Cyrillic
+		// Cyrillic
 		(`[а-я]+`, "кирилица", matchres::MATCH, 0, -1),
 		(`[а-д]`, "е", matchres::NOMATCH, 0, -1),
 		(`[я-ф]`, "-", matchres::ERROR, 0, -1),
 		(`[А-Я]+`, "АБВГд", matchres::MATCH, 0, 4),
-		// because Macedonian uses cyrrilics, the broad range does
+		// Because Macedonian uses Cyrillic, the broad range does
 		// not include special symbols
 		(`[а-ш]+`, "ѓљњќ", matchres::NOMATCH, 0, -1),
-		// # Polish Alphabet
+		// Polish alphabet
 		(`[a-ż]+`, "polskialfabet", matchres::MATCH, 0, -1),
 		(`[a-ż]+`, "źśółęćą", matchres::MATCH, 0, -1),
-		// because Polish alphabet uses Latin with special characters,
-		// other characters can be accepted
+		// Because the Polish alphabet uses Latin with special
+		// characters, other characters can be accepted
 		(`[a-ż]+`, "englishspeak", matchres::MATCH, 0, -1),
 		(`[a-ż]+`, "{|}~", matchres::MATCH, 0, -1),
-		// # Thai Alphabet
+		// Thai alphabet
 		(`[ก-ฮ]+`, "ศอผจข", matchres::MATCH, 0, -1),
 		// [:alpha:] etc. plus extra characters
 		(`^test[[:digit:]][[:alpha:]]$`, "test1a", matchres::MATCH, 0, -1),
@@ -425,7 +425,7 @@ fn run_rawreplace_case(
 		(`^x(abc){-1,2}$`, "xabcabcabc", matchres::ERROR, 0, -1),
 		(`^x(abc){x,2}$`, "xabcabcabc", matchres::ERROR, 0, -1),
 		(`^x(abc){0,-2}$`, "xabcabcabc", matchres::ERROR, 0, -1),
-		// various
+		// Various
 		(
 			`^.(1024)?(face)*(1024)*ca*(f+e?cafe)(babe)+$`,
 			"X1024facefacecaaaaafffcafebabebabe",
@@ -459,7 +459,13 @@ fn run_rawreplace_case(
 		(`foo[-ac]bar`, "foo-bar", matchres::MATCH, 0, 7),
 		(`[ac-]$`, "bde-", matchres::MATCH, 3, 4),
 		(`^[A-Za-z_-]+$`, "foo", matchres::MATCH, 0, 3),
-		// tests from perl
+		// Tests for jump bugs
+		(`ab?c`, "ac", matchres::MATCH, 0, -1),
+		(`ab?c|z`, "ac", matchres::MATCH, 0, -1),
+		(`(ab?c){,1}`, "ac", matchres::MATCH, 0, -1),
+		(`(ab?c)?`, "ac", matchres::MATCH, 0, -1),
+		(`(ab?c)*`, "ac", matchres::MATCH, 0, -1),
+		// Tests from perl
 		(`abc`, "abc", matchres::MATCH, 0, -1),
 		(`abc`, "xbc", matchres::NOMATCH, 0, 0),
 		(`abc`, "axc", matchres::NOMATCH, 0, 0),
@@ -553,7 +559,7 @@ fn run_rawreplace_case(
 		(`a[bcd]+dcdcde`, "adcdcde", matchres::NOMATCH, 0, 0),
 		(`(ab|a)b*c`, "abc", matchres::MATCH, 0, -1),
 		(`[a-zA-Z_][a-zA-Z0-9_]*`, "alpha", matchres::MATCH, 0, -1),
-		(`^a(bc+|b[eh])g|.h$`, "abh", matchres::MATCH, 0, -1),
+		(`^a(bc+|b[eh])g|.h$`, "abh", matchres::MATCH, 1, -1),
 		(`multiple words of text`, "uh-uh", matchres::NOMATCH, 0, 0),
 		(`multiple words`, "multiple words, yeah", matchres::MATCH, 0, 14),
 		(`(.*)c(.*)`, "abcde", matchres::MATCH, 0, -1),
@@ -577,7 +583,7 @@ fn run_rawreplace_case(
 		(`(a|ab)(bcd|c)(d|.*)`, "abcd", matchres::MATCH, 0, -1), // POSIX: (0,4)(0,2)(2,3)(3,4)
 		(`(ab|a)(c|bcd)(d|.*)`, "abcd", matchres::MATCH, 0, -1), // POSIX: (0,4)(0,2)(2,3)(3,4)
 		(`(ab|a)(bcd|c)(d|.*)`, "abcd", matchres::MATCH, 0, -1), // POSIX: (0,4)(0,2)(2,3)(3,4)
-		// whole-expression alternation
+		// Whole-expression alternation
 		(`ab|cd`, "cd", matchres::MATCH, 0, 2),
 		(`ab|cd`, "abc", matchres::MATCH, 0, 2),
 		(`ab|cd`, "abcd", matchres::MATCH, 0, 2),
@@ -590,7 +596,9 @@ fn run_rawreplace_case(
 		(`ab|^cd`, "bcd", matchres::NOMATCH, 0, 0),
 		(`ab|^cd`, "cde", matchres::MATCH, 0, 2),
 		(`ab\|^cd`, "cde", matchres::ERROR, 0, 0),
-		// multiple alternation
+		(`a|(b)`, "a", matchres::MATCH, 0, -1),
+		(`(a|(b?|c*){,1}|d+|e)`, "e", matchres::MATCH, 0, -1),
+		// Multiple alternation
 		(`a|b|c|d|e`, "e", matchres::MATCH, 0, -1),
 		(`a|b|c|d|e`, "xe", matchres::MATCH, 1, -1),
 		(`(a|b|c|d|e)f`, "ef", matchres::MATCH, 0, -1),
@@ -602,26 +610,24 @@ fn run_rawreplace_case(
 		(`a|^b|^c|^d|e`, "xa", matchres::MATCH, 1, 2),
 		(`a|^b|^c|^d|e`, "xc", matchres::NOMATCH, 0, 0),
 		(`a|^b|^c|^d|e`, "xe", matchres::MATCH, 1, 2),
-		// TODO: nested capture groups
-		(`((a))`, "abc", matchres::ERROR, 0, -1),
-		// (`((a))`, "abc", matchres::MATCH, 0, -1),
-		// (`((a)(b)c)(d)`, "abcd", matchres::MATCH, 0, -1),
-		// (`(bc+d$|ef*g.|h?i(j|k))`, "effgz", matchres::MATCH, 0, -1),
-		// (`(bc+d$|ef*g.|h?i(j|k))`, "ij", matchres::MATCH, 0, -1),
-		// (`(bc+d$|ef*g.|h?i(j|k))`, "effg", matchres::NOMATCH, 0, 0),
-		// (`(bc+d$|ef*g.|h?i(j|k))`, "bcdd", matchres::NOMATCH, 0, 0),
-		// (`(bc+d$|ef*g.|h?i(j|k))`, "reffgz", matchres::MATCH, 0, -1),
-		// (`((((((((((a))))))))))`, "a", matchres::MATCH, 0, -1),
-		// (`(((((((((a)))))))))`, "a", matchres::MATCH, 0, -1),
-		// (`(([a-z]+):)?([a-z]+)$`, "smil", matchres::MATCH, 0, -1),
-		// (`^((a)c)?(ab)$`, "ab", matchres::MATCH, 0, -1),
-		// TODO: multiple simultaneous capture groups
-		// (`(a+|b)*`, "ab", matchres::MATCH, 0, -1),
-		// (`(a+|b){0,}`, "ab", matchres::MATCH, 0, -1),
-		// (`(a+|b)+`, "ab", matchres::MATCH, 0, -1),
-		// (`(a+|b){1,}`, "ab", matchres::MATCH, 0, -1),
-		// (`(a+|b)?`, "ab", matchres::MATCH, 0, -1),
-		// (`(a+|b){0,1}`, "ab", matchres::MATCH, 0, -1),
+		(`((a))`, "abc", matchres::MATCH, 0, 1),
+		(`((a)(b)c)(d)`, "abcd", matchres::MATCH, 0, -1),
+		// TODO: anchor in capture groups
+		//(`(bc+d$|ef*g.|h?i(j|k))`, "effgz", matchres::MATCH, 0, -1),
+		//(`(bc+d$|ef*g.|h?i(j|k))`, "ij", matchres::MATCH, 0, -1),
+		//(`(bc+d$|ef*g.|h?i(j|k))`, "effg", matchres::NOMATCH, 0, 0),
+		//(`(bc+d$|ef*g.|h?i(j|k))`, "bcdd", matchres::NOMATCH, 0, 0),
+		//(`(bc+d$|ef*g.|h?i(j|k))`, "reffgz", matchres::MATCH, 0, -1),
+		(`((((((((((a))))))))))`, "a", matchres::MATCH, 0, -1),
+		(`(((((((((a)))))))))`, "a", matchres::MATCH, 0, -1),
+		(`(([a-z]+):)?([a-z]+)$`, "smil", matchres::MATCH, 0, -1),
+		(`^((a)c)?(ab)$`, "ab", matchres::MATCH, 0, -1),
+		(`(a+|b)*`, "ab", matchres::MATCH, 0, -1),
+		(`(a+|b){0,}`, "ab", matchres::MATCH, 0, -1),
+		(`(a+|b)+`, "ab", matchres::MATCH, 0, -1),
+		(`(a+|b){1,}`, "ab", matchres::MATCH, 0, -1),
+		(`(a+|b)?`, "ab", matchres::MATCH, 0, 1),
+		(`(a+|b){0,1}`, "ab", matchres::MATCH, 0, 1),
 		// NOTE: character sequences not currently supported
 		// (`\0`, "\0", matchres::MATCH, 0, -1),
 		// (`[\0a]`, "\0", matchres::MATCH, 0, -1),
