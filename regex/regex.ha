@@ -238,7 +238,8 @@ export fn compile(expr: str) (regex | error) = {
 	let charsets: []charset = [];
 	let iter = strings::iter(expr);
 	let r_idx = 0z;
-	let jump_idxs: []size = [];
+	let jump_idxs: [][]size = [];
+	append(jump_idxs, []);
 	defer free(jump_idxs);
 	let in_bracket = false;
 	let skip_charclass_rest = false;
@@ -312,17 +313,20 @@ export fn compile(expr: str) (regex | error) = {
 			append(insts, capture_idx: inst_groupstart);
 			group_level += 1;
 			capture_idx += 1;
+			for (len(jump_idxs) < group_level + 1) {
+				append(jump_idxs, []);
+			};
 		case ')' =>
 			if (group_level == 0) {
 				return `Unmatched ')'`: error;
 			};
-			group_level -= 1;
 			append(insts, inst_groupend);
-			for (let jump_idx .. jump_idxs) {
+			for (let jump_idx .. jump_idxs[group_level]) {
 				assert(insts[jump_idx] is inst_jump);
 				insts[jump_idx] = (len(insts) - 1): inst_jump;
 			};
-			delete(jump_idxs[..]);
+			delete(jump_idxs[group_level][..]);
+			group_level -= 1;
 		case '|' =>
 			append(insts, types::SIZE_MAX: inst_jump);
 			const origin = match (find_last_groupstart(insts)) {
@@ -333,11 +337,18 @@ export fn compile(expr: str) (regex | error) = {
 			};
 			const newinst = (len(insts) + 1): inst_split;
 			// add split after last jump (if any) or at origin
-			const split_idx = if (len(jump_idxs) > 0)
-				jump_idxs[len(jump_idxs) - 1] + 1 else origin;
+			const split_idx = if (len(jump_idxs[group_level]) > 0)
+				jump_idxs[group_level][len(jump_idxs[group_level]) - 1] + 1 else origin;
 			insert(insts[split_idx], newinst);
 			shift(insts[split_idx + 1..]);
-			append(jump_idxs, len(insts) - 1);
+			// we have to now fix up all affected jump_idxs, since
+			// we've shifted them over using the insert
+			for (let jump_idx &.. jump_idxs[group_level]) {
+				if (*jump_idx >= split_idx) {
+					*jump_idx += 1;
+				};
+			};
+			append(jump_idxs[group_level], len(insts) - 1);
 			// add skip if it's a whole-expression alternation
 			if (origin == 0) {
 				const peek1 = strings::next(&iter);
@@ -450,7 +461,7 @@ export fn compile(expr: str) (regex | error) = {
 	};
 
 	// handle whole expression alternation
-	for (let jump_idx .. jump_idxs) {
+	for (let jump_idx .. jump_idxs[0]) {
 		assert(insts[jump_idx] is inst_jump);
 		insts[jump_idx] = len(insts): inst_jump;
 	};

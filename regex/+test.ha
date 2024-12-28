@@ -596,6 +596,8 @@ fn run_rawreplace_case(
 		(`ab|^cd`, "bcd", matchres::NOMATCH, 0, 0),
 		(`ab|^cd`, "cde", matchres::MATCH, 0, 2),
 		(`ab\|^cd`, "cde", matchres::ERROR, 0, 0),
+		(`a|(b)`, "a", matchres::MATCH, 0, -1),
+		(`(a|(b?|c*){,1}|d+|e)`, "e", matchres::MATCH, 0, -1),
 		// Multiple alternation
 		(`a|b|c|d|e`, "e", matchres::MATCH, 0, -1),
 		(`a|b|c|d|e`, "xe", matchres::MATCH, 1, -1),
