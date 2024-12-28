@@ -459,6 +459,12 @@ fn run_rawreplace_case(
 		(`foo[-ac]bar`, "foo-bar", matchres::MATCH, 0, 7),
 		(`[ac-]$`, "bde-", matchres::MATCH, 3, 4),
 		(`^[A-Za-z_-]+$`, "foo", matchres::MATCH, 0, 3),
+		// Tests for jump bugs
+		(`ab?c`, "ac", matchres::MATCH, 0, -1),
+		(`ab?c|z`, "ac", matchres::MATCH, 0, -1),
+		(`(ab?c){,1}`, "ac", matchres::MATCH, 0, -1),
+		(`(ab?c)?`, "ac", matchres::MATCH, 0, -1),
+		(`(ab?c)*`, "ac", matchres::MATCH, 0, -1),
 		// Tests from perl
 		(`abc`, "abc", matchres::MATCH, 0, -1),
 		(`abc`, "xbc", matchres::NOMATCH, 0, 0),
