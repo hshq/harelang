@@ -204,7 +204,7 @@ fn run_rawreplace_case(
 
 @test fn find() void = {
 	const cases = [
-		// literals
+		// Literals
 		(`^$`, "", matchres::MATCH, 0, 0),
 		(``, "", matchres::MATCH, 0, -1),
 		(`abcd`, "abcd", matchres::MATCH, 0, -1),
@@ -356,29 +356,29 @@ fn run_rawreplace_case(
 		(`^test[[:upper:]]+$`, "testa", matchres::NOMATCH, 0, -1),
 		(`^test[[:upper:]]+$`, "testA", matchres::MATCH, 0, -1),
 		(`^test[[:xdigit:]]+$`, "testCAFE", matchres::MATCH, 0, -1),
-		// range expressions
+		// Range expressions
 		(`[a-z]+`, "onlylatinletters", matchres::MATCH, 0, -1),
 		(`[x-z]+`, "xyz", matchres::MATCH, 0, -1),
 		(`[x-z]+`, "wxyz", matchres::MATCH, 1, 4),
 		(`[a-e]+`, "-abcdefg", matchres::MATCH, 1, 6),
 		(`[a-z]`, "-1234567890@#$%^&*(!)-+=", matchres::NOMATCH, 0, -1),
 		(`[0-9]+`, "9246", matchres::MATCH, 0, -1),
-		// # Cyrillic
+		// Cyrillic
 		(`[а-я]+`, "кирилица", matchres::MATCH, 0, -1),
 		(`[а-д]`, "е", matchres::NOMATCH, 0, -1),
 		(`[я-ф]`, "-", matchres::ERROR, 0, -1),
 		(`[А-Я]+`, "АБВГд", matchres::MATCH, 0, 4),
-		// because Macedonian uses cyrrilics, the broad range does
+		// Because Macedonian uses Cyrillic, the broad range does
 		// not include special symbols
 		(`[а-ш]+`, "ѓљњќ", matchres::NOMATCH, 0, -1),
-		// # Polish Alphabet
+		// Polish alphabet
 		(`[a-ż]+`, "polskialfabet", matchres::MATCH, 0, -1),
 		(`[a-ż]+`, "źśółęćą", matchres::MATCH, 0, -1),
-		// because Polish alphabet uses Latin with special characters,
-		// other characters can be accepted
+		// Because the Polish alphabet uses Latin with special
+		// characters, other characters can be accepted
 		(`[a-ż]+`, "englishspeak", matchres::MATCH, 0, -1),
 		(`[a-ż]+`, "{|}~", matchres::MATCH, 0, -1),
-		// # Thai Alphabet
+		// Thai alphabet
 		(`[ก-ฮ]+`, "ศอผจข", matchres::MATCH, 0, -1),
 		// [:alpha:] etc. plus extra characters
 		(`^test[[:digit:]][[:alpha:]]$`, "test1a", matchres::MATCH, 0, -1),
@@ -425,7 +425,7 @@ fn run_rawreplace_case(
 		(`^x(abc){-1,2}$`, "xabcabcabc", matchres::ERROR, 0, -1),
 		(`^x(abc){x,2}$`, "xabcabcabc", matchres::ERROR, 0, -1),
 		(`^x(abc){0,-2}$`, "xabcabcabc", matchres::ERROR, 0, -1),
-		// various
+		// Various
 		(
 			`^.(1024)?(face)*(1024)*ca*(f+e?cafe)(babe)+$`,
 			"X1024facefacecaaaaafffcafebabebabe",
@@ -459,7 +459,7 @@ fn run_rawreplace_case(
 		(`foo[-ac]bar`, "foo-bar", matchres::MATCH, 0, 7),
 		(`[ac-]$`, "bde-", matchres::MATCH, 3, 4),
 		(`^[A-Za-z_-]+$`, "foo", matchres::MATCH, 0, 3),
-		// tests from perl
+		// Tests from perl
 		(`abc`, "abc", matchres::MATCH, 0, -1),
 		(`abc`, "xbc", matchres::NOMATCH, 0, 0),
 		(`abc`, "axc", matchres::NOMATCH, 0, 0),
@@ -577,7 +577,7 @@ fn run_rawreplace_case(
 		(`(a|ab)(bcd|c)(d|.*)`, "abcd", matchres::MATCH, 0, -1), // POSIX: (0,4)(0,2)(2,3)(3,4)
 		(`(ab|a)(c|bcd)(d|.*)`, "abcd", matchres::MATCH, 0, -1), // POSIX: (0,4)(0,2)(2,3)(3,4)
 		(`(ab|a)(bcd|c)(d|.*)`, "abcd", matchres::MATCH, 0, -1), // POSIX: (0,4)(0,2)(2,3)(3,4)
-		// whole-expression alternation
+		// Whole-expression alternation
 		(`ab|cd`, "cd", matchres::MATCH, 0, 2),
 		(`ab|cd`, "abc", matchres::MATCH, 0, 2),
 		(`ab|cd`, "abcd", matchres::MATCH, 0, 2),
@@ -590,7 +590,7 @@ fn run_rawreplace_case(
 		(`ab|^cd`, "bcd", matchres::NOMATCH, 0, 0),
 		(`ab|^cd`, "cde", matchres::MATCH, 0, 2),
 		(`ab\|^cd`, "cde", matchres::ERROR, 0, 0),
-		// multiple alternation
+		// Multiple alternation
 		(`a|b|c|d|e`, "e", matchres::MATCH, 0, -1),
 		(`a|b|c|d|e`, "xe", matchres::MATCH, 1, -1),
 		(`(a|b|c|d|e)f`, "ef", matchres::MATCH, 0, -1),
