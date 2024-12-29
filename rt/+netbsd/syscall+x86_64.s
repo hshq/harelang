@@ -79,3 +79,16 @@ rt.syscall6:
 	syscall
 	jc error
 	ret
+
+.section .text.rt.__sigtramp_siginfo_2
+.global rt.__sigtramp_siginfo_2
+rt.__sigtramp_siginfo_2:
+	movq	%r15,%rdi
+	/* $308 = SYS_setcontext */
+	movq	$308, %rax
+	syscall
+	movq	$-1,%rdi
+	/* $1 = SYS_exit */
+	movq	$1, %rax
+	syscall
+	ret

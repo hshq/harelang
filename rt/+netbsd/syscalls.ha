@@ -8,6 +8,7 @@ fn syscall3(u64, u64, u64, u64) u64;
 fn syscall4(u64, u64, u64, u64, u64) u64;
 fn syscall5(u64, u64, u64, u64, u64, u64) u64;
 fn syscall6(u64, u64, u64, u64, u64, u64, u64) u64;
+fn __sigtramp_siginfo_2(u64) u64;
 
 let pathbuf: [PATH_MAX]u8 = [0...];
 
@@ -436,8 +437,10 @@ export fn sigaction(
 	act: *const sigact,
 	old: nullable *sigact,
 ) (int | errno) = {
-	return wrap_return(syscall3(SYS___sigaction_sigtramp,
-		signum: u64, act: uintptr: u64, old: uintptr: u64))?: int;
+	return wrap_return(syscall5(SYS___sigaction_sigtramp,
+		signum: u64, act: uintptr: u64, old: uintptr: u64,
+		&__sigtramp_siginfo_2: uintptr: u64,
+		__SIGTRAMP_SIGINFO_VERSION: u64))?: int;
 };
 
 export fn sigprocmask(
