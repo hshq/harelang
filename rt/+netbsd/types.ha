@@ -658,3 +658,6 @@ export def MOUNT_SHMFS =	MOUNT_TMPFS;
 export def SHMFS_DIR_PATH =	"/var/shm";
 export def SHMFS_DIR_MODE =	(S_ISVTX | S_IRWXU | S_IRWXG | S_IRWXO);
 export def SHMFS_OBJ_PREFIX =	".shmobj_";
+
+// Signal
+export def __SIGTRAMP_SIGINFO_VERSION = 2;

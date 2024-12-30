@@ -14,7 +14,7 @@ use os::exec;
 
 export type haredoc_colors_error = !str;
 
-export type error = !(lex::error | parse::error | doc::error | io::error |
+export type error = !(lex::error | parse::error |  io::error |
 	module::error | exec::error | fs::error | haredoc_colors_error |
 	utf8::invalid);
 
@@ -24,8 +24,6 @@ export fn strerror(err: error) str = {
 		return lex::strerror(err);
 	case let err: parse::error =>
 		return parse::strerror(err);
-	case let err: doc::error =>
-		return doc::strerror(err);
 	case let err: io::error =>
 		return io::strerror(err);
 	case let err: module::error =>
